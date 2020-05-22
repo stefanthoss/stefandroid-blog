@@ -4,4 +4,11 @@ baseurl: ""
 url: "https://blog.stefandroid.com"
 twitter_username: kabelknoten
 github_username: stefanthoss
+
 theme: minima
+
+plugins:
+  - jekyll-feed
+  - jekyll-last-modified-at
+  - jekyll-seo-tag
+  - jekyll-sitemap
