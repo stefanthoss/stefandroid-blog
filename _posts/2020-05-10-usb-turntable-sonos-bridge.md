@@ -94,7 +94,7 @@ After=network.target
 ExecStart=/usr/bin/darkice -c /etc/darkice.cfg
 StandardOutput=inherit
 StandardError=inherit
-Restart=alwaysFirst you need TuneIn added as a music service in your Sonos (TuneIn doesn’t require an account). Then add the Icecast2 stream as a radio station by clicking Radio by TuneIn -> My Radio Stations -> Add New Radio Station. Add the streaming URL http://192.168.1.33:8000/turntable.mp3 and pick a station name like “Turntable”.
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
@@ -109,12 +109,12 @@ sudo service darkice1 status
 
 In the following I assume that your Raspberry Pi has the IP address `192.168.1.33`, replace the IP with yours. Check the Icecast2 server status by visiting <http://192.168.1.33:8000> in your browser.
 
-You can listen to the actual audio stream at <http://192.168.1.33:8000/raspberry.mp3> in your browser. You should be able to hear the music of your turntable.
+You can listen to the actual audio stream at <http://192.168.1.33:8000/turntable.mp3> in your browser. You should be able to hear the music of your turntable.
 
 ## Configure Sonos
 
-First you need TuneIn added as a music service in your Sonos (TuneIn doesn't require an account). Then add the Icecast2 stream as a radio station by clicking **Radio by TuneIn** -> **My Radio Stations** -> **Add New Radio Station**. Add the streaming URL <http://192.168.1.33:8000/turntable.mp3> and pick a station name like "Turntable".
+First you need TuneIn added as a music service in your Sonos (TuneIn doesn't require an account). Then add the Icecast2 stream as a radio station by clicking **Radio by TuneIn** → **My Radio Stations** → **Add New Radio Station**. Add the streaming URL <http://192.168.1.33:8000/turntable.mp3> and pick a station name like "Turntable".
 
-Play the new radio station at **Radio by TuneIn** -> **My Radio Stations** -> **Turntable**. There is unfortunately no autoplay as you would have with a Sonos line-in device.
+Play the new radio station at **Radio by TuneIn** → **My Radio Stations** → **Turntable**. There is unfortunately no autoplay as you would have with a Sonos line-in device.
 
 More detailed instructions can be found in [Sonos' support page](https://support.sonos.com/s/article/260?language=en_US).
