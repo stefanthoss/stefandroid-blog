@@ -8,6 +8,9 @@ google_site_verification: IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs
 theme: minima
 show_excerpts: true
 
+header_pages:
+  - about.md
+
 plugins:
   - jekyll-feed
   - jekyll-last-modified-at
