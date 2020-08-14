@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "How to play music from a USB turntable on Sonos using a Raspberry Pi"
+title: "Play music from a USB turntable on Sonos using a Raspberry Pi"
 tags: raspberrypi music
 ---
 
