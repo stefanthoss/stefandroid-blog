@@ -1,11 +1,12 @@
 ---
 layout: post
-title: "Collect system metrics with Netdata/InfluxDB from multiple Raspberry Pis"
+title: "Collect metrics with Netdata/InfluxDB from multiple Raspberry Pis"
 tags: raspberrypi server linux
 ---
 
 To collect metrics from multiple Raspberry Pis or other Linux servers in a central location, the
-Netdata/InfluxDB/Grafana stack is a good solution.
+Netdata/InfluxDB/Grafana stack is a good solution. Netdata will collect the actual metrics and send them to a central
+InfluxDB instance. A Grafana dashboard will display the metrics.
 
 A central InfluxDB and Grafana instance should be installed and available at `192.168.1.18`. Activate the
 [OpenTSDB protocol support in InfluxDB](https://docs.influxdata.com/influxdb/v1.8/administration/config/#opentsdb-settings)
@@ -29,7 +30,16 @@ approximately 30 minutes to finish on a Raspberry Pi 2. For other systems check 
 
 ## Configuration
 
-Add the following config to the `/usr/lib/netdata/conf.d/exporting.conf` file:
+Tip: If you want to use `nano` for editing the configuration files, execute `export EDITOR=nano` first.
+
+Use
+
+```shell
+cd /etc/netdata
+sudo ./edit-config exporting.conf
+```
+
+to add the lines
 
 ```
 [opentsdb:my_instance]
@@ -37,17 +47,21 @@ Add the following config to the `/usr/lib/netdata/conf.d/exporting.conf` file:
     destination = 192.168.1.18:4242
 ```
 
-This will forward all Netdata metrics via the OpenTSDB protocol to your InfluxDB instance. Check the
-[Netdata documentation](https://learn.netdata.cloud/docs/agent/exporting/opentsdb) for more details about the OpenTSDB exporter.
+to the `exporting.conf` file (change the IP address to point to your InfluxDB). This will forward all Netdata metrics
+via the OpenTSDB protocol to your InfluxDB instance. Check the
+[Netdata documentation](https://learn.netdata.cloud/docs/agent/exporting/opentsdb) for more details about the OpenTSDB
+exporter.
 
 Optionally, you can also disable the integrated [Netdata web server](https://learn.netdata.cloud/docs/agent/web/server)
 that usually serves the Netdata UI via HTTP on port 19999. You will check the metrics through Grafana and this will save
-some system resources. Disable the web server by setting the following config in `/etc/netdata/netdata.conf`:
+some system resources. Disable the web server by editing the `netdata.conf` file. Use
 
+```shell
+cd /etc/netdata
+sudo ./edit-config netdata.conf
 ```
-[web]
-    mode = none
-```
+
+to set `mode = none` in the `[web]` section.
 
 Restart the Netdata client with `sudo service netdata restart` and start collecting metrics!
 
