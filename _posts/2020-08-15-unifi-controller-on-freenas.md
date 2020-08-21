@@ -17,7 +17,7 @@ change them if you know what you're doing. Make sure you activate auto-start. On
 **Shell** button to enter the Jail's shell. Then install the `unifi5` package:
 
 ```shell
-pkg_upgrade
+pkg upgrade
 pkg install unifi5
 ```
 
