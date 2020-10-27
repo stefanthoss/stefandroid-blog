@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'github-pages'
+gem 'jekyll', '~>4.1.1'
 gem 'jekyll-feed'
 gem 'jekyll-last-modified-at'
 gem 'jekyll-seo-tag'
