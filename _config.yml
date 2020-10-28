@@ -1,5 +1,5 @@
 title: Stefandroid Blog
-author: Stefan
+author: Stefan Thoss
 description: This is Stefan's tech blog.
 url: "https://blog.stefandroid.com"
 twitter_username: kabelknoten
@@ -10,7 +10,7 @@ show_excerpts: true
 minima:
   social_links:
     twitter: kabelknoten
-    github:  stefanthoss
+    github: stefanthoss
 
 header_pages:
   - about.md
