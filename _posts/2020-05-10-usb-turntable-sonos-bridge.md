@@ -12,9 +12,8 @@ turntable or USB soundcard.
 
 The first step is to setup Raspbian on a headless Raspberry Pi. Download the Raspbian Lite image without a desktop and
 install it as described in the [official installation instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md).
-Then [configure Wi-Fi
-without display and keyboard](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md) and
-[enable SSH](https://www.raspberrypi.org/documentation/remote-access/ssh). After that, check the Raspberry Pi's IP
+Then [configure Wi-Fi without display and keyboard](https://www.raspberrypi.org/documentation/configuration/wireless/headless.md)
+and [enable SSH](https://www.raspberrypi.org/documentation/remote-access/ssh). After that, check the Raspberry Pi's IP
 address on our router and connect via SSH. Update the system and don't forget to change the default password.
 
 While connected to the Raspberry Pi, connect the turntable via USB. With `dmesg` you should see that the turntable gets
