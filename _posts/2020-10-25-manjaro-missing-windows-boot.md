@@ -9,7 +9,7 @@ After a Manjaro Kernel upgrade the Windows 10 entry in GRUB disappears sometimes
 This can easily be fixed with `update-grub`. This command will generate a new GRUB configuration file that will include
 the GRUB entry for the Windows boot manager. The command has to be executed as root:
 
-```
+```text
 $ sudo update-grub
 Generating grub configuration file ...
 Found theme: /usr/share/grub/themes/manjaro/theme.txt
