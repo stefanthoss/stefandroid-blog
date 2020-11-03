@@ -20,7 +20,7 @@ address on our router and connect via SSH. Update the system and don't forget to
 While connected to the Raspberry Pi, connect the turntable via USB. With `dmesg` you should see that the turntable gets
 recognized as a new audio device:
 
-```
+```text
 [  109.913070] usb 1-1.5: new full-speed USB device number 5 using dwc_otg
 [  110.065147] usb 1-1.5: New USB device found, idVendor=08bb, idProduct=29c0, bcdDevice= 1.00
 [  110.065165] usb 1-1.5: New USB device strings: Mfr=1, Product=2, SerialNumber=0
@@ -35,7 +35,7 @@ USB AUDIO  CODEC] on usb-3f980000.usb-1.5/input3
 
 Identify the device number with `arecord -l`. The output should look like
 
-```
+```text
 **** List of CAPTURE Hardware Devices ****
 card 1: CODEC [USB AUDIO  CODEC], device 0: USB Audio [USB Audio]
   Subdevices: 1/1
@@ -58,7 +58,7 @@ and enter relay and administration passwords.
 
 Using superuser privileges, create the DarkIce configuration file `/etc/darkice.cfg` with the following contents:
 
-```
+```ini
 [general]
 duration        = 0             # 0 = forever
 bufferSecs      = 1             # buffer in seconds
@@ -70,7 +70,7 @@ device          = plughw:1,0    # Soundcard device for the audio input
 sampleRate      = 44100         # 44.1 kHz sample rate
 bitsPerSample   = 16            # 16 bits
 channel         = 2             # 2 = stereo
- 
+
 [icecast2-0]
 bitrateMode     = cbr           # cbr = constant bit rate
 format          = mp3
@@ -97,7 +97,7 @@ sudo service icecast2 start
 
 Create the file `/etc/systemd/system/darkice1.service` using superuser privileges:
 
-```
+```ini
 [Unit]
 Description=DarkIce audio streamer
 After=network.target
