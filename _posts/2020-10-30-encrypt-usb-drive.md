@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Encrypt a USB drive under Linux"
+title: "Encrypt a USB drive with basic Linux tools"
 tags: linux encryption
 ---
 
@@ -43,7 +43,7 @@ First we initialize a new LUKS partition on the disk. You will be asked twice fo
 sudo cryptsetup luksFormat --type luks2 /dev/sdb
 ```
 
-After that we will open the newly created LUKS partition using the mapped device `backupDrive` (opening the LUKS partition will ask you for the passphrase you just set). This mapping name can be any identifier for this disk which is especially helpful if you want to mount multiple LUKS encrypted partitions at the same time.
+After that we will open the newly created LUKS partition using the mapped device `backupDrive` (opening the LUKS partition will ask you for the passphrase you just set). This mapping name can be any identifier for this disk which is helpful in identifying multiple LUKS encrypted partitions.
 
 ```shell
 sudo cryptsetup luksOpen /dev/sdb backupDrive
@@ -51,7 +51,7 @@ sudo cryptsetup luksOpen /dev/sdb backupDrive
 
 With `--luks2` we specific to use LUKS2, the newer implementation of LUKS. By default the `aes-xts-plain64` cipher with a 512 bit key is used.
 
-The mapped block device will then be available at `/dev/mapper/backupDrive` based on the mapping name `backupDrive`.  You can check the status of the mapped device with
+The mapped block device will then be available at `/dev/mapper/backupDrive` based on the mapping name `backupDrive`. You can check the status of the mapped device with
 
 ```shell
 sudo cryptsetup -v status backupDrive
@@ -112,8 +112,7 @@ Filesystem               Size  Used Avail Use% Mounted on
 
 ## Usage
 
-Use the following commands after the setup is completed.
-
+Use the following commands to use the encrypted drive after above setup is completed.
 
 ### Mounting
 
