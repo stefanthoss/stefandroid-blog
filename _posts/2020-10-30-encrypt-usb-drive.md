@@ -24,7 +24,7 @@ Then identify the disk you want to encrypt using `fdisk`:
 sudo fdisk -l
 ```
 
-In this example we will be using the 6 TB disk at `/dev/sdb` (make sure to replace `/dev/sdb` with your disk going forward):
+In this example we will be using a 6 TB disk at `/dev/sdb` (make sure to replace `/dev/sdb` with your disk going forward):
 
 ```
 Disk /dev/sdb: 5.46 TiB, 6001175126016 bytes, 11721045168 sectors
@@ -36,9 +36,99 @@ I/O size (minimum/optimal): 4096 bytes / 4096 bytes
 
 ## Setup
 
-First we initialize a new LUKS partition on the disk. This will ask you for the password that you want to set. After that we will open this new LUKS partition using the mapping `backupDrive` (opening the LUKS partition will ask you for the password you just set). This mapping name can be any identifier for this disk which is especially helpful if you want to mount multiple LUKS encrypted partitions at the same time.
+First we initialize a new LUKS partition on the disk. You will be asked twice for the encryption passphrase. **This will delete all data on the disk.**
+
 
 ```shell
 sudo cryptsetup luksFormat --type luks2 /dev/sdb
+```
+
+After that we will open the newly created LUKS partition using the mapped device `backupDrive` (opening the LUKS partition will ask you for the passphrase you just set). This mapping name can be any identifier for this disk which is especially helpful if you want to mount multiple LUKS encrypted partitions at the same time.
+
+```shell
 sudo cryptsetup luksOpen /dev/sdb backupDrive
+```
+
+With `--luks2` we specific to use LUKS2, the newer implementation of LUKS. By default the `aes-xts-plain64` cipher with a 512 bit key is used.
+
+The mapped block device will then be available at `/dev/mapper/backupDrive` based on the mapping name `backupDrive`.  You can check the status of the mapped device with
+
+```shell
+sudo cryptsetup -v status backupDrive
+```
+
+which will list information about the block device and the encryption cipher. Example output:
+
+```
+/dev/mapper/backupDrive is active.
+  type:    LUKS2
+  cipher:  aes-xts-plain64
+  keysize: 512 bits
+  key location: keyring
+  device:  /dev/sdb
+  sector size:  512
+  offset:  32768 sectors
+  size:    11721012400 sectors
+  mode:    read/write
+Command successful.
+```
+
+The next step is to create a filesystem in the mapped block device `/dev/mapper/backupDrive`:
+
+```shell
+sudo mkfs -t ext4 -V /dev/mapper/backupDrive
+```
+
+The output will look something like this:
+
+```
+mkfs from util-linux 2.36
+mkfs.ext4 /dev/mapper/backupDrive
+mke2fs 1.45.6 (20-Mar-2020)
+Creating filesystem with 1465126550 4k blocks and 183144448 inodes
+Filesystem UUID: 84326f68-6842-415e-a04b-7a3ec7e81893
+Superblock backups stored on blocks: 
+        ...
+
+Allocating group tables: done                            
+Writing inode tables: done                            
+Creating journal (262144 blocks): done
+Writing superblocks and filesystem accounting information: done
+```
+
+The device can now be mounted at `/mnt/backupDrive` and the disk usage can be listed with `df`:
+
+```shell
+sudo mount /dev/mapper/backupDrive /mnt/backupDrive
+df -h
+```
+
+```
+Filesystem               Size  Used Avail Use% Mounted on
+...
+/dev/mapper/backupDrive  5.5T   89M  5.2T   1% /mnt/backupDrive
+...
+```
+
+## Usage
+
+Use the following commands after the setup is completed.
+
+
+### Mounting
+
+Open/decrypt the LUKS partition `/dev/sdb` and mount the block device `/dev/mapper/backupDrive`:
+
+```shell
+sudo cryptsetup luksOpen /dev/sdb backupDrive
+sudo mount /dev/mapper/backupDrive /mnt/backupDrive
+```
+
+### Unmounting
+
+Unmount the block device and close the LUKS partition:
+
+```shell
+sudo umount /mnt/backupDrive
+sudo cryptsetup luksClose backupDrive
 ```
