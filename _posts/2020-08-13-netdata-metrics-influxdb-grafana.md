@@ -41,7 +41,7 @@ sudo ./edit-config exporting.conf
 
 to add the lines
 
-```
+```ini
 [opentsdb:my_instance]
     enabled = yes
     destination = 192.168.1.18:4242
