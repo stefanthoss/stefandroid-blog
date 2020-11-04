@@ -4,7 +4,10 @@ title: "Encrypt a USB drive with basic Linux tools"
 tags: linux encryption
 ---
 
-For backups or storage of your personal data on a removable USB drive you should encrypt the drive so that nobody except for yourself can access that data. This is especially important for removable drives because they can more easily get lost or stolen. In this guide I use Linux Unified Key Setup (LUKS) for the disk encryption. This is supported by pretty much any modern Linux system so it's easy to take your drive to a different computer and access the encrypted data.
+For backups or storage of your personal data on a removable USB drive you should encrypt the drive so that nobody except
+for yourself can access that data. This is especially important for removable drives because they can more easily get
+lost or stolen. In this guide I use Linux Unified Key Setup (LUKS) for the disk encryption. This is supported by pretty
+much any modern Linux system so it's easy to take your drive to a different computer and access the encrypted data.
 
 ## Preparation
 
@@ -24,9 +27,10 @@ Then identify the disk you want to encrypt using `fdisk`:
 sudo fdisk -l
 ```
 
-In this example we will be using a 6 TB disk at `/dev/sdb` (make sure to replace `/dev/sdb` with your disk going forward):
+In this example we will be using a 6 TB disk at `/dev/sdb` (make sure to replace `/dev/sdb` with your disk going
+forward):
 
-```
+```text
 Disk /dev/sdb: 5.46 TiB, 6001175126016 bytes, 11721045168 sectors
 Disk model: 001-2BB186
 Units: sectors of 1 * 512 = 512 bytes
@@ -36,22 +40,27 @@ I/O size (minimum/optimal): 4096 bytes / 4096 bytes
 
 ## Setup
 
-First we initialize a new LUKS partition on the disk. You will be asked twice for the encryption passphrase. **This will delete all data on the disk.**
+First we initialize a new LUKS partition on the disk. You will be asked twice for the encryption passphrase. **This will
+delete all data on the disk.**
 
 
 ```shell
 sudo cryptsetup luksFormat --type luks2 /dev/sdb
 ```
 
-After that we will open the newly created LUKS partition using the mapped device `backupDrive` (opening the LUKS partition will ask you for the passphrase you just set). This mapping name can be any identifier for this disk which is helpful in identifying multiple LUKS encrypted partitions.
+After that we will open the newly created LUKS partition using the mapped device `backupDrive` (opening the LUKS
+partition will ask you for the passphrase you just set). This mapping name can be any identifier for this disk which is
+helpful in identifying multiple LUKS encrypted partitions.
 
 ```shell
 sudo cryptsetup luksOpen /dev/sdb backupDrive
 ```
 
-With `--luks2` we specific to use LUKS2, the newer implementation of LUKS. By default the `aes-xts-plain64` cipher with a 512 bit key is used.
+With `--luks2` we specific to use LUKS2, the newer implementation of LUKS. By default the `aes-xts-plain64` cipher with
+a 512 bit key is used.
 
-The mapped block device will then be available at `/dev/mapper/backupDrive` based on the mapping name `backupDrive`. You can check the status of the mapped device with
+The mapped block device will then be available at `/dev/mapper/backupDrive` based on the mapping name `backupDrive`. You
+can check the status of the mapped device with
 
 ```shell
 sudo cryptsetup -v status backupDrive
@@ -59,7 +68,7 @@ sudo cryptsetup -v status backupDrive
 
 which will list information about the block device and the encryption cipher. Example output:
 
-```
+```text
 /dev/mapper/backupDrive is active.
   type:    LUKS2
   cipher:  aes-xts-plain64
@@ -81,7 +90,7 @@ sudo mkfs -t ext4 -V /dev/mapper/backupDrive
 
 The output will look something like this:
 
-```
+```text
 mkfs from util-linux 2.36
 mkfs.ext4 /dev/mapper/backupDrive
 mke2fs 1.45.6 (20-Mar-2020)
@@ -103,7 +112,7 @@ sudo mount /dev/mapper/backupDrive /mnt/backupDrive
 df -h
 ```
 
-```
+```text
 Filesystem               Size  Used Avail Use% Mounted on
 ...
 /dev/mapper/backupDrive  5.5T   89M  5.2T   1% /mnt/backupDrive
