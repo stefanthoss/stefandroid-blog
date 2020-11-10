@@ -43,7 +43,6 @@ I/O size (minimum/optimal): 4096 bytes / 4096 bytes
 First we initialize a new LUKS partition on the disk. You will be asked twice for the encryption passphrase. **This will
 delete all data on the disk.**
 
-
 ```shell
 sudo cryptsetup luksFormat --type luks2 /dev/sdb
 ```
@@ -96,11 +95,11 @@ mkfs.ext4 /dev/mapper/backupDrive
 mke2fs 1.45.6 (20-Mar-2020)
 Creating filesystem with 1465126550 4k blocks and 183144448 inodes
 Filesystem UUID: 84326f68-6842-415e-a04b-7a3ec7e81893
-Superblock backups stored on blocks: 
+Superblock backups stored on blocks:
         ...
 
-Allocating group tables: done                            
-Writing inode tables: done                            
+Allocating group tables: done
+Writing inode tables: done
 Creating journal (262144 blocks): done
 Writing superblocks and filesystem accounting information: done
 ```
