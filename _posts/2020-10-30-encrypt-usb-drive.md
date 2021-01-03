@@ -1,13 +1,14 @@
 ---
 layout: post
-title: "Encrypt a USB drive with basic Linux tools"
+title: "Encrypt a USB drive with LUKS"
 tags: linux encryption
 ---
 
-For backups or storage of your personal data on a removable USB drive you should encrypt the drive so that nobody except
-for yourself can access that data. This is especially important for removable drives because they can more easily get
-lost or stolen. In this guide I use Linux Unified Key Setup (LUKS) for the disk encryption. This is supported by pretty
-much any modern Linux system so it's easy to take your drive to a different computer and access the encrypted data.
+It's important to backup your data. The backup is ideally stored on an encrypted drive so that nobody except for
+yourself can access your data. This is especially important for removable USB drives because they can more easily
+get lost or stolen. In this guide I use Linux Unified Key Setup (LUKS) for encrypting a hard drive (which can be an
+external USB drive but also an internal drive). This is supported by pretty much any modern Linux system so it's easy to
+take your drive to a different computer and access the encrypted data.
 
 ## Preparation
 
@@ -41,7 +42,8 @@ I/O size (minimum/optimal): 4096 bytes / 4096 bytes
 ## Setup
 
 First we initialize a new LUKS partition on the disk. You will be asked twice for the encryption passphrase. **This will
-delete all data on the disk.**
+delete all data on the disk.** With `--type luks2` we specific to use LUKS2, the newer implementation of LUKS. By
+default the `aes-xts-plain64` cipher with a 512 bit key is used.
 
 ```shell
 sudo cryptsetup luksFormat --type luks2 /dev/sdb
@@ -54,9 +56,6 @@ helpful in identifying multiple LUKS encrypted partitions.
 ```shell
 sudo cryptsetup luksOpen /dev/sdb backupDrive
 ```
-
-With `--luks2` we specific to use LUKS2, the newer implementation of LUKS. By default the `aes-xts-plain64` cipher with
-a 512 bit key is used.
 
 The mapped block device will then be available at `/dev/mapper/backupDrive` based on the mapping name `backupDrive`. You
 can check the status of the mapped device with
@@ -117,6 +116,10 @@ Filesystem               Size  Used Avail Use% Mounted on
 /dev/mapper/backupDrive  5.5T   89M  5.2T   1% /mnt/backupDrive
 ...
 ```
+
+You can now copy data to `/mnt/backupDrive`. Don't forget to unmount before removing the drive. It's a good idea to
+practice mounting and unmounting before using the drive - if decrypting the LUKS partition doesn't work the data is
+lost!
 
 ## Usage
 
