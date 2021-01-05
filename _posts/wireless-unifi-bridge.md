@@ -6,14 +6,33 @@ tags: networking server linux
 
 If you have two areas of wired networking that need to be bridged with a wireless uplink, this can easily be done with Unifi. This
 is a good solution if you live in an apartment where you can't run wires between rooms. The setup is quite straight-forward and I
-was able to achieve speeds around 460 Mbit/s in both directions which is far from wired speeds but still pretty good for most use cases.
+was able to achieve speeds around 460 Mbit/s in both directions. This is far from speeds through wires cabling but still
+pretty good for most use cases.
 
 ## Setup
 
-Server (IP 192.168.10.1): pfSense 2.4.5 router with iPerf 3.7
-Client: Debian 10 server with iPerf 3.6
+I have two UniFi switches with an access point each as shown in this diagram:
 
-I'm using [iPerf3](https://iperf.fr/) to measure connection speeds. For the tests I chose 30 seconds as the test doration and 4 parallel client streams since the pfSense hardware has 4 cores and I want to maximize throughput. 
+![Wireless Uplink Bridge with UniFi](/assets/images/wireless-unifi-bridge.png)
+
+I'm using a UniFi Switch 16 PoE and a UniFi Switch Lite 16 PoE for the two switches and FlexHD and nanoHD access points.
+This should work with any UniFi product though. Ubiquiti has a good article that explains how to
+[configure a wireless uplink](https://help.ui.com/hc/en-us/articles/115002262328-UniFi-Configuring-a-Wireless-Uplink).
+What they don't explicitly mention is that you can connect additional switches and devices to the Ethernet port of the
+uplinked access point.
+
+Once the setup is completed, the access point with the wireless uplink should be listed as *Connected|Wireless* in the
+UniFi Controller:
+
+![Wireless Uplink in UniFi Controller](/assets/images/unifi-devices-wireless-connected.png)
+
+For speed tests I'm using the following two devices:
+
+* Server (IP 192.168.10.1): pfSense 2.4.5 router with iPerf 3.7
+* Client: Debian 10 server with iPerf 3.6
+
+I'm using [iPerf3](https://iperf.fr/) to measure connection speeds. For the tests I chose 30 seconds as the test duration and 4 parallel client streams since the pfSense hardware has 4 cores and I want to maximize throughput. I tested the throughput in two scenarios:
+Only one wall between the two access points and multiple walls between the two access points.
 
 ## One Wall
 
