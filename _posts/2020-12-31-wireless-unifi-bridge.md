@@ -4,10 +4,10 @@ title: "Bridge UniFi Switches with Wireless Uplink"
 tags: networking server linux
 ---
 
-If you have two areas of wired networking that need to be bridged with a wireless connection, this can easily be done with Unifi. This
-is a good solution if you live in a place where you can't run wires between rooms. The setup is quite straight-forward and I
-was able to achieve speeds around 460 Mbit/s in both upload and download. This is far from wired speeds but still
-pretty good for most use cases.
+You can use UniFi networking gear to bridge two areas of wired networking with a wireless connection. This
+is a good solution if you live in a home where you can't run wires between rooms. The setup is relatively straight-forward and I
+was able to achieve a throughput of 370 to 460 Mbit/s for both upload and download. This is far from wired throughput but still
+pretty good for a lot of use cases.
 
 ## Setup
 
@@ -15,14 +15,17 @@ I have two UniFi switches that each have an access point connected:
 
 ![Wireless Uplink Bridge with UniFi](/assets/images/wireless-unifi-bridge.png)
 
-I'm using a UniFi Switch 16 PoE and a UniFi Switch Lite 16 PoE and FlexHD / nanoHD access points.
-This should work with any UniFi products though. Ubiquiti has a good article that explains how to
-[configure a wireless uplink](https://help.ui.com/hc/en-us/articles/115002262328-UniFi-Configuring-a-Wireless-Uplink).
-The Ubiquity guide explains this with the example of building a wireless mesh network.
-What they don't explicitly mention is that you can connect additional switches and devices to the Ethernet port of the
-uplinked access point.
+I'm using
 
-*Note*: For this to work, first make sure that the "Enable wireless uplink" setting under "Services" in the "Site" section of the UniFi controller is enabled. Additionally, the "Enable Meshing" option in the "Radios" section of each access point should be
+* a UniFi Switch 16 PoE and a UniFi Switch Lite 16 PoE,
+* a UniFi FlexHD and a UniFi nanoHD,
+* a UniFi Controller 6.0
+
+This should work with any other currently supported UniFi switch/access point. Ubiquiti has a good guide that explains how to
+[configure a wireless uplink](https://help.ui.com/hc/en-us/articles/115002262328-UniFi-Configuring-a-Wireless-Uplink).
+The guide explains this with the example of building a wireless mesh network. It does not explicitly mention that you can connect additional switches and devices to the Ethernet port of the uplinked access point but this definitely works.
+
+*Note*: For this to work, make sure that the "Enable wireless uplink" setting under "Services" in the "Site" section of the UniFi controller is enabled. Additionally, the "Enable Meshing" option in the "Radios" section of each access point should be
 enabled as well.
 
 Once the setup is completed, the access point with the wireless uplink should be listed as *Connected|Wireless* in the
@@ -32,18 +35,18 @@ UniFi Controller:
 
 ## Speed Tests
 
-I'm using [iPerf3](https://iperf.fr/) to measure connection speeds. For the tests I chose 30 seconds as the test duration and 4 parallel client streams since the pfSense hardware has 4 cores and I want to maximize throughput. I tested the throughput in two scenarios:
-Only one wall between the two access points and multiple walls between the two access points.
+I'm using [iPerf3](https://iperf.fr/) to measure network throughput. For the tests I chose 30 seconds as the test duration and 4 parallel client streams since my server has 4 cores and I want to maximize throughput. I tested the throughput in two scenarios, only one wall between the two access points and more obstructions between the two access points.
 
-In my setup I'm testing with the following two devices:
+I'm testing with the following two devices:
 
 * Server: pfSense 2.4.5 router with iPerf 3.7 (IP 192.168.10.1)
 * Client: Debian 10 server with iPerf 3.6
 
 ## One Wall
 
-In the first test setup the two access points are roughly ??? feet apart and separated by one indoor wall. The connection
-reaches 460 Mbit/s throughput for both upload and download. That is roughly half of what a wired Gigabit connection provides
+In the first test setup the two access points are roughly 40 ft / 12 m apart, on the same floor, and separated by one
+interior (wood frame) wall. The throughput
+is roughly 460 Mbit/s for both upload and download. That is roughly half of what a wired Gigabit connection provides
 but still enough for most home networking use cases and the average residential Internet connection. You probably don't
 want to use this to connect your homelab servers with each other but as a connection to your modem it should be sufficient.
 
@@ -91,11 +94,11 @@ Results:
 [SUM]   0.00-30.00  sec  1.59 GBytes   456 Mbits/sec                  receiver
 ```
 
-## Many Walls
+## More Obstructions
 
-In the second test setup the two access points are roughly ??? feet apart and separated by multiple walls and a stair
-case. The connection speeds drop to 370 Mbit/s for the client upload which is roughly 20% less. I expect the wireless
-uplink connection to drop even more if you try to cover multiple floors.
+In the second test setup the two access points are roughly 30 ft / 9 m apart, on the same floor, and separated by 3 interior
+(wood frame) walls and a staircase. The throughput drops by 10 - 20%. Even though I haven't tested it, I would expect the
+wireless throughput to drop even more if you try to cover multiple floors or have concrete walls.
 
 ### Client to Server (Client Upload Speed)
 
