@@ -54,7 +54,7 @@ what a wired Gigabit connection provides but still enough for most home networki
 Internet connection. You probably don't want to use this to connect your homelab servers to each other but as a
 connection to your modem it should be sufficient.
 
-### Client to Server (Client Upload Speed)
+### One Wall - Client Upload Speed
 
 ```bash
 iperf3 -c 192.168.10.1 -f m -P 4 -t 30
@@ -76,7 +76,7 @@ Results:
 [SUM]   0.00-30.02  sec  1.61 GBytes   460 Mbits/sec                  receiver
 ```
 
-### Server to Client (Client Download Speed)
+### One Wall - Client Download Speed
 
 ```bash
 iperf3 -c 192.168.10.1 -f m -P 4 -t 30 -R
@@ -106,7 +106,7 @@ major impact on the throughput. If you can arrange the access points in a way to
 between, your throughput will likely benefit from it. I assume that multiple floor or concrete walls have an even
 greater impact.
 
-### Client to Server (Client Upload Speed)
+### More Obstruction - Client Upload Speed
 
 ```bash
 iperf3 -c 192.168.10.1 -f m -P 4 -t 30
@@ -128,7 +128,7 @@ Results:
 [SUM]   0.00-30.02  sec  1.28 GBytes   367 Mbits/sec                  receiver
 ```
 
-### Server to Client (Client Download Speed)
+### More Obstruction - Client Download Speed
 
 ```bash
 iperf3 -c 192.168.10.1 -f m -P 4 -t 30 -R
