@@ -28,11 +28,11 @@ Then identify the disk you want to encrypt using `fdisk`:
 sudo fdisk -l
 ```
 
-In this example we will be using a 6 TB disk at `/dev/sdb` (make sure to replace `/dev/sdb` with your disk going
+In this example we will be using a 6 TB disk at `/dev/sdx` (make sure to replace `/dev/sdx` with your disk going
 forward):
 
 ```text
-Disk /dev/sdb: 5.46 TiB, 6001175126016 bytes, 11721045168 sectors
+Disk /dev/sdx: 5.46 TiB, 6001175126016 bytes, 11721045168 sectors
 Disk model: 001-2BB186
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 4096 bytes
@@ -46,19 +46,19 @@ delete all data on the disk.** With `--type luks2` we specify to use LUKS2, the 
 default, the `aes-xts-plain64` cipher with a 512 bit key is used.
 
 ```shell
-sudo cryptsetup luksFormat --type luks2 /dev/sdb
+sudo cryptsetup luksFormat --type luks2 /dev/sdx
 ```
 
 After that we will open the newly created LUKS partition using the mapped device `backupDrive` (opening the LUKS
-partition will ask you for the passphrase you just set). This mapping name can be any identifier for this disk which is
-helpful in identifying multiple LUKS encrypted partitions.
+partition will ask you for the passphrase you just set). You can change the mapping name `backupDrive` to anything you
+want for this disk. Use something unique in case you want to mount multiple LUKS encrypted partitions at the same time.
 
 ```shell
-sudo cryptsetup luksOpen /dev/sdb backupDrive
+sudo cryptsetup luksOpen /dev/sdx backupDrive
 ```
 
-The mapped block device will then be available at `/dev/mapper/backupDrive` based on the mapping name `backupDrive`. You
-can check the status of the mapped device with
+The mapped block device will then be available at `/dev/mapper/backupDrive`. You can check the status of the mapped
+device with
 
 ```shell
 sudo cryptsetup -v status backupDrive
@@ -72,7 +72,7 @@ which will list information about the block device and the encryption cipher. Ex
   cipher:  aes-xts-plain64
   keysize: 512 bits
   key location: keyring
-  device:  /dev/sdb
+  device:  /dev/sdx
   sector size:  512
   offset:  32768 sectors
   size:    11721012400 sectors
@@ -118,8 +118,8 @@ Filesystem               Size  Used Avail Use% Mounted on
 ```
 
 You can now copy data to `/mnt/backupDrive`. Don't forget to unmount before removing the drive. It's a good idea to
-practice mounting and unmounting before using the drive - if decrypting the LUKS partition doesn't work the data is
-lost!
+practice mounting and unmounting before using the drive with valuable data - if decrypting the LUKS partition doesn't
+work the data is lost forever!
 
 ## Usage
 
@@ -127,10 +127,10 @@ Use the following commands to use the encrypted drive after the above setup is c
 
 ### Mounting
 
-Open/decrypt the LUKS partition `/dev/sdb` and mount the block device `/dev/mapper/backupDrive`:
+Open/decrypt the LUKS partition `/dev/sdx` and mount the block device `/dev/mapper/backupDrive`:
 
 ```shell
-sudo cryptsetup luksOpen /dev/sdb backupDrive
+sudo cryptsetup luksOpen /dev/sdx backupDrive
 sudo mount /dev/mapper/backupDrive /mnt/backupDrive
 ```
 
