@@ -6,8 +6,8 @@ tags: networking server linux
 
 You can use UniFi networking gear to bridge two areas of wired networking with a wireless connection. This is a good
 solution if you live in a home where you can't run wires between rooms. The setup is relatively straight-forward and I
-was able to achieve a throughput of 370 to 460 Mbit/s for both upload and download. This is far from wired throughput
-but still pretty good for a lot of use cases.Summmer
+was able to achieve a throughput of 360 to 460 Mbit/s for both upload and download. This is far from wired throughput
+but still pretty good for a lot of use cases.
 
 ## Setup
 
@@ -101,10 +101,10 @@ Results:
 ## More Obstruction
 
 In the second scenario the two access points are roughly 30 ft / 9 m apart, on the same floor, and separated by 3
-interior (wood frame) walls and a staircase. The throughput drops by 10 - 20%. As expected, obstructions like walls have
-major impact on the throughput. If you can arrange the access points in a way to minimize the number of walls in
-between, your throughput will likely benefit from it. I assume that multiple floor or concrete walls have an even
-greater impact.
+interior (wood frame) walls and a staircase. The throughput drops by roughly 20% to 365 Mbit/s. As expected,
+obstructions like walls have major impact on the throughput. If you can arrange the access points in a way to minimize
+the number of walls in between, your throughput will likely benefit from it. I assume that multiple floor or concrete
+walls have an even greater impact.
 
 ### More Obstruction - Client Upload Speed
 
@@ -138,14 +138,14 @@ Results:
 
 ```text
 [ ID] Interval           Transfer     Bitrate         Retr
-[  5]   0.00-30.01  sec   431 MBytes   121 Mbits/sec  375             sender
-[  5]   0.00-30.00  sec   430 MBytes   120 Mbits/sec                  receiver
-[  7]   0.00-30.01  sec   295 MBytes  82.5 Mbits/sec  455             sender
-[  7]   0.00-30.00  sec   295 MBytes  82.3 Mbits/sec                  receiver
-[  9]   0.00-30.01  sec   444 MBytes   124 Mbits/sec  348             sender
-[  9]   0.00-30.00  sec   443 MBytes   124 Mbits/sec                  receiver
-[ 11]   0.00-30.01  sec   294 MBytes  82.1 Mbits/sec  561             sender
-[ 11]   0.00-30.00  sec   293 MBytes  81.9 Mbits/sec                  receiver
-[SUM]   0.00-30.01  sec  1.43 GBytes   409 Mbits/sec  1739             sender
-[SUM]   0.00-30.00  sec  1.43 GBytes   409 Mbits/sec                  receiver
+[  5]   0.00-30.01  sec   330 MBytes  92.1 Mbits/sec  909             sender
+[  5]   0.00-30.00  sec   329 MBytes  91.9 Mbits/sec                  receiver
+[  7]   0.00-30.01  sec   299 MBytes  83.5 Mbits/sec  1113             sender
+[  7]   0.00-30.00  sec   298 MBytes  83.3 Mbits/sec                  receiver
+[  9]   0.00-30.01  sec   348 MBytes  97.3 Mbits/sec  879             sender
+[  9]   0.00-30.00  sec   347 MBytes  97.1 Mbits/sec                  receiver
+[ 11]   0.00-30.01  sec   313 MBytes  87.5 Mbits/sec  1125             sender
+[ 11]   0.00-30.00  sec   313 MBytes  87.4 Mbits/sec                  receiver
+[SUM]   0.00-30.01  sec  1.26 GBytes   361 Mbits/sec  4026             sender
+[SUM]   0.00-30.00  sec  1.26 GBytes   360 Mbits/sec                  receiver
 ```
