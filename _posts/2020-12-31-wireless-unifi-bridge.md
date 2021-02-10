@@ -6,7 +6,7 @@ tags: networking server linux
 
 You can use UniFi networking gear to bridge two areas of wired networking with a wireless connection. This is a good
 solution if you live in a home where you can't run wires between rooms. The setup is relatively straight-forward and I
-was able to achieve a throughput of 360 to 460 Mbit/s for both upload and download. This is far from wired throughput
+was able to achieve throughputs of 360 to 460 Mbit/s for both upload and download. This is far from wired throughput
 but still pretty good for a lot of use cases.
 
 ## Setup
@@ -30,8 +30,10 @@ can connect additional switches and devices to the Ethernet port of the uplinked
 the UniFi controller is enabled. Additionally, the "Enable Meshing" option in the "Radios" section of each access point
 should be enabled as well.
 
-Once the setup is completed, the access point with the wireless uplink should be listed as *Connected|Wireless* in the
-UniFi Controller:
+To start the setup, move the switch and access point that is not connected to the UniFi Controller to the location of
+the other switch and connect the two switches with a wired Ethernet connection. Make sure that all devices are adopted
+in the UniFi Controller. Then disconnect the cable between the switches. After some time, the access point with the
+wireless uplink should be listed as *Connected|Wireless* in the UniFi Controller:
 
 ![Wireless Uplink in UniFi Controller](/assets/images/unifi-devices-wireless-connected.png)
 
@@ -60,7 +62,7 @@ connection to your modem it should be sufficient.
 iperf3 -c 192.168.10.1 -f m -P 4 -t 30
 ```
 
-Results:
+Result:
 
 ```text
 [ ID] Interval           Transfer     Bitrate         Retr
@@ -74,7 +76,7 @@ Results:
 iperf3 -c 192.168.10.1 -f m -P 4 -t 30 -R
 ```
 
-Results:
+Result:
 
 ```text
 [ ID] Interval           Transfer     Bitrate         Retr
@@ -96,7 +98,7 @@ walls have an even greater impact.
 iperf3 -c 192.168.10.1 -f m -P 4 -t 30
 ```
 
-Results:
+Result:
 
 ```text
 [ ID] Interval           Transfer     Bitrate         Retr
@@ -110,7 +112,7 @@ Results:
 iperf3 -c 192.168.10.1 -f m -P 4 -t 30 -R
 ```
 
-Results:
+Result:
 
 ```text
 [ ID] Interval           Transfer     Bitrate         Retr
