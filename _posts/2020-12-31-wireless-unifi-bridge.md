@@ -30,22 +30,22 @@ can connect additional switches and devices to the Ethernet port of the uplinked
 the UniFi controller is enabled. Additionally, the "Enable Meshing" option in the "Radios" section of each access point
 should be enabled as well.
 
-To start the setup, move the switch and access point that is not connected to the UniFi Controller to the location of
+To start the setup, move one of the switch and access point pair to the location of
 the other switch and connect the two switches with a wired Ethernet connection. Make sure that all devices are adopted
 in the UniFi Controller. Then disconnect the cable between the switches. After some time, the access point with the
-wireless uplink should be listed as *Connected|Wireless* in the UniFi Controller:
+wireless uplink should reconnect and be listed as *Connected|Wireless* in the UniFi Controller:
 
 ![Wireless Uplink in UniFi Controller](/assets/images/unifi-devices-wireless-connected.png)
 
-## Speed Tests
+## Throughput
 
 I'm using [iPerf3](https://iperf.fr/) to measure network throughput. For the tests I chose 30 seconds as the test
 duration and 4 parallel client streams since my server has 4 cores and I want to maximize throughput. I tested the
-throughput in two scenarios, once with a single wall between the two access points and once with more obstruction.
+throughput in two scenarios, one with a single wall between the two access points and one with more obstructions.
 
 I'm testing with the following two devices:
 
-* Server: pfSense 2.4.5 router with iPerf 3.7 (IP 192.168.10.1)
+* Server: pfSense 2.4.5 router with iPerf 3.7 (IP 192.168.1.1)
 * Client: Debian 10 server with iPerf 3.6
 
 ## One Wall
@@ -59,7 +59,7 @@ connection to your modem it should be sufficient.
 ### One Wall - Client Upload Speed
 
 ```bash
-iperf3 -c 192.168.10.1 -f m -P 4 -t 30
+iperf3 -c 192.168.1.1 -f m -P 4 -t 30
 ```
 
 Result:
@@ -73,7 +73,7 @@ Result:
 ### One Wall - Client Download Speed
 
 ```bash
-iperf3 -c 192.168.10.1 -f m -P 4 -t 30 -R
+iperf3 -c 192.168.1.1 -f m -P 4 -t 30 -R
 ```
 
 Result:
@@ -89,13 +89,13 @@ Result:
 In the second scenario the two access points are roughly 30 ft / 9 m apart, on the same floor, and separated by 3
 interior (wood frame) walls and a staircase. The throughput drops by roughly 20% to 365 Mbit/s. As expected,
 obstructions like walls have major impact on the throughput. If you can arrange the access points in a way to minimize
-the number of walls in between, your throughput will likely benefit from it. I assume that multiple floor or concrete
-walls have an even greater impact.
+the number of walls in between, your throughput will likely benefit from it. I assume that multiple floors or concrete
+walls have an even greater impact on the throughput.
 
 ### More Obstruction - Client Upload Speed
 
 ```bash
-iperf3 -c 192.168.10.1 -f m -P 4 -t 30
+iperf3 -c 192.168.1.1 -f m -P 4 -t 30
 ```
 
 Result:
@@ -109,7 +109,7 @@ Result:
 ### More Obstruction - Client Download Speed
 
 ```bash
-iperf3 -c 192.168.10.1 -f m -P 4 -t 30 -R
+iperf3 -c 192.168.1.1 -f m -P 4 -t 30 -R
 ```
 
 Result:
