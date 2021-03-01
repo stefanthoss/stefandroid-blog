@@ -14,6 +14,8 @@ If you want to share music files from your local file server to Sonos, you can d
 +-------------+                 +------------------+                       +-------+
 ```
 
+That way the main fileserver does not expose any insecure services and only the Docker container does. Mounting the NFS and SMB shares read-only further reduces the potential impact.
+
 ## Setup
 
 You need
@@ -57,8 +59,6 @@ cd sonos-samba
 wget https://raw.githubusercontent.com/stefanthoss/container-fest/main/sonos-samba/docker-compose.yml
 ```
 
-Adapt the `TZ` variable as necessary to your local time zone. Adapt the volumes part to point to your share.
+Adapt the `TZ` variable as necessary to your local time zone. Adapt the volumes section to point to your share.
 
-See <https://github.com/stefanthoss/container-fest/blob/main/sonos-samba/docker-compose.yml>.
-
-## Explanation
+Start the docker-compose service with `docker-compose up -d`.
