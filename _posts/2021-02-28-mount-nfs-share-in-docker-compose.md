@@ -66,7 +66,7 @@ Start the Docker service with `docker-compose up` and the Docker daemon will mou
 
 If Docker can't mount the share, you'll see an error message like this:
 
-```
+```text
 ERROR: for jellyfin  Cannot start service jellyfin: error while mounting volume
 '/var/lib/docker/volumes/jellyfin_videos/_data': failed to mount local volume:
 mount :/path/to/video-dir:/var/lib/docker/volumes/jellyfin_videos/_data, flags: 0x1,
@@ -75,7 +75,7 @@ data: addr=192.168.1.4,nolock,soft,nfsvers=4: no route to host
 
 Once successful, you can see the mount on the Docker host with `mount`:
 
-```
+```text
 :/path/to/video-dir on /var/lib/docker/volumes/jellyfin_videos/_data type nfs4
 (ro,relatime,vers=4.0,rsize=131072,wsize=131072,namlen=255,hard,proto=tcp,timeo=600,
 retrans=2,sec=sys,clientaddr=192.168.1.5,local_lock=none,addr=192.168.1.4)
