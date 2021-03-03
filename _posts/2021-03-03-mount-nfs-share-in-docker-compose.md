@@ -30,8 +30,9 @@ The driver-specific options you can use after the address in the `o` flag can be
 * `nolock` (optional): remote applications on the NFS server are not affected by lock files within the Docker container
 (only other processes within the container are affected by locks)
 * `timeo=n` (optional, default 600): the NFS client waits `n` tenths of a second before retrying an NFS request
-* `soft,retrans=n`: the NFS client fails an NFS request after `n` unsuccessful retries, otherwise it will try
+* `soft` (optional): the NFS client fails an NFS request after `retrans=n` unsuccessful retries, otherwise it will try
 indefinitely
+* `retrans=n` (optional, default 2): specify the number of retries for NFS requests, only relevant if using `soft`
 
 In addition, you can use `ro` to mount the share read-only or `rw` to mount the share explicitly as read-write.
 
