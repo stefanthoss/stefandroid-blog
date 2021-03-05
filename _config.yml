@@ -7,6 +7,9 @@ github_username: stefanthoss
 google_site_verification: IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs
 show_excerpts: true
 
+exclude:
+  - "*.drawio"
+
 minima:
   social_links:
     twitter: kabelknoten
