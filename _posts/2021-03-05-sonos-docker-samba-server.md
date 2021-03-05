@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Use Docker SMBv1 server to share Music with Sonos"
+title: "Use Docker SMBv1 server to share music with Sonos"
 tags: linux server music
 ---
 
