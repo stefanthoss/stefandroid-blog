@@ -4,10 +4,12 @@ title: About
 permalink: /about/
 ---
 
-This is Stefan's tech blog.
+This is Stefan's tech blog - focussing on self-hosting, home networking, and Linux.
 
 Built using [Jekyll](https://github.com/jekyll/jekyll) and the [Minima](https://github.com/jekyll/minima) theme. Hosted
 using the [DigitalOcean App Platform](https://www.digitalocean.com/products/app-platform).
+
+## License
 
 [![Creative Commons License](/assets/images/cc-by-sa.png)](http://creativecommons.org/licenses/by-sa/4.0/)
 
