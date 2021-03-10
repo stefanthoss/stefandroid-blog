@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Fix pfSense high latency during high upload throughput"
-tags: networking linux
+tags: networking linux pfsense
 ---
 
 If you max out the upload that your Internet connection provides, you might experience degraded performance on your
