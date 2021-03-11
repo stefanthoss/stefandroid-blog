@@ -6,6 +6,8 @@
 
 ## License
 
-![CC BY-SA 4.0](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)
+[Stefandroid Blog](https://blog.stefandroid.com/) is licensed under
+[CC BY-SA 4.0](http://creativecommons.org/licenses/by-sa/4.0/).
 
-This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+The [bender icon](https://thenounproject.com/term/system/333633) by [Herbert Spencer](https://thenounproject.com/hspencer)
+is licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
