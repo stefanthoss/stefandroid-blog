@@ -13,7 +13,7 @@ router due to the Internet upload bandwith being limiting to outgoing traffic.
 Here's a screenshot of my pfSense dashboard when I max out the 20 Mbit/s upload of my Cable Internet connection, showing
 a RTT of over 100ms and 14% packet loss:
 
-![pfSense dashboard with high latency and packetloss](/assets/images/pfsense-high-latency-packetloss.png)
+![pfSense WAN gateway with high latency and packetloss](/assets/images/pfsense-wan-gateway-packetloss.png)
 
 In pfSense's **Status** → **System Logs** → **Gateways** you will see logs like this:
 
@@ -83,3 +83,24 @@ Once you have the limiters set up as shown above, go to **Firewall** → **Rules
 | In / Out pipe | UploadQueue / DownloadQueue |
 
 Save the rule. You're done!
+
+## Limiter Bandwidth Testing
+
+My Cable Internet connection is sold as 400 Mbit/s download and 20 Mbit/s upload. Based on speed tests it is realistically
+more like 420 Mbit/s download and 22 MBit/s upload (I know - surprising!). I want to find out what is a good level for the upload limiter
+queue - slightly above or slightly below the actual upload bandwidth?
+
+First a test with a 25 Mbit/s **WanUpload** limiter (slightly above actual upload bandwidth):
+
+![pfSense WAN gateway with high latency but no packetloss](/assets/images/pfsense-wan-gateway-high-latency.png)
+
+I'm still experiencing high latency but no packet loss anymore. It seems that the limiter is preventing the packet loss
+but it can't do anything about the latency - the Internet connection is still too slow for what I want to upload.
+
+Then a test with a 20 Mbit/s **WanUpload** limiter (slightly below actual upload bandwidth):
+
+![pfSense WAN gateway without latency and packetloss](/assets/images/pfsense-wan-gateway-low-latency.png)
+
+This looks much better. I might leave a tiny bit of upload speed on the table, but I finally see low latency and no packet
+loss. You should definitely set your limiter bandwidth slightly below your actual upload bandwidth to avoid both high
+latency and packet loss.
