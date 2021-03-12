@@ -31,12 +31,11 @@ The [DSL Reports Speed Test](http://dslreports.com/speedtest) is an easy test to
 
 Using the [pfSense Traffic Shaper](https://docs.netgate.com/pfsense/en/latest/trafficshaper/index.html) you can setup
 Controlled Delay (CoDel) queue management. This will help the traffic to flow smoother and without spikes in latency
-and packet loss. The pfSense documentation provide
-[more details on CoDel](https://docs.netgate.com/pfsense/en/latest/trafficshaper/altq-scheduler-types.html#codel-active-queue-management).
+and packet loss. The pfSense documentation provides
+[more details on CoDel Active Queue Management](https://docs.netgate.com/pfsense/en/latest/trafficshaper/altq-scheduler-types.html#codel-active-queue-management).
 
 Netgate uploaded the slide deck [pfSense Hangout August 2018](https://www.slideshare.net/NetgateUSA/pfsense-244-short-topic-miscellany-pfsense-hangout-august-2018)
-which describes the setup for CoDel limiters on slide 5
-to 11 in detail.
+which describes the CoDel limiter setup on slide 5 to 11. I provide a summary of that in the following section.
 
 ## CoDel Setup
 
@@ -47,7 +46,7 @@ Go to **Firewall** → **Traffic Shaper** → **Limiters** → **New Limiter** a
 
 | Enable | [x] Enable |
 | Name | WanDownload |
-| Bandwith | 400 Mbit/s, Schedule: none |
+| Bandwith | ?? Mbit/s, Schedule: none |
 | Mask | None |
 | Queue Management Algorithm | CoDel |
 | Scheduler | FQ_CODEL |
@@ -86,27 +85,27 @@ Now go to **Firewall** → **Rules** → **Floating** → **Add** and add a floa
 | Gateway | WAN_DHCP - Interface WAN_DHCP Gateway |
 | In / Out pipe | UploadQueue / DownloadQueue |
 
-Save the rule. You're done!
+Save the rule and apply changes. You're done and shouldn't experience bufferbloat anymore!
 
 ## Limiter Bandwidth Testing
 
 My Cable Internet connection is marketed as 400 Mbit/s download and 20 Mbit/s upload. Based on my speed tests it is in
 reality closer to 420 Mbit/s download and 22 MBit/s upload (I know - very surprising!). I want to find out how I should
-configure the limiter's upload bandwidth - slightly above or slightly below the actual upload bandwidth? I'll be
+configure the limiter's upload bandwidth - slightly above or slightly below the actual upload throughput? I'll be
 focussing on the upload only since I'm not experiencing noticeable bufferbloat with my download connection.
 
-First I run a test with a 25 Mbit/s **WanUpload** limiter (slightly above the actual upload bandwidth):
+First I run a test with a 25 Mbit/s **WanUpload** limiter (slightly above the actual upload throughput):
 
 ![pfSense WAN gateway with high latency but no packetloss](/assets/images/pfsense-wan-gateway-high-latency.png)
 
 I'm still experiencing high latency but no packet loss anymore. It seems that the limiter is preventing the packet loss
-but it can't do anything about the latency - the Internet connection is still too slow for the throughput I'm trying to
-push.
+but it can't do anything about the latency - the Internet connection is still too slow for the amount of data I'm trying
+to push.
 
-Now I run a test with a 20 Mbit/s **WanUpload** limiter (slightly below the actual upload bandwidth):
+Now I run a test with a 20 Mbit/s **WanUpload** limiter (slightly below the actual upload throughput):
 
 ![pfSense WAN gateway without latency and packetloss](/assets/images/pfsense-wan-gateway-low-latency.png)
 
 This looks much better. I might leave a bit of upload throughput on the table, but I finally see low latency and no
 packet loss even under maximum upload stress. You should definitely set your limiter bandwidth slightly below your
-actual upload bandwidth to avoid both high latency and packet loss.
+actual upload throughput to avoid both high latency and packet loss.
