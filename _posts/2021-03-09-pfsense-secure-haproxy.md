@@ -4,13 +4,13 @@ title: "High security pfSense HAProxy with TLS 1.3"
 tags: networking linux pfsense
 ---
 
-Using the [HAProxy package in pfSense](https://docs.netgate.com/pfsense/en/latest/packages/haproxy.html) you can setup
+Using the [HAProxy package in pfSense](https://docs.netgate.com/pfsense/en/latest/packages/haproxy.html) you can set up
 a simple reverse proxy and SSL offloader on pfSense for your self-hosted applications. With pfSense 2.5.0, you can use
 a TLS 1.3 only configuration with maximum security for modern clients. By default, HAProxy offers TLS 1.0 and TLS 1.1
 which are considered insecure and should be disabled.
 
 For testing of the TLS/SSL protocols and ciphers I'm using [testssl.sh](https://testssl.sh/). Assuming that you expose
-your service externally on <https://docker.example.com>, you can run the TLS/SSL test with 
+your service externally on <https://docker.example.com>, you can run the TLS/SSL test with
 
 ```text
 $ bash testssl.sh https://docker.example.com
@@ -24,7 +24,7 @@ on localhost:./bin/openssl.Linux.x86_64
 
 ## TLS 1.0+
 
-First the test results with a default HAProxy configuration on pfSense 2.5.0: 
+First the test results with a default HAProxy configuration on pfSense 2.5.0:
 
 ```text
  Testing protocols via sockets except NPN+ALPN 
@@ -430,5 +430,5 @@ TLSv1.3 (no server order, thus listed by strength)
  Overall Grade                A+
 ```
 
-Possible further improvements are enabling OCSP stapling but that seems to be broken in the HAProxy package on pfSense
+Possible further improvements are enabling OCSP stapling, but that seems to be broken in the HAProxy package on pfSense
 2.5.0 as of March 2021, see [pfSense bug #11135](https://redmine.pfsense.org/issues/11135).
