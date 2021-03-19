@@ -5,12 +5,15 @@ tags: networking linux pfsense
 ---
 
 Using the [HAProxy package in pfSense](https://docs.netgate.com/pfsense/en/latest/packages/haproxy.html) you can set up
-a simple reverse proxy and SSL offloader on pfSense for your self-hosted applications. With pfSense 2.5.0, you can use
-a TLS 1.3 only configuration with maximum security for modern clients. By default, HAProxy offers TLS 1.0 and TLS 1.1
-which are considered insecure and should be disabled.
+a simple reverse proxy and SSL offloader on pfSense for your self-hosted applications. pfSense 2.5.0 supports a TLS 1.3
+only configuration with maximum security for modern clients. By default, HAProxy offers TLS 1.0 and TLS 1.1 which are
+considered insecure and should be disabled.
 
-For testing of the TLS/SSL protocols and ciphers I'm using [testssl.sh](https://testssl.sh/). Assuming that you expose
-your service externally on <https://docker.example.com>, you can run the TLS/SSL test with
+For testing of the TLS/SSL protocols and ciphers I'm using [testssl.sh](https://testssl.sh/). This is a simple command
+line tool that checks the support of TLS ciphers and vulnerabilities. You can get the code (works with Linux) from the
+[drwetter/testssl.sh GitHub repo](https://github.com/drwetter/testssl.sh). It will also calculate a numerical
+[SSL server rating score and grade](https://github.com/ssllabs/research/wiki/SSL-Server-Rating-Guide). Assuming that you
+expose your service externally on <https://docker.example.com>, you can run the TLS/SSL test with
 
 ```text
 $ bash testssl.sh https://docker.example.com
@@ -236,20 +239,16 @@ With the [Mozilla SSL Configuration Generator](https://ssl-config.mozilla.org/) 
 configuration. As of March 2021, pfSense ships with HAproxy 1.8.27 and OpenSSL 1.1.1i.
 
 For my homelab I'm choosing the modern Mozilla configuration which provides a high level of security with only forward
-secret and authenticated ciphers. This will only support modern clients with TLS 1.3 without
-backwards compatibility and exclude any clients that are older than Firefox 63, Android 10.0, Chrome 70, Edge 75,
-Java 11, OpenSSL 1.1.1, Opera 57, and Safari 12.1 from connecting to HAProxy. This shouldn't be used in corporate
-environments with legacy clients but all my personal devices and clients support TLS 1.3. See the testssl.sh output
-below for more detailed client simulations.
-
-First go to the Mozilla SSL Configuration Generator and generate a modern configuration, I'll be using
-[this one](https://ssl-config.mozilla.org/#server=haproxy&version=1.8.27&config=modern&openssl=1.1.1i&guideline=5.6).
-Then edit the HAProxy frontend (I'm assuming you already have one set up since there are plenty of guides out there).
+secret and authenticated ciphers. This will only support modern TLS 1.3 clients without backwards compatibility
+and exclude any clients that are older than Firefox 63, Android 10.0, Chrome 70, Edge 75, Java 11, OpenSSL 1.1.1,
+Opera 57, and Safari 12.1 from connecting to HAProxy. This shouldn't be used in corporate environments with legacy
+clients but all my personal devices and clients support TLS 1.3. See the testssl.sh output below for more detailed
+client simulations.
 
 Make sure that **SSL Offloading** is enabled for the external address. The easiest way to get a Let's Encrypt
 certificate is through the [ACME package in pfSense](https://docs.netgate.com/pfsense/en/latest/packages/acme/index.html).
 
-Then enable HTTP Strict Transport Security by adding a `http-response header set` entry in the **Actions** section with
+First enable HTTP Strict Transport Security by adding a `http-response header set` entry in the **Actions** section with
 the following parameters:
 
 * name: `Strict-Transport-Security`
@@ -257,9 +256,11 @@ the following parameters:
 
 ![pfSense HAProxy frontend HSTS action](/assets/images/pfsense-haproxy-frontend-hsts-action.png)
 
-Then we have to add options to the **SSL Offloading** section. Copy the `ssl-default-bind-options` option string from
-the Mozilla SSL Configuration Generator and enter it in **Advanced ssl options**. You should have the following
-options configured:
+Then go to the Mozilla SSL Configuration Generator and generate a modern configuration, I'll be using
+[this one](https://ssl-config.mozilla.org/#server=haproxy&version=1.8.27&config=modern&openssl=1.1.1i&guideline=5.6).
+Edit the HAProxy frontend (I'm assuming you already have one set up since there are plenty of guides out there) and add
+options to the **SSL Offloading** section. Copy the `ssl-default-bind-options` option string from the Mozilla SSL
+Configuration Generator and enter it in **Advanced ssl options**. You should have the following options configured:
 
 * Advanced ssl options: `prefer-client-ciphers no-sslv3 no-tlsv10 no-tlsv11 no-tlsv12 no-tls-tickets`
 * Advanced certificate specific ssl options: `alpn h2,http/1.1`
