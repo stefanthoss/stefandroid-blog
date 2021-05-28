@@ -25,7 +25,8 @@ sudo apt install apt-transport-https ca-certificates gnupg haveged
 Now we can install the software packages. In addition to the UniFi Network Controller itself, we have to install a
 compatible version of MongoDB and the JVM. The UniFi Network Controller version 6.1 (the latest as of May 2021) does not
 support the current MongoDB 4.x and Java 11. You will need MongoDB 3.x and Java 8 for the controller software to work.
-The following steps will guide you through the installation of [MongoDB 3.6](https://docs.mongodb.com/v3.6/tutorial/install-mongodb-on-debian/) and the [AdoptOpenJDK 8](https://adoptopenjdk.net/) HotSpot VM from the official repositories.
+The following steps will guide you through the installation of [MongoDB 3.6](https://docs.mongodb.com/v3.6/tutorial/install-mongodb-on-debian/)
+and the [AdoptOpenJDK 8](https://adoptopenjdk.net/) HotSpot VM from the official repositories.
 
 First, download the trusted key for the UniFi, AdoptOpenJDK, and MongoDB 3.6 repositories and add them to the Debian
 source lists. For MongoDB 3.6 we use the Debian Stretch repo since there is no Debian Buster repo for MongoDB 3.x.
