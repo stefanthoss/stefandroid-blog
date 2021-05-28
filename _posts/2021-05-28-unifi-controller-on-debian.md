@@ -5,9 +5,10 @@ tags: networking server linux
 ---
 
 To administrate Ubiquiti network equipment you can either buy a UniFi Dream Machine/Cloud Key or host the controller
-software yourself. This can be done on almost any Linux host, e.g. in a [FreeNAS Jail]({% post_url 2020-08-15-unifi-controller-on-freenas %})
-or on a Debian server (physical or VM). Unfortunately the UniFi Network Controller requires some older versions
-of MongoDB and JVM which makes the installation procedure on a modern Debian 10 "Buster" a bit more complicated.
+software yourself. This can be done on almost any Linux host, e.g. in a
+[FreeNAS Jail]({% post_url 2020-08-15-unifi-controller-on-freenas %}) or on a Debian server - both physical and VM.
+Unfortunately the current UniFi Network Controller (version 6.1) requires some older versions of MongoDB and JVM which
+makes the installation procedure on a modern Debian 10 "Buster" a bit more complicated.
 
 This guide is based on [Ubiquiti's guide to install the controller on Debian via APT](https://help.ui.com/hc/en-us/articles/220066768-UniFi-How-to-Install-and-Update-via-APT-on-Debian-or-Ubuntu).
 I assume that you have a fresh Debian Buster installation to perform the following steps.
@@ -22,11 +23,11 @@ sudo apt install apt-transport-https ca-certificates gnupg haveged
 ```
 
 Now we can install the software packages. In addition to the UniFi Network Controller itself, we have to install a
-compatible version of MongoDB and the JVM. The UniFi Network Controller version 6.1 (the latest as of May 2021) does not support MongoDB 4.x and Java 11.
-You will need MongoDB 3.x and Java 8 for the controller software to work. The following steps will guide how to install [MongoDB 3.6](https://docs.mongodb.com/v3.6/tutorial/install-mongodb-on-debian/)
-from the official repositories and the [AdoptOpenJDK 8](https://adoptopenjdk.net/) HotSpot VM.
+compatible version of MongoDB and the JVM. The UniFi Network Controller version 6.1 (the latest as of May 2021) does not
+support the current MongoDB 4.x and Java 11. You will need MongoDB 3.x and Java 8 for the controller software to work.
+The following steps will guide you through the installation of [MongoDB 3.6](https://docs.mongodb.com/v3.6/tutorial/install-mongodb-on-debian/) and the [AdoptOpenJDK 8](https://adoptopenjdk.net/) HotSpot VM from the official repositories.
 
-Download the trusted key for the UniFi, AdoptOpenJDK, and MongoDB 3.6 repositories and add them to the Debian
+First, download the trusted key for the UniFi, AdoptOpenJDK, and MongoDB 3.6 repositories and add them to the Debian
 source lists. For MongoDB 3.6 we use the Debian Stretch repo since there is no Debian Buster repo for MongoDB 3.x.
 
 ```shell
@@ -39,7 +40,7 @@ echo "deb https://adoptopenjdk.jfrog.io/adoptopenjdk/deb buster main" | sudo tee
 echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/3.6 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
 ```
 
-Now we can update the package list, remove the pre-existing OpenJDK 11 installation (which comes pre-installed with
+Now we can update the package list, remove the existing OpenJDK 11 installation (which comes pre-installed with
 Debian Buster), and install the new packages.
 
 ```shell
