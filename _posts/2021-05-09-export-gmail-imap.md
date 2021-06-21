@@ -11,10 +11,11 @@ from one IMAP server to another and preserves all data including metadata, attac
 In this guide I'm using `imapsync` version 1.977 on Linux. Find a list of installation guides for different
 Linux systems [in this directory on GitHub](https://github.com/imapsync/imapsync/tree/master/INSTALL.d).
 
-There's already a good official [guide on how to use imapsync with Gmail](https://github.com/imapsync/imapsync/blob/master/FAQ.d/FAQ.Gmail.txt). I encourage you to read that guide first, I'll only describe some
-of the additional information I consider to be useful in this blog post. Server 1 is Gmail and server 2 is your
-destination IMAP server. The destination IMAP server can already contain emails, `imapsync` does not delete any email on
-the destination server by default.
+There's already a good official
+[guide on how to use imapsync with Gmail](https://github.com/imapsync/imapsync/blob/master/FAQ.d/FAQ.Gmail.txt).
+I encourage you to read that guide first, I'll only describe some of the additional information I consider to be useful
+in this blog post. Server 1 is Gmail and server 2 is your destination IMAP server. The destination IMAP server can
+already contain emails, `imapsync` does not delete any email on the destination server by default.
 
 Instead of using the `--password1`/`--password2` arguments, you should provide the passwords for the two IMAP servers
 through a text file so that it's not saved in the Shell history.
@@ -31,7 +32,7 @@ file called `password2.txt`.
 Gmail is not exposing system folders (e.g. sent emails, trash, drafts, etc.) with the `[Gmail]/` prefix anymore (the
 version of `imapsync` server I'm using assumes that) but with `[Google Mail]/`, see this output from a dry run:
 
-```
+```text
 Host1 folder   16/22 [[Google Mail]/All Mail]            Size: 6769848488 Messages: 71145 Biggest:  31498222
 Host2 folder   16/22 [[Google Mail].All Mail]             does not exist yet
 Host2-Host1                                                    -6769848488           -71145          -31498222
