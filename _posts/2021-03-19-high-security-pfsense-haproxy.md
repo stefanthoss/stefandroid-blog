@@ -259,10 +259,10 @@ the following parameters:
 Then go to the Mozilla SSL Configuration Generator and generate a modern configuration, I'll be using
 [this one](https://ssl-config.mozilla.org/#server=haproxy&version=1.8.27&config=modern&openssl=1.1.1i&guideline=5.6).
 Edit the HAProxy frontend (I'm assuming you already have one set up since there are plenty of guides out there) and add
-options to the **SSL Offloading** section. Copy the `ssl-default-bind-options` option string from the Mozilla SSL
+options to the **SSL Offloading** section. Copy the `ssl-default-server-options` option string from the Mozilla SSL
 Configuration Generator and enter it in **Advanced ssl options**. You should have the following options configured:
 
-* Advanced ssl options: `prefer-client-ciphers no-sslv3 no-tlsv10 no-tlsv11 no-tlsv12 no-tls-tickets`
+* Advanced ssl options: `no-sslv3 no-tlsv10 no-tlsv11 no-tlsv12 no-tls-tickets`
 * Advanced certificate specific ssl options: `alpn h2,http/1.1`
 
 Now safe the frontend configuration and apply the changes. Rerunning testssl.sh results in higher protocol support and
@@ -295,9 +295,9 @@ key exchange scores because only high security ciphers are supported:
 
  Testing server's cipher preferences 
 
- Has server cipher order?     no (TLS 1.3 only)
+ Has server cipher order?     yes (TLS 1.3 only)
  Negotiated protocol          TLSv1.3
- Negotiated cipher            TLS_AES_256_GCM_SHA384, 253 bit ECDH (X25519) (limited sense as client will pick)
+ Negotiated cipher            TLS_AES_256_GCM_SHA384, 253 bit ECDH (X25519)
  Cipher per protocol
 
 Hexcode  Cipher Suite Name (OpenSSL)       KeyExch.   Encryption  Bits     Cipher Suite Name (IANA/RFC)
@@ -312,7 +312,7 @@ TLSv1.1
  - 
 TLSv1.2
  - 
-TLSv1.3 (no server order, thus listed by strength)
+TLSv1.3 (server order)
  x1302   TLS_AES_256_GCM_SHA384            ECDH 253   AESGCM      256      TLS_AES_256_GCM_SHA384                             
  x1303   TLS_CHACHA20_POLY1305_SHA256      ECDH 253   ChaCha20    256      TLS_CHACHA20_POLY1305_SHA256                       
  x1301   TLS_AES_128_GCM_SHA256            ECDH 253   AESGCM      128      TLS_AES_128_GCM_SHA256                             
@@ -387,12 +387,12 @@ TLSv1.3 (no server order, thus listed by strength)
  Android 6.0                  No connection
  Android 7.0 (native)         No connection
  Android 8.1 (native)         No connection
- Android 9.0 (native)         TLSv1.3   TLS_AES_128_GCM_SHA256            253 bit ECDH (X25519)
- Android 10.0 (native)        TLSv1.3   TLS_AES_128_GCM_SHA256            253 bit ECDH (X25519)
- Chrome 74 (Win 10)           TLSv1.3   TLS_AES_128_GCM_SHA256            253 bit ECDH (X25519)
- Chrome 79 (Win 10)           TLSv1.3   TLS_AES_128_GCM_SHA256            253 bit ECDH (X25519)
- Firefox 66 (Win 8.1/10)      TLSv1.3   TLS_AES_128_GCM_SHA256            253 bit ECDH (X25519)
- Firefox 71 (Win 10)          TLSv1.3   TLS_AES_128_GCM_SHA256            253 bit ECDH (X25519)
+ Android 9.0 (native)         TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
+ Android 10.0 (native)        TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
+ Chrome 74 (Win 10)           TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
+ Chrome 79 (Win 10)           TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
+ Firefox 66 (Win 8.1/10)      TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
+ Firefox 71 (Win 10)          TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
  IE 6 XP                      No connection
  IE 8 Win 7                   No connection
  IE 8 XP                      No connection
@@ -402,22 +402,22 @@ TLSv1.3 (no server order, thus listed by strength)
  IE 11 Win 10                 No connection
  Edge 15 Win 10               No connection
  Edge 17 (Win 10)             No connection
- Opera 66 (Win 10)            TLSv1.3   TLS_AES_128_GCM_SHA256            253 bit ECDH (X25519)
+ Opera 66 (Win 10)            TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
  Safari 9 iOS 9               No connection
  Safari 9 OS X 10.11          No connection
  Safari 10 OS X 10.12         No connection
- Safari 12.1 (iOS 12.2)       TLSv1.3   TLS_CHACHA20_POLY1305_SHA256      253 bit ECDH (X25519)
- Safari 13.0 (macOS 10.14.6)  TLSv1.3   TLS_CHACHA20_POLY1305_SHA256      253 bit ECDH (X25519)
+ Safari 12.1 (iOS 12.2)       TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
+ Safari 13.0 (macOS 10.14.6)  TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
  Apple ATS 9 iOS 9            No connection
  Java 6u45                    No connection
  Java 7u25                    No connection
  Java 8u161                   No connection
- Java 11.0.2 (OpenJDK)        TLSv1.3   TLS_AES_128_GCM_SHA256            256 bit ECDH (P-256)
- Java 12.0.1 (OpenJDK)        TLSv1.3   TLS_AES_128_GCM_SHA256            256 bit ECDH (P-256)
+ Java 11.0.2 (OpenJDK)        TLSv1.3   TLS_AES_256_GCM_SHA384            256 bit ECDH (P-256)
+ Java 12.0.1 (OpenJDK)        TLSv1.3   TLS_AES_256_GCM_SHA384            256 bit ECDH (P-256)
  OpenSSL 1.0.2e               No connection
  OpenSSL 1.1.0l (Debian)      No connection
  OpenSSL 1.1.1d (Debian)      TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
- Thunderbird (68.3)           TLSv1.3   TLS_AES_128_GCM_SHA256            253 bit ECDH (X25519)
+ Thunderbird (68.3)           TLSv1.3   TLS_AES_256_GCM_SHA384            253 bit ECDH (X25519)
 
 
  Rating (experimental) 
