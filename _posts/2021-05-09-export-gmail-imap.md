@@ -6,26 +6,30 @@ tags: server
 
 If you decided that you want to move away from Gmail, you can move all emails from Gmail to a different
 IMAP server. Using the tool [`imapsync`](https://github.com/imapsync/imapsync) that's an easy task. It transfers emails
-from one IMAP server to another and preserves all data including folder structure.
+from one IMAP server to another and preserves all data including metadata, attachments, timestamps, and folder structure.
 
-In this guide I'm using `imapsync` version 1.977 on Linux. There's already a good [guide on how to use imapsync with Gmail](https://github.com/imapsync/imapsync/blob/master/FAQ.d/FAQ.Gmail.txt). I encourage you to read that guide first, I'll only describe some
-of the additional information I consider to be useful in this blog post. Find a list of installation guides for different
+In this guide I'm using `imapsync` version 1.977 on Linux. Find a list of installation guides for different
 Linux systems [in this directory on GitHub](https://github.com/imapsync/imapsync/tree/master/INSTALL.d).
 
-Instead of using the `--password1`/`--password2` arguments, you should provide the passwords for the two IMAP server
+There's already a good official [guide on how to use imapsync with Gmail](https://github.com/imapsync/imapsync/blob/master/FAQ.d/FAQ.Gmail.txt). I encourage you to read that guide first, I'll only describe some
+of the additional information I consider to be useful in this blog post. Server 1 is Gmail and server 2 is your
+destination IMAP server. The destination IMAP server can already contain emails, `imapsync` does not delete any email on
+the destination server by default.
+
+Instead of using the `--password1`/`--password2` arguments, you should provide the passwords for the two IMAP servers
 through a text file so that it's not saved in the Shell history.
 
-First the Gmail connection: The IMAP server is `imap.gmail.com` and the username `user@gmail.com`. For the password you
-have to generate an app password, it will not work with your Gmail account password. Google provide instructions for
+First the Gmail server: The IMAP server is `imap.gmail.com` and the username `user@gmail.com`. For the password you
+have to generate an app password, it will not work with your Gmail account password. Google provides instructions for
 [generating app passwords](https://support.google.com/accounts/answer/185833). Generate an App Password for the app
 *Mail* and store the 16-character password in a text file called `password1.txt`. Remember to remove the app password
-again after the email migration is complete.
+from your Google account after the email migration is complete.
 
-For the destination IMAP server, figure out the server host, the username, and your password. Store the password in a file
-called `password2.txt`.
+For the destination IMAP server, figure out the server host, the username, and your password. Store the password in a
+file called `password2.txt`.
 
-Gmail is not exposing system folders with the `[Gmail]/` prefix anymore but with `[Google Mail]/`, see this output
-from a dry run:
+Gmail is not exposing system folders (e.g. sent emails, trash, drafts, etc.) with the `[Gmail]/` prefix anymore (the
+version of `imapsync` server I'm using assumes that) but with `[Google Mail]/`, see this output from a dry run:
 
 ```
 Host1 folder   16/22 [[Google Mail]/All Mail]            Size: 6769848488 Messages: 71145 Biggest:  31498222
@@ -34,7 +38,8 @@ Host2-Host1                                                    -6769848488      
 ```
 
 The command `--regextrans2 "s,\[Google Mail\].,,"` will overwrite the default behavior and replace the `[Google Mail]/`
-prefix instead.
+prefix instead of the `[Gmail]/`
+prefix.
 
 Before you copy the emails, perform a dry run with `--dry` which will list what `imapsync` would do without actually
 copying any emails. Carefully check the output to make sure it's exactly what you want to do.
@@ -53,14 +58,14 @@ copying any emails. Carefully check the output to make sure it's exactly what yo
 ```
 
 If you have emails that have more than one label in Gmail, you have to pay special attention to this situation. The
-IMAP protocol only knows folder but not labels. Gmail will expose the labels as folders, so emails with multiple labels
-will be shown in multiple folders. Note that emails that are starred or marked as important are also exposed through
-respective folders.
-The `imapsync --gmail1` arguments includes `--skipcrossduplicates` which will copy
-every email only once even when it is contained in multiple folders. It will only copy it in the first listed folder so
-pay attention to the order of folders when you perform the dry run. Use the arguments `--folderfirst`/`--folderlast` to
-change the order. I use the argument `--folderlast "Starred"` to copy all starred emails in the end so that only starred
-emails without labels will be copied (all others will be copied to the respective label folder).
+IMAP protocol only supports folder but not labels. Gmail will expose the labels as folders, so emails with multiple
+labels will be shown in multiple folders and essentially by duplicated. Note that emails that are starred or marked as
+important are also exposed through respective folders. The `imapsync --gmail1` arguments includes the
+`--skipcrossduplicates` argument which will copy every email only once even when it is contained in multiple folders.
+It will only copy it in the first listed folder so pay attention to the order of folders when you perform the dry run.
+Use the arguments `--folderfirst`/`--folderlast` to change the order. I use the argument `--folderlast "Starred"` to
+copy all starred emails in the end so that only starred emails without labels will be copied (all others will be copied
+to the respective label folder).
 
 I use the `--exclude "All Mail"` argument since I assume that all of my emails have at least one label. To check that I
 have no emails left behind in Gmail, I use the Gmail search `has:nouserlabels -label:sent -label:chats -label:trash`.
@@ -68,6 +73,7 @@ It will list all emails that don't have any labels, are not in the *Sent* folder
 unlabeled emails, use `--folderlast "[Google Mail]/All Mail"` instead which will copy all unlabeled emails in the
 `All Mail` folder.
 
-Once you started the actual copying without the `--dry` argument, this might take a long time. For my setup I
+Once you started the actual copy process without the `--dry` argument, this might take a long time. For my setup I
 averaged around 1 message per second (average message size was 160 KB). That resulted in 20 hours of copy time
-for my 70,000 emails. I recommend running this command from a server or a computer that will not be turned off.
+for my 70,000 emails. I recommend running this command from a server, Raspberry Pi, or computer that will not be turned
+off.
