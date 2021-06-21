@@ -1,14 +1,14 @@
 ---
 layout: post
-title: "Export emails from Gmail to another IMAP server"
+title: "Copy emails from Gmail to another IMAP server"
 tags: server
 ---
 
-If you decided that you want to move away from Gmail, you can move all emails from Gmail to a different
+If you decided that you want to move away from Gmail, you can copy all emails from Gmail to a different
 IMAP server. Using the tool [`imapsync`](https://github.com/imapsync/imapsync) that's an easy task. It transfers emails
 from one IMAP server to another and preserves all data including metadata, attachments, timestamps, and folder structure.
 
-In this guide I'm using `imapsync` version 1.977 on Linux. Find a list of installation guides for different
+In this guide, I'm using `imapsync` version 1.977 on Linux. Find a list of installation guides for different
 Linux systems [in this directory on GitHub](https://github.com/imapsync/imapsync/tree/master/INSTALL.d).
 
 There's already a good official
@@ -59,22 +59,22 @@ copying any emails. Carefully check the output to make sure it's exactly what yo
 ```
 
 If you have emails that have more than one label in Gmail, you have to pay special attention to this situation. The
-IMAP protocol only supports folder but not labels. Gmail will expose the labels as folders, so emails with multiple
+IMAP protocol only supports folders, but not labels. Gmail will expose the labels as folders, so emails with multiple
 labels will be shown in multiple folders and essentially by duplicated. Note that emails that are starred or marked as
 important are also exposed through respective folders. The `imapsync --gmail1` arguments includes the
-`--skipcrossduplicates` argument which will copy every email only once even when it is contained in multiple folders.
-It will only copy it in the first listed folder so pay attention to the order of folders when you perform the dry run.
+`--skipcrossduplicates` argument which will copy every email only once, even when it is contained in multiple folders.
+It will only copy it in the first listed folder, so pay attention to the order of folders when you perform the dry run.
 Use the arguments `--folderfirst`/`--folderlast` to change the order. I use the argument `--folderlast "Starred"` to
-copy all starred emails in the end so that only starred emails without labels will be copied (all others will be copied
+copy all starred emails in the end, so that only starred emails without labels will be copied (all others will be copied
 to the respective label folder).
 
 I use the `--exclude "All Mail"` argument since I assume that all of my emails have at least one label. To check that I
 have no emails left behind in Gmail, I use the Gmail search `has:nouserlabels -label:sent -label:chats -label:trash`.
 It will list all emails that don't have any labels, are not in the *Sent* folder, and are not in the trash. If you have
-unlabeled emails, use `--folderlast "[Google Mail]/All Mail"` instead which will copy all unlabeled emails in the
+unlabeled emails, use `--folderlast "[Google Mail]/All Mail"` instead, which will copy all unlabeled emails in the
 `All Mail` folder.
 
-Once you started the actual copy process without the `--dry` argument, this might take a long time. For my setup I
+Once you started the actual copy process without the `--dry` argument, this might take a long time. For my setup, I
 averaged around 1 message per second (average message size was 160 KB). That resulted in 20 hours of copy time
 for my 70,000 emails. I recommend running this command from a server, Raspberry Pi, or computer that will not be turned
 off.
