@@ -7,7 +7,8 @@ permalink: /about/
 This is Stefan's tech blog - focussing on self-hosting, home networking, and Linux.
 
 I built my blog using [Jekyll](https://github.com/jekyll/jekyll) and the [Minima](https://github.com/jekyll/minima)
-theme. It is hosted using the [DigitalOcean App Platform](https://www.digitalocean.com/products/app-platform).
+theme. It is hosted on [GitHub Pages](https://pages.github.com/) and deployed with
+[helaili/jekyll-action](https://github.com/helaili/jekyll-action).
 
 ## License
 
