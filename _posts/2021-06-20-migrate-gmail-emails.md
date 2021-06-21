@@ -24,13 +24,11 @@ First the Gmail server: The IMAP server is `imap.gmail.com` and the username `us
 have to generate an app password, it will not work with your Gmail account password. Google provides instructions for
 [generating app passwords](https://support.google.com/accounts/answer/185833). Generate an App Password for the app
 *Mail* and store the 16-character password in a text file called `password1.txt`. Remember to remove the app password
-from your Google account after the email migration is complete.
-
-For the destination IMAP server, figure out the server host, the username, and your password. Store the password in a
-file called `password2.txt`.
+from your Google account after the email migration is complete. For the destination IMAP server, figure out the server
+host, the username, and your password. Store the password in a file called `password2.txt`.
 
 Gmail is not exposing system folders (e.g. sent emails, trash, drafts, etc.) with the `[Gmail]/` prefix anymore (the
-version of `imapsync` I'm using assumes that) but with `[Google Mail]/`, see this output from a dry run:
+version of `imapsync` I'm using assumes that) but with `[Google Mail]/`. You can see that in this output from a dry run:
 
 ```text
 Host1 folder   16/22 [[Google Mail]/All Mail]            Size: 6769848488 Messages: 71145 Biggest:  31498222
