@@ -1,0 +1,43 @@
+<footer class="site-footer h-card">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+      {%- if site.author %}
+        <ul class="contact-list">
+          {% if site.author.name -%}
+            <li class="p-name">{{ site.author.name | escape }}</li>
+          {% endif -%}
+          {% if site.author.email -%}
+            <li><a class="u-email" href="mailto:{{ site.author.email }}">{{ site.author.email }}</a></li>
+          {%- endif %}
+        </ul>
+      {%- endif %}
+      </div>
+    </div>
+
+    <div class="social-links">
+      <ul class="social-media-list">
+        {%- if site.github_username -%}<li><a href="https://github.com/{{ site.github_username| cgi_escape | escape }}"><svg class="svg-icon"><use xlink:href="{{ '/assets/minima-social-icons.svg#github' | relative_url }}"></use></svg> <span class="username">{{ site.github_username| escape }}</span></a></li>{%- endif -%}
+        {%- if site.rss -%}<li><a href="{{ 'feed.xml' | relative_url }}"><svg class="svg-icon"><use xlink:href="{{ '/assets/minima-social-icons.svg#rss' | relative_url }}"></use></svg> <span>Subscribe via Atom</span></a></li>{%- endif -%}
+      </ul>      
+    </div>
+
+  </div>
+
+</footer>
+
+<script>
+  var remark_config = {
+    host: 'https://remark.stefandroid.com',
+    site_id: 'STEFANDROID_BLOG',
+    components: ['embed'],
+    url: '{{ page.url | absolute_url }}',
+    theme: 'light',
+    locale: 'en',
+    show_email_subscription: false,
+    simple_view: true
+  };
+</script>
+<script>!function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);</script>
