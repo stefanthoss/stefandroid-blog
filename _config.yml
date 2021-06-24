@@ -2,15 +2,12 @@ title: Stefandroid Blog
 author: Stefan Thoss
 description: This is Stefan's tech blog.
 url: "https://blog.stefandroid.com"
+github_username: stefanthoss
 google_site_verification: IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs
 show_excerpts: true
 
 exclude:
   - "*.drawio"
-
-minima:
-  social_links:
-    github: stefanthoss
 
 header_pages:
   - about.md
