@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/jekyll/minima.git
-  revision: a98a8fed7203738991b98d4f90a80dec3ebcf4f7
-  ref: a98a8fe
+  revision: 3cdd14dff1216f561c68329e0b7420c2dc9b796a
+  ref: 3cdd14dff1216f561c68329e0b7420c2dc9b796a
   specs:
-    minima (2.5.0)
+    minima (2.5.1)
       jekyll (>= 3.5, < 5.0)
       jekyll-feed (~> 0.9)
       jekyll-seo-tag (~> 2.1)
