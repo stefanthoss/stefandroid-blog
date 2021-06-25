@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /last-comments
-Disallow: /last-comments.html
-Sitemap: https://blog.stefandroid.com/sitemap.xml
