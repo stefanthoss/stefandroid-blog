@@ -7,7 +7,7 @@ tags: linux server
 Proxmox templates together with Cloud-Init can be used to quickly deploy new VMs. A template quickly creates a new VM
 and Cloud-Init will initialize the new VM so that you only have to set the host name and the initial user account.
 No more installing the operating system from scratch for every new VM. In this guide, I'm describing how to do this with
-Debian Buster to spin up headless Debian servers. 
+Debian Buster to spin up headless Debian servers.
 
 Debian doesn't provide a special image for this use case, but the Debian images designed for OpenStack come with
 Cloud-Init support. Check out the [Proxmox's documentation](https://pve.proxmox.com/wiki/Cloud-Init_Support) for details
