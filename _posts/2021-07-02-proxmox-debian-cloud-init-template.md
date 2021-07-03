@@ -56,7 +56,7 @@ authentication.
 2 GiB. Specify the amount you want the disk to be increased by (e.g. 30 GiB for a total size of 32 GiB).
 
 Everything is ready to go! Start the VM, run a system upgrade, and install the
-[Qemu guest agent](https://pve.proxmox.com/wiki/Qemu-guest-agent):
+[QEMU guest agent](https://pve.proxmox.com/wiki/Qemu-guest-agent):
 
 ```shell
 sudo apt update
