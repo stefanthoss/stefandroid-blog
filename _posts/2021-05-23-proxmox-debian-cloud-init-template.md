@@ -4,14 +4,17 @@ title: "Create a Debian Cloud-Init template on Proxmox"
 tags: linux server
 ---
 
-Proxmox templates can be used to quickly deploy new VMs. Cloud-Init will initialize the new VM so that you only have to
-configure networking, host name, and the initial user account for new VMs instead of installing the operating system
-from scratch. In this guide I'm describing how to do this with Debian Buster. Check out the
-[Proxmox's documentation](https://pve.proxmox.com/wiki/Cloud-Init_Support) for details on how Proxmox's
-Cloud-Init support works.
+Proxmox templates together with Cloud-Init can be used to quickly deploy new VMs. A template quickly creates a new VM
+and Cloud-Init will initialize the new VM so that you only have to set the host name and the initial user account.
+No more installing the operating system from scratch for every new VM. In this guide I'm describing how to do this with
+Debian Buster to spin up headless Debian servers. 
 
-The Debian images designed for OpenStack come with Cloud-Init support. Download `debian-10-openstack-amd64.qcow2`
-from <https://cloud.debian.org/images/cloud/OpenStack/current-10> to the Proxmox host. These are the steps:
+Debian doesn't provide a special image for this use case but the Debian images designed for OpenStack come with
+Cloud-Init support. Check out the [Proxmox's documentation](https://pve.proxmox.com/wiki/Cloud-Init_Support) for details on
+how Proxmox's Cloud-Init support works.
+
+Download `debian-10-openstack-amd64.qcow2` from <https://cloud.debian.org/images/cloud/OpenStack/current-10> to the
+Proxmox host. Then execute the following steps:
 
 ```shell
 qm create 900 --name debian-10-openstack-amd64 --net0 virtio,bridge=vmbr0
@@ -23,7 +26,7 @@ qm set 900 --serial0 socket --vga serial0
 qm template 900
 ```
 
-Explanation for above steps:
+Here's the explanation for above steps:
 
 1. Create a new VM with ID 900 using VirtIO networking drivers.
 2. Import the qcow Debian image as a disk to the new VM. The disk will be called `local-lvm:vm-900-disk-0`.
@@ -35,8 +38,8 @@ Explanation for above steps:
 
 ## Usage
 
-To deploy a new VM based on the template with ID 101 and name `VM-NAME`, execute the following command on the Proxmox
-host:
+To deploy a new server VM based on the template using the ID 101 and the name `VM-NAME`, execute the following command
+on the Proxmox host:
 
 ```shell
 qm clone 900 101 --name VM-NAME
@@ -44,10 +47,11 @@ qm clone 900 101 --name VM-NAME
 
 For more details on this check out [Proxmox's template documentation](https://pve.proxmox.com/wiki/VM_Templates_and_Clones).
 
-After the new VM is created, you can finish the configuration in the Proxmox web interface. In the *Cloud-Init* tab of
-the VM, configure the name of the default user and the public SSH key you want to use for authentication. In the
-*Options* tab, enable the QEMU Guest Agent. In the *Hardware* tab, select the `scsi0` hard disk and click *Resize disk*.
-The default size is 2 GiB - add the size increment you want the disk to be increased by.
+After the new VM is created, you can finish the configuration in the Proxmox web interface:
+
+1. In the *Cloud-Init* tab of the VM, configure the name of the default user and the public SSH key you want to use for authentication.
+2. In the *Options* tab, enable the QEMU Guest Agent.
+3. In the *Hardware* tab, select the `scsi0` hard disk and click *Resize disk*. The default size of the Debian image is 2 GiB. Add the size increment you want the disk to be increased by (e.g. 30 GiB for a total size of 32 GiB).
 
 Everything is ready to go! Start the VM, run a system upgrade, and install the
 [Qemu guest agent](https://pve.proxmox.com/wiki/Qemu-guest-agent):
