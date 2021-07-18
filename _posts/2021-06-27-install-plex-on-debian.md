@@ -4,7 +4,12 @@ title: "Install Plex Media Server on Debian Buster"
 tags: linux server
 ---
 
-Execute the following steps to add the Plex repository and install Plex Media Server:
+I prefer to run my [Plex Media Server](https://www.plex.tv) on a Debian VM. This is the easiest way to run a
+Plex Media Server (I prefer it over the Docker container version). I'm using a
+[Proxmox Debian Buster template]({% post_url 2021-07-02-proxmox-debian-cloud-init-template %}) to set up the VM quickly.
+
+Check [Plex's installation article](https://support.plex.tv/articles/200288586-installation) for the official
+instructions. In short, execute the following steps to add the Plex repository and install the Plex Media Server:
 
 ```shell
 sudo apt update
@@ -15,21 +20,27 @@ sudo apt update
 sudo apt install plexmediaserver
 ```
 
-Check with `sudo systemctl status plexmediaserver.service` whether the Plex service is running.
+Check with `sudo systemctl status plexmediaserver.service` whether the Plex service is running. You can access the Plex
+UI at `http://<PLEX_SERVER_IP>:32400/web`.
+
+The logs are written to `/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Logs/`. In case the Plex
+Media Server is not working, check the main log file `Plex Media Server.log` for error messages.
 
 ## The "Not authorized" error
 
-Assuming that your Plex Media Server's IP is `192.168.1.3` and you try to access the Plex UI at
-`http://192.168.1.3:32400/web`, you might run into the error
+During the initial setup, you might see the error message
 
 > Not authorized - You do not have access to this server
 
-The problems seems to be that the inital setup has to be completed from localhost. Since I'm running Plex on a
-server without GUI, I'm using an SSH tunnel to accomplish this. Execute
+on the Plex UI. The problem seems to be that the initial setup cannot be done from a different subnet. So if
+your Plex Media Server runs in a different VLAN, you'll face the above error message. The setup has to be completed from
+localhost or using an SSH tunnel. Since I'm running Plex on a server without GUI, I'm using an SSH tunnel to accomplish
+this. Execute
 
 ```shell
-ssh -L 32400:localhost:32400 user@192.168.1.3
+ssh -L 32400:localhost:32400 user@<PLEX_SERVER_IP>
 ```
 
-and access the remote Plex server in the local browser at http://localhost:32400/web. Now you can finish the inital
-setup. Once that's done, you can exit the SSH tunnel and access the Plex Media Server at http://192.168.1.3:32400/web.
+to establish the tunnel and expose the Plex UI on port 32400 on your local machine. Now you can finish the remote Plex
+Media Server in the local browser at <http://localhost:32400/web> and finish the initial setup. Once that's done, you can
+exit the SSH tunnel and access the Plex Media Server at `http://<PLEX_SERVER_IP>:32400/web`.
