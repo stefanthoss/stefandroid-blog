@@ -1,12 +1,13 @@
 ---
 layout: post
-title: "Use Plex Media Server with a Let’s Encrypt certificate"
+title: "Use Plex Media Server with a Let's Encrypt certificate"
 tags: linux security server
 ---
 
-You can use a free [Let’s Encrypt](https://letsencrypt.org) certificate for your self-hosted Plex Media Server. With
-[Certbot](https://certbot.eff.org) and a simple Bash script this is an easy setup which will provide a secure connection
-without certificate warnings and auto renew certificates. It will work on any Linux distribution (I'm using Debian Buster).
+You can use a free [Let's Encrypt](https://letsencrypt.org) certificate for your 
+[self-hosted Plex Media Server VM]({% post_url 2021-07-17-install-plex-on-debian %}). With
+[Certbot](https://certbot.eff.org) and a simple Bash script this will provide a secure connection without certificate
+warnings. It will also auto renew certificates. I'm using Debian Buster but this will work on any Linux distribution.
 
 ## Motivation
 
@@ -17,11 +18,15 @@ There are two possible options how to secure the connection to your Plex server 
 
 Generally I would prefer the reverse proxy since I can use my existing reverse proxy which already has a valid Let's Encrypt
 certificate. Also, I have more control on how the server is exposed to the public Internet. Unfortunately a few Plex
-features like the Sonos integration and the mobile Plex apps are not working with this setup, so I chose the remote
-access (reverse proxy will work fine if those features are not important for you). The following guide will explain how
-to use a valid Let's Encrypt certificate with Plex remote access.
+features like the Sonos integration and the mobile Plex apps are not working with this setup since they need direct
+access. So I chose the remote access (reverse proxy will work fine if those features are not important for you). The
+following guide will explain how to use a valid Let's Encrypt certificate with Plex remote access.
 
 ## Setup
+
+You need to forward the public port on your firewall to your Plex server. The detailed instructions for this depend on
+the type of firewall you're using (in case you use pfSense you have to
+[add a firewall rule](https://docs.netgate.com/pfsense/en/latest/firewall/rule-list-intro.html) on the WAN interface).
 
 First, install Certbot. The EFF provides [installation guides](https://certbot.eff.org/instructions) for multiple
 operating systems. For Debian the official recommendation is using Snap:
