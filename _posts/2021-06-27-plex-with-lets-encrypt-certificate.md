@@ -41,14 +41,32 @@ sudo ln -s /snap/bin/certbot /usr/bin/certbot
 
 ## HTTP or DNS Let's Encrypt Challenge
 
+Verification of the domain can either be done via an HTTP challenge or a DNS challenge. I choose a DNS challenge because
+it doesn't require opening port 80 from the outside. In the following I use a
+[DNS challenge](https://certbot.eff.org/docs/using.html#dns-plugins) using Cloudflare. But the rest of this guide works
+the same even when you choose to use a different type of challenge or a different DNS provider.
+
+Install the [DNS Cloudflare plugin](https://certbot-dns-cloudflare.readthedocs.io/en/stable/):
+
 ```shell
 sudo snap set certbot trust-plugin-with-root=ok
 sudo snap install certbot-dns-cloudflare
 ```
 
-I'm using `plex.example.com` as a domain, replace this with your own.
+Create the file `~/.secrets/certbot/cloudflare.ini` with the API token you got from Cloudflare:
+
+```ini
+dns_cloudflare_api_token = SECRET_TOKEN
+```
 
 ## P12 Certificate
+
+Certbot generates a private key file, a certificate file, and the CA file. Plex however expects a PKCS #12 certificate
+file that bundles all of these together. I created a script that is triggered by Certbot's renewal hook which will convert
+the Certbot output into a PKCS #12 certificate file that is compatible with Plex.
+
+In the following, I'm using `plex.example.com` as a domain, replace this with your own domain name. Also replace
+`PASSWORD` with a random password of your choice.
 
 Create the `/etc/letsencrypt/renewal-hooks/post/create_p12_file.sh` file with the following content:
 
