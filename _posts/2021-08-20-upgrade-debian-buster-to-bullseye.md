@@ -11,6 +11,7 @@ you're running at the moment. For further details on the upgrade process, check 
 
 I strongly recommend executing all of these steps in a [`tmux` session](https://github.com/tmux/tmux). The SSH
 connection might get interrupted during the upgrade and with `tmux` you can easily reconnect to the terminal.
+Furthermore, I also strongly recommend making a backup of your system before attempting the upgrade.
 
 First, upgrade all packages to the lastest version available in Buster:
 
