@@ -19,11 +19,11 @@ sudo apt update
 sudo apt full-upgrade
 ```
 
-Now the repository has to be changed from Buster to Bullseye. In the repository configuration file `/etc/apt/sources.list`, replace `buster` with `bullseye`. The security suite is
-now named `bullseye-security` instead of `buster/updates` and has to be renamed as well. I also noticed that all the
-sources were defined with HTTP connections, so let's convert those to HTTPS while we're at it. It's a good idea to either keep a
-backup of the old `/etc/apt/sources.list` file or comment out the existing lines instead of modifying them. That way you
-can revert in case anything goes wrong.
+Now the repository has to be changed from Buster to Bullseye. In the repository configuration file `/etc/apt/sources.list`,
+replace `buster` with `bullseye`. The security suite is now named `bullseye-security` instead of `buster/updates` and
+has to be renamed as well. I also noticed that all the sources were defined with HTTP connections, so let's convert
+those to HTTPS while we're at it. It's a good idea to either keep a backup of the old `/etc/apt/sources.list` file or
+comment out the existing lines instead of modifying them. That way you can revert in case anything goes wrong.
 
 In summary,
 
