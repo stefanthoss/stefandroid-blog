@@ -59,7 +59,7 @@ Create the file `~/.secrets/certbot/cloudflare.ini` with the API token you got f
 dns_cloudflare_api_token = SECRET_TOKEN
 ```
 
-## P12 Certificate
+## PKCS #12 Certificate
 
 Certbot generates a private key file, a certificate file, and the CA file. Plex however expects a PKCS #12 certificate
 file that bundles all of these together. I created a script that is triggered by Certbot's renewal hook which will convert
@@ -105,3 +105,16 @@ SLEEPTIME=$(awk 'BEGIN{srand(); print int(rand()*(3600+1))}'); echo "0 0,12 * * 
 Use `sudo certbot renew --force-renewal` to force a renewal and trigger the post renewal hook.
 
 ## Use the Let's Encrypt certificate in Plex
+
+Go to the `Network` tab of the Plex settings. Set the following settings (replace `PASSWORD` and `plex.example.com`):
+
+* Secure connections: Required
+* Custom certificate location: `/var/lib/plexmediaserver/plex_certificate.p12`
+* Custom certificate encryption key: `PASSWORD`
+* Custom certificate domain: `plex.example.com`
+* Enable Strict TLS configuration
+* Custom server access URLs: `https://plex.example.com:32400`
+
+![Plex Network PKCS #12 Certificate](/assets/images/plex-network-p12-certificate.png)
+
+## Forward the port
