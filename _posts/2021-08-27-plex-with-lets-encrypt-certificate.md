@@ -4,7 +4,7 @@ title: "Use Plex Media Server with a Let's Encrypt Certificate"
 tags: linux security server
 ---
 
-You can use a free [Let's Encrypt](https://letsencrypt.org) certificate for your 
+You can use a free [Let's Encrypt](https://letsencrypt.org) certificate for your
 [self-hosted Plex Media Server VM]({% post_url 2021-07-17-install-plex-on-debian %}). With
 [Certbot](https://certbot.eff.org) and a simple Bash script, this will provide a secure connection without certificate
 warnings. It will also auto-renew certificates. I'm using Debian Bullseye, but this will work on any Linux distribution.
