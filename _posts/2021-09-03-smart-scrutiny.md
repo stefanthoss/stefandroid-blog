@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Monitoring multiple SMART drives with Scrutiny"
+title: "Monitor Multiple SMART Drives with Scrutiny"
 tags: linux server
 ---
 
@@ -13,3 +13,48 @@ agent on multiple clients. This will provide a single interface to monitor all h
 ## Collector on Debian Bullseye
 
 ## Collector on TrueNAS
+
+Scrutiny needs Smartmontools version 7. Check on the TrueNAS terminal that version 7 is installed. TrueNAS Core 12.0
+ships with Smartmontools 7.2 as checked with the `smartctl` command:
+
+```
+# smartctl -V
+smartctl 7.2 2020-12-30 r5155 [FreeBSD 12.2-RELEASE-p6 amd64] (local build)
+```
+
+Download the Collector agent binary (below link is for version 0.3.12 - the latest as of September 2021). Then copy it to
+`/usr/local` and make it executable. Execute the following as `root`:
+
+```shell
+mkdir -p /usr/local/tools/scrutiny/bin
+wget https://github.com/AnalogJ/scrutiny/releases/download/0.3.12/scrutiny-collector-metrics-freebsd-amd64 -P /usr/local/tools/scrutiny/bin
+chmod +x /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64
+```
+
+Create the configuration file by downloading the sample `collector.yaml` from the GitHub repo. Edit it (e.g. with `nano`)
+and change the following parameters:
+
+* `host.id` should be an identifier for your TrueNAS server
+* `api.endpoint` should be the HTTP endpoint of the Scrutiny Web server
+
+Everything else can be left as is. Here are the commands which have  to be executed as `root`:
+
+```shell
+mkdir -p /usr/local/tools/scrutiny/config
+wget https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.collector.yaml -O /usr/local/tools/scrutiny/config/collector.yaml
+nano /usr/local/tools/scrutiny/config/collector.yaml
+```
+
+![TrueNAS Scrutiny Cronjob](/assets/images/truenas-scrutiny-cronjob.png)
+
+Now go to **Tasks** → **Cron Jobs** and add a new cron job:
+
+| Description | Scrutiny |
+| Command | `. /etc/profile; /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64 run --config /usr/local/tools/scrutiny/config/collector.yaml` |
+| Run As User | root |
+| Schedule | Hourly |
+
+Enable both `Hide Standard Output` and `Hide Standard Error` once you confirmed the collector to be working. Otherwise
+TrueNAS will send an email with the full log for every single log.
+
+At the start of the next hour, the SMART data should appear in the Scrutiny Web UI.
