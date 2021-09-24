@@ -6,15 +6,23 @@ tags: linux server
 
 When connecting low RPM Noctua fans to a Supermicro motherboard, I noticed that the fans were repeatedly ramping up and
 down and cycling between "normal" RPM and maximum RPM. This is because the normal operating RPM of these fans is below
-the standard threshold of 500 RPM and the motherboard will go into a critical state and ramp up the fans to maximum RPM.
+the default threshold of 500 RPM, and the motherboard will go into a critical state and ramp up the fans to maximum RPM.
+It can be fixed by setting new thresholds on the Supermicro motherboard that fit the low RPM fans.
 
-You will see the following log lines in the ?????????? logs:
+You will see the following log lines in the Health Event Log if you encounter this issue:
 
-{{Picture}}
+```text
+Lower Critical - going low - Assertion
+Lower Non-recoverable - going low - Assertion
+Lower Non-recoverable - going low - Deassertion
+Lower Critical - going low - Deassertion
+```
 
-I use this approach with the Noctua NF-R8 redux-1800 PWM fans and X11 generation server motherboards. The fans are
-connected to the FAN1 - FAN6 headers which are controlled by the CPU temperature (the FANA and FANB headers are not).
-Below commands are tested on Debian Bullseye.
+![Critical Supermicro Fan Speed](/assets/images/supermicro-fan-speed-critical.png)
+
+I use multiple Noctua NF-R8 redux-1800 PWM fans on X11 generation server motherboards. The fans are connected to the
+FAN1 - FAN6 headers, which are controlled by the CPU temperature (the FANA and FANB headers are not). Below commands are
+tested on Debian Bullseye.
 
 First install `ipmitool` which can be used to read and modify the fan controller:
 
@@ -46,11 +54,12 @@ Sensor ID              : FAN2 (0x42)
  Deassertions Enabled  : lcr- lnr- ucr+ unr+
 ```
 
-The lower critical threshold is set at 500. The Noctua fans I'm using have a maximum RPM of 1800 so they will fall under
-this threshold when the motherboard sets their speed to 27% or less.
+The lower critical threshold is set at 500. The Noctua fans I'm using have a maximum RPM of 1800, so they will fall
+below this threshold when the motherboard sets the fan speed to 27% or less.
 
-The fix is to create a small Bash scripts which sets the critical threshold to 100 which seems appropriate as a
-failsafe. Create the file `/opt/fancontrol.sh` with the following content:
+The fix is to create a small Bash script which sets the critical threshold to 100 and the non-recoverable threshold
+to 200. You can set the thresholds for multiple fans at once - in the below example I'm doing it for FAN2 and FAN3.
+Create the file `/opt/fancontrol.sh` with the following content (adjust the fan sensor names according to your setup):
 
 ```bash
 #!/bin/sh
@@ -82,14 +91,14 @@ ExecStart=/bin/bash /opt/fancontrol.sh
 WantedBy=multi-user.target
 ```
 
-Set the permissions of the service file:
+Set the permissions of the service file and enable the service:
 
 ```bash
 chmod 644 /etc/systemd/system/fancontrol.service
 systemctl enable fancontrol.service
 ```
 
-After a reboot (or manual execution of the script), you can check the new threshold limits:
+After a reboot or manual execution of the script, you can check the new threshold limits:
 
 ```text
 # ipmitool sensor get FAN2
@@ -112,4 +121,4 @@ Sensor ID              : FAN2 (0x42)
  Deassertions Enabled  : lcr- lnr- ucr+ unr+
 ```
 
-The fans should now run smoothly while being temperature controlled by the Supermicro motherboard.
+The fans should now run smoothly while being temperature-controlled by the Supermicro motherboard.
