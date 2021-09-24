@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Supermicro Fans Are Repeatedly Ramping Up and Down"
+description: "Critical fan thresholds for low RPM Noctua fans on a Supermicro motherboard have to be adjusted so that the fans are not repeatedly ramping up and down."
 tags: linux server
 ---
 
