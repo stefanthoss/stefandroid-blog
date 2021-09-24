@@ -1,14 +1,15 @@
 ---
 layout: post
 title: "Supermicro Fans Are Repeatedly Ramping Up and Down"
-description: "Critical fan thresholds for low RPM Noctua fans on a Supermicro motherboard have to be adjusted so that the fans are not repeatedly ramping up and down."
+description: "Fan thresholds for low RPM Noctua fans on a Supermicro server motherboards have to be adjusted so that the fans are not repeatedly ramping up and down."
 tags: linux server
 ---
 
 When connecting low RPM Noctua fans to a Supermicro motherboard, I noticed that the fans were repeatedly ramping up and
-down and cycling between "normal" RPM and maximum RPM. This is because the normal operating RPM of these fans is below
-the default threshold of 500 RPM, and the motherboard will go into a critical state and ramp up the fans to maximum RPM.
-It can be fixed by setting new thresholds on the Supermicro motherboard that fit the low RPM fans.
+down every few seconds - essentially cycling between "normal" RPM and maximum RPM. This is because the normal operating
+RPM of these fans is below the default threshold of 500 RPM, and the motherboard will go into a critical state and ramp
+up the fans to maximum RPM. It can be fixed by setting new thresholds on the Supermicro motherboard that fit the low RPM
+fans. By default, these server motherboards expect high RPM fans, as used in server racks.
 
 You will see the following log lines in the Health Event Log if you encounter this issue:
 
@@ -58,9 +59,10 @@ Sensor ID              : FAN2 (0x42)
 The lower critical threshold is set at 500. The Noctua fans I'm using have a maximum RPM of 1800, so they will fall
 below this threshold when the motherboard sets the fan speed to 27% or less.
 
-The fix is to create a small Bash script which sets the critical threshold to 100 and the non-recoverable threshold
-to 200. You can set the thresholds for multiple fans at once - in the below example I'm doing it for FAN2 and FAN3.
-Create the file `/opt/fancontrol.sh` with the following content (adjust the fan sensor names according to your setup):
+The fix is to create a small Bash script which sets the critical threshold to 100 RPM and the non-recoverable
+threshold to 200 RPM. You can set the thresholds for multiple fans at once - in the below example I'm doing it for
+FAN2 and FAN3. Create the file `/opt/fancontrol.sh` with the following content (adjust the fan sensor names according
+to your setup):
 
 ```bash
 #!/bin/sh
