@@ -44,5 +44,5 @@ Here's the explanation for above steps:
 5. Allocate 4 MiB for the EFI disk.
 6. Assign the EFI disk to the VM.
 
-Now you can start the VM. Since we enabled the Use QEMU Guest Agent during VM creation, you can see the VM's IP address
-in the Proxmox web UI. Go to `http://VM_IP:8123` in your browser and finish the setup.
+Now you can start the VM. Since we enabled the QEMU Guest Agent daemon during VM creation, you can see the VM's IP
+address in the Proxmox web UI. Go to `http://VM_IP:8123` in your browser and finish the setup.
