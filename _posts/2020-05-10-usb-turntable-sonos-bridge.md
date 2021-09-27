@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "Play music from a USB turntable on Sonos using a Raspberry Pi"
+title: "Play Music from a USB Turntable on Sonos Using a Raspberry Pi"
+description: "Using Icecast2 and DarkIce on a Raspberry Pi, music from a USB turntable can be streamed directly to Sonos speakers."
 tags: raspberrypi music
 ---
 

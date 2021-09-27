@@ -1,7 +1,8 @@
 ---
 layout: post
 title: "Install UniFi Network Controller in a FreeNAS Jail"
-tags: freenas server
+description: "The UniFi Network Controller can be installed in a FreeNAS jail using a FreeBSD port."
+tags: networking freenas server
 ---
 
 You can use the UniFi Network Controller to administrate Ubiquiti network equipment from a macOS/Linux/Windows client
