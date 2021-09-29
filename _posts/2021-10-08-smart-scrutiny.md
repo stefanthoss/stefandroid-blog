@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Monitor Multiple SMART Drives with Scrutiny"
+title: "Monitor the Health of Multiple SMART Drives with Scrutiny"
 tags: linux server
 ---
 
@@ -11,6 +11,8 @@ agent on multiple clients. This will provide a single interface to monitor all h
 ## Web UI
 
 ## Collector on Debian Bullseye
+
+`crontab -e`
 
 ## Collector on TrueNAS
 
