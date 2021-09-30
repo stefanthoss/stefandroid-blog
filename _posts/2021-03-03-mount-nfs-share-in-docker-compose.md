@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "Mount NFS Share directly in docker-compose file"
+title: "Mount NFS Share Directly in docker-compose File"
+description: "An NFS share can be directly mounted in a Docker container without mounting it on the Docker host first."
 tags: networking server linux docker
 ---
 
