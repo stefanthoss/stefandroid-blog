@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "High security pfSense HAProxy with TLS 1.3"
+title: "High Security pfSense HAProxy with TLS 1.3"
+description: "Maximum security for HTTPS connections on HAProxy can be achieved with a TLS 1.3-only configuration."
 tags: networking linux pfsense
 ---
 
