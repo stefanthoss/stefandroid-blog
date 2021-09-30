@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Upgrade Debian from Buster to Bullseye"
+description: "With the release of Debian 11 Bullseye, it's time to upgrade existing Debian 10 Buster servers using a simple upgrade process with a few Apt repository changes."
 tags: linux server
 ---
 
