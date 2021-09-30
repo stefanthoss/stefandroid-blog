@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "Migrate emails from Gmail to another IMAP server"
+title: "Migrate Emails from Gmail to Another IMAP Server"
+description: "With imapsync it's easy to migrate all emails from Gmail to another IMAP server without losing any metadata and translating Gmail labels to a folder structure."
 tags: server
 ---
 
