@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Install UniFi Network Controller on Debian Buster"
+description: "You can install the UniFi Network Controller on Debian 10 Buster by installing some older versions of MongoDB and JVM first."
 tags: networking server linux
 ---
 
