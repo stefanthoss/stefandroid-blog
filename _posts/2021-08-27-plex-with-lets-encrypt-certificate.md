@@ -1,7 +1,8 @@
 ---
 layout: post
 title: "Use Plex Media Server with a Let's Encrypt Certificate"
-tags: linux security server
+description: "The connection to your Plex Media Server can be secured with a Let's Encrypt certificate and certificate auto-renewal through certbot."
+tags: linux plex security server
 ---
 
 You can use a free [Let's Encrypt](https://letsencrypt.org) certificate for your
