@@ -1,13 +1,14 @@
 ---
 layout: post
-title: "Fix high latency when maxing out upload bandwidth on pfSense"
+title: "Fix High Latency When Maxing out Upload Bandwidth on pfSense"
+description: "High latency and packet loss on pfSense can be caused by bufferbloat and fixed using a bandwidth limiter."
 tags: networking linux pfsense
 ---
 
 If you max out the upload bandwidth that your Internet connection provides, you might experience degraded performance on
 your pfSense router. You will see high latency/ping (RTT) and high packet loss. The clients accessing the Internet will
 experience slow-loading web pages, distorted video/voice calls, and unresponsive behavior. This is known as
-[Bufferbloat](https://www.bufferbloat.net/projects/bloat/wiki/Introduction/) and is basically traffic piling up on the
+[bufferbloat](https://www.bufferbloat.net/projects/bloat/wiki/Introduction/) and is basically traffic piling up on the
 router due to the Internet upload bandwith being limiting to outgoing traffic.
 
 Here's a screenshot of my pfSense dashboard when I max out the 20 Mbit/s upload of my Cable Internet connection, showing

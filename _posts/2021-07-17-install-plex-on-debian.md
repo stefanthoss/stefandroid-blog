@@ -1,7 +1,8 @@
 ---
 layout: post
 title: "Install Plex Media Server on Debian Buster"
-tags: linux server
+description: "Installing Plex Media Server on Debian 10 Buster using the official Apt repository is quick and easy."
+tags: linux plex server
 ---
 
 I run my [Plex Media Server](https://www.plex.tv) on a Debian VM. I think this is the easiest way to run a

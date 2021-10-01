@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "Dual Boot Windows entry disappears from GRUB (Manjaro)"
+title: "Dual Boot Windows Entry Disappears from GRUB (Manjaro)"
+description: "A missing dual boot windows entry in GRUB can be fixed using update-grub on Manjaro."
 tags: linux
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "Use Docker SMBv1 server to share music with Sonos"
+title: "Use Docker SMBv1 Server to Share Music with Sonos"
+description: "Sonos only supports the Samba v1 protocol, for which a dedicated Docker container can provide the connection."
 tags: linux server music
 ---
 

@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "Collect metrics with Netdata/InfluxDB from multiple Raspberry Pis"
+title: "Collect Metrics with Netdata/InfluxDB from Multiple Raspberry Pis"
+description: "With Netdata, InfluxDB, and Grafana, you can collect and visualize system metrics from multiple Raspberry Pis in a central location."
 tags: raspberrypi server linux
 ---
 

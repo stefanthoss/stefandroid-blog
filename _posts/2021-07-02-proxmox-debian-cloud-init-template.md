@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "Create a Debian Cloud-Init template on Proxmox"
+title: "Create a Debian Cloud-Init Template on Proxmox"
+description: "With a Debian Cloud-Init template VM, it's super easy to spin up new Proxmox VMs for servers without repetitive configuration work."
 tags: linux server
 ---
 

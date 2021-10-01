@@ -1,7 +1,8 @@
 ---
 layout: post
 title: "Bridge UniFi Switches with Wireless Uplink"
-tags: networking server linux
+description: "UniFi's wireless uplink feature can be used to bridge two wired switches with a Wi-Fi connection."
+tags: linux networking server unifi
 ---
 
 You can use UniFi networking gear to bridge two areas of wired networking with a wireless connection. This is a good

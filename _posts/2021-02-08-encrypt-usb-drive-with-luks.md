@@ -1,6 +1,7 @@
 ---
 layout: post
-title: "Encrypt a USB drive with LUKS"
+title: "Encrypt a USB Drive with LUKS on Linux"
+description: "Linux Unified Key Setup (LUKS) makes it easy to encrypt a removable USB drive on Linux and protect your data."
 tags: linux encryption
 ---
 

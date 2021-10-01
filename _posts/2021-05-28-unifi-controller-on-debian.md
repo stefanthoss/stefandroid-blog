@@ -1,7 +1,8 @@
 ---
 layout: post
 title: "Install UniFi Network Controller on Debian Buster"
-tags: networking server linux
+description: "You can install the UniFi Network Controller on Debian 10 Buster by installing some older versions of MongoDB and JVM first."
+tags: linux networking unifi server
 ---
 
 To administrate Ubiquiti network equipment you can either buy a UniFi Dream Machine/Cloud Key or host the controller
