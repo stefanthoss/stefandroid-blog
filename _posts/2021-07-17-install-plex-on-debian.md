@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Install Plex Media Server on Debian Buster"
-description: "Install Plex Media Server on Debian 10 Buster using the official Apt repository is quick and easy."
+description: "Installing Plex Media Server on Debian 10 Buster using the official Apt repository is quick and easy."
 tags: linux plex server
 ---
 
