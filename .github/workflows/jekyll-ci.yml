@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ main ]
 
-jobs:--unpublished
+jobs:
   build:
     name: Jekyll CI
     runs-on: ubuntu-latest
