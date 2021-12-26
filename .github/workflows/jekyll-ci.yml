@@ -22,4 +22,5 @@ jobs:
       - uses:  helaili/jekyll-action@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          jekyll_build_options: '--future'
           build_only: true
