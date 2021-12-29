@@ -12,14 +12,15 @@ way of using the command line interface (CLI) is not well documented, so I docum
 *Note*: Make a backup of your TrueNAS configuration before you do any of this - if things go wrong, it will break your
 TrueNAS installation.
 
-As described in the [TrueNAS documentation about mirroring the boot pool](https://www.truenas.com/docs/core/system/boot/bootpoolmirror/), you can configure a boot pool mirror in the web UI by selecting a second disk at **System** → **Boot** → **Actions** →
+As described in the [TrueNAS documentation about mirroring the boot pool](https://www.truenas.com/docs/core/system/boot/bootpoolmirror/),
+you can configure a boot pool mirror in the web UI by selecting a second disk at **System** → **Boot** → **Actions** →
 **Boot Pool Status** → **Attach**. But I've frequently gotten the error message `Error: [EFAULT] None` when attempting
 this, and I couldn't figure out why or how to fix it. It worked however with the CLI.
 
 All the following commands should be executed with root privileges, e.g. via the web UI **Shell**. First check the
 current boot pool with the command `zpool status boot-pool` which should output something like this:
 
-```
+```text
   pool: boot-pool
  state: ONLINE
 config:
