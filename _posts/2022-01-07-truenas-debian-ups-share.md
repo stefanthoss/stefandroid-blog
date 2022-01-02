@@ -5,25 +5,25 @@ description: "TrueNAS can share information from a USB-connected UPS with a Debi
 tags: linux ups server truenas
 ---
 
-I have one UPS which powers two servers, one TrueNAS storage server and one Debian server. While the UPS is connected via USB to the TrueNAS server, I also want to shut down the Debian server when the UPS reaches low battery. In order to achieve this, the TrueNAS server has to communicate the UPS status to the Debian server. [Network UPS Tools](https://networkupstools.org) can do that and is supported by both TrueNAS/FreeBSD and Debian.
+I have one UPS which powers two servers, one TrueNAS storage server and one Debian server. While the UPS is connected via USB to the TrueNAS server, I also want to shut down the Debian server when the UPS reaches low battery. In order to achieve this, the TrueNAS server has to communicate the UPS status to the Debian server. [Network UPS Tools](https://networkupstools.org) can do that and is supported by both TrueNAS/FreeBSD and Debian. This guide also applies to a Proxmox hypervisor which doesn't have any special built-in support for UPS devices and should be treated like a regular Debian server.
 
 ## Expose UPS on the Host (TrueNAS)
 
 Enable the UPS service and configure your UPS (check the [TrueNAS UPS documentation](https://www.truenas.com/docs/core/services/ups/) for details). Enable **Remote Monitor** and configure an extra UPS user (change the password `changeme`) that can be used by the Debian server:
 
-```ini
+```text
 [upsmon]
   password = changeme
   upsmon slave
 ```
 
-[[UPS screenshot]]
+![UPS Configuration in TrueNAS](/assets/images/truenas-ups-service.png)
 
 Choose **UPS reaches low battery** as shutdown mode. Your TrueNAS server will now expose the UPS status using [Network UPS Tools](https://networkupstools.org).
 
 ## Configure UPS on the Client (Debian)
 
-On the client we only need the [Network UPS Tools](https://networkupstools.org) client which can be installed via the [nut-client Debian package](https://packages.debian.org/en/bullseye/nut-client) using root privileges:
+On the client, we only need the [Network UPS Tools](https://networkupstools.org) client which can be installed via the [nut-client Debian package](https://packages.debian.org/en/bullseye/nut-client) using root privileges:
 
 ```shell
 apt update
@@ -56,11 +56,11 @@ If the service is running without error messages, you can check with `upsc rack-
 upsmon[1141]: Communications with UPS rack-ups@192.168.1.2 established
 ```
 
-The UPS is now configured correctly and both the host (TrueNAS) and the client (Debian) should shut down when the UPS battery is low.
+The UPS is now configured correctly, and both the host (TrueNAS) and the client (Debian) should shut down when the UPS battery is low.
 
 ## Test
 
-To test the setup, we can simulate a low battery event. Use the command `upsmon -c fsd` on the TrueNAS host to trigger a shut down of all connected clients and itself. After executing the command, the TrueNAS host will now notify the Debian client to shut down and then shut down itself. On the Debian client, the NUT monitor service logs and dmesg will show the following log lines:
+To test the setup, we can simulate a low battery event. Use the command `upsmon -c fsd` on the TrueNAS host to trigger a shutdown of all connected clients and itself. After executing the command, the TrueNAS host will now notify the Debian client to shut down and then shut down itself. On the Debian client, the NUT monitor service logs and dmesg will show the following log lines:
 
 ```text
 upsmon[1141]: UPS rack-ups@192.168.1.2: forced shutdown in progress
