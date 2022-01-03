@@ -1,7 +1,8 @@
 ---
 layout: post
 title: "Monitor the Health of Multiple SMART Drives with Scrutiny"
-tags: linux server
+description: "Scrutiny can monitor the SMART health of multiple disks in multiple servers and expose it through a web interface."
+tags: linux server truenas
 ---
 
 [Scrutiny](https://github.com/AnalogJ/scrutiny) is a tool that collects SMART hard drive data and exposes them
@@ -10,26 +11,23 @@ agent on multiple clients. This will provide a single interface to monitor all h
 
 ## Web UI
 
-## Collector on Debian Bullseye
-
-`crontab -e`
+![Scrutiny Webapp Dashboard](/assets/images/scrutiny-webapp-dashboard.png)
 
 ## Collector on TrueNAS
 
 Scrutiny needs Smartmontools version 7. Check on the TrueNAS terminal that version 7 is installed. TrueNAS Core 12.0
-ships with Smartmontools 7.2 as checked with the `smartctl` command:
+ships with Smartmontools 7.2 as checked with the `smartctl -V` command:
 
-```
-# smartctl -V
+```text
 smartctl 7.2 2020-12-30 r5155 [FreeBSD 12.2-RELEASE-p6 amd64] (local build)
 ```
 
-Download the Collector agent binary (below link is for version 0.3.12 - the latest as of September 2021). Then copy it to
+Download the Collector agent binary (below link is for version 0.3.13 - the latest as of January 2022). Then copy it to
 `/usr/local` and make it executable. Execute the following as `root`:
 
 ```shell
 mkdir -p /usr/local/tools/scrutiny/bin
-wget https://github.com/AnalogJ/scrutiny/releases/download/0.3.12/scrutiny-collector-metrics-freebsd-amd64 -P /usr/local/tools/scrutiny/bin
+wget https://github.com/AnalogJ/scrutiny/releases/download/0.3.13/scrutiny-collector-metrics-freebsd-amd64 -P /usr/local/tools/scrutiny/bin
 chmod +x /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64
 ```
 
@@ -60,3 +58,19 @@ Enable both `Hide Standard Output` and `Hide Standard Error` once you confirmed 
 TrueNAS will send an email with the full log for every single log.
 
 At the start of the next hour, the SMART data should appear in the Scrutiny Web UI.
+
+## Collector on Debian Bullseye
+
+Follow the [Scrutiny installation instructions](https://github.com/AnalogJ/scrutiny/blob/master/docs/INSTALL_MANUAL.md#collector)
+to install the collector agent. You don't have to install the Webapp/API.
+
+Edit the `/opt/scrutiny/config/collector.yaml` file and change the following parameters:
+
+* `host.id` should be an identifier for your TrueNAS server
+* `api.endpoint` should be the HTTP endpoint of the Scrutiny Web server
+
+Add the following tab using `crontab -e`:
+
+```text
+0 * * * * . /etc/profile; /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --config /opt/scrutiny/config/collector.yaml
+```
