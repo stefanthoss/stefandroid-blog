@@ -60,7 +60,7 @@ The UPS is now configured correctly, and both the host (TrueNAS) and the client 
 
 ## Test
 
-To test the setup, we can simulate a low battery event. Use the command `upsmon -c fsd` on the TrueNAS host to trigger a shutdown of all connected clients and itself. After executing the command, the TrueNAS host will now notify the Debian client to shut down and then shut down itself. On the Debian client, the NUT monitor service logs and dmesg will show the following log lines:
+To test the setup, we can simulate a low battery event. Use the command `upsmon -c fsd` on the TrueNAS host to trigger a shutdown of all connected clients and itself. After executing the command, the TrueNAS host will notify the Debian client to shut down and then shut down itself. On the Debian client, the NUT monitor service logs and dmesg will show the following log lines:
 
 ```text
 upsmon[1141]: UPS rack-ups@192.168.1.2: forced shutdown in progress
@@ -68,4 +68,4 @@ upsmon[1141]: Executing automatic power-fail shutdown
 upsmon[1141]: Auto logout and shutdown proceeding
 ```
 
-If both servers shut down gracefully, the test was successfully completed.
+If both servers shut down gracefully, the test was successful.
