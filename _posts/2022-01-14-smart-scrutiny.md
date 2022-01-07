@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Monitor the Health of Multiple SMART Drives with Scrutiny"
+title: "Monitor the Health of Multiple SMART Disks with Scrutiny"
 description: "Scrutiny can monitor the SMART health of multiple disks in multiple servers and expose it through a web interface."
 tags: linux server truenas
 ---
