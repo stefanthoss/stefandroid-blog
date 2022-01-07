@@ -2,7 +2,7 @@
 layout: post
 title: "Disable Annoying UPS Beeps with pfSense"
 description: "You can disable the beeps that UPS units emit on battery power using pfSense."
-tags: networking pfsense
+tags: pfsense ups
 ---
 
 I have my modem and pfSense router connected to an uninterruptible power supply (UPS) - useful if you live in California
