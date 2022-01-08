@@ -7,9 +7,44 @@ tags: linux server truenas
 
 [Scrutiny](https://github.com/AnalogJ/scrutiny) is a tool that collects SMART hard drive data and exposes them
 through a web UI. You can run a central Docker container that contains the database/UI and install the data collection
-agent on multiple clients. This will provide a single interface to monitor all hard drives in all servers.
+agent on multiple clients. This will provide a single interface to monitor all hard drives in all servers. I'm using it
+to monitor my TrueNAS SSDs and the NVME drives in my Debian servers.
 
 ## Web UI
+
+The web UI can be deployed using the `analogj/scrutiny:web` Docker image (the `analogj/scrutiny:latest` image contains
+both the web UI and the data collection agent). I use docker-compose files to deploy the application. Create a new
+directory and the following Dockerfile:
+
+```yaml
+version: "3"
+
+services:
+  scrutiny:
+    image: analogj/scrutiny:web
+    container_name: scrutiny-web
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: "curl -f -s http://localhost:8080/web/dashboard"
+    volumes:
+      - ./config:/scrutiny/config
+    environment:
+      - GIN_MODE=release
+```
+
+Or download the file from [my collection of docker-compose files](https://github.com/stefanthoss/container-fest) and
+start it:
+
+```shell
+mkdir scrutiny
+cd scrutiny
+wget https://raw.githubusercontent.com/stefanthoss/container-fest/main/scrutiny/docker-compose.yml
+docker-compose up -d
+```
+
+The web UI will be available at port 8080 of the Docker host. Here's a screenshot of the web ui:
 
 ![Scrutiny Webapp Dashboard](/assets/images/scrutiny-webapp-dashboard.png)
 
