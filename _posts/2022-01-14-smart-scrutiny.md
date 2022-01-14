@@ -14,7 +14,7 @@ in all servers. I'm using it to monitor my TrueNAS SSDs and the NVME drives in m
 ## Web UI
 
 The web UI can be deployed using the `analogj/scrutiny:web` Docker image (the `analogj/scrutiny:latest` image contains
-both the web UI and the data collection agent but I want to deploy them separately). I use docker-compose files to
+both the web UI and the data collector but I want to deploy them separately). I use docker-compose files to
 deploy the application. Create a new directory and the following Dockerfile:
 
 ```yaml
@@ -49,7 +49,10 @@ The web UI will be available at port 8080 of the Docker host. Here's a screensho
 
 ![Scrutiny Webapp Dashboard](/assets/images/scrutiny-webapp-dashboard.png)
 
-## Collector on TrueNAS
+Now you have to install the data collector on the servers that contain the disks you want to monitor. Below are
+instructions for TrueNAS and Debian.
+
+## Data Collector on TrueNAS
 
 Scrutiny needs Smartmontools version 7. Check on the TrueNAS terminal that version 7 is installed. TrueNAS Core 12.0
 ships with Smartmontools 7.2 as checked with the `smartctl -V` command:
@@ -81,8 +84,6 @@ wget https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.collector
 nano /usr/local/tools/scrutiny/config/collector.yaml
 ```
 
-![TrueNAS Scrutiny Cronjob](/assets/images/truenas-scrutiny-cronjob.png)
-
 Now go to **Tasks** → **Cron Jobs** and add a new cron job:
 
 | Description | Scrutiny |
@@ -93,16 +94,18 @@ Now go to **Tasks** → **Cron Jobs** and add a new cron job:
 Enable both `Hide Standard Output` and `Hide Standard Error` once you confirmed the collector to be working. Otherwise
 TrueNAS will send an email with the full log for every single log.
 
+![TrueNAS Scrutiny Cronjob](/assets/images/truenas-scrutiny-cronjob.png)
+
 At the start of the next hour, the SMART data should appear in the Scrutiny Web UI.
 
-## Collector on Debian Bullseye
+## Data Collector on Debian
 
 Follow the [Scrutiny installation instructions](https://github.com/AnalogJ/scrutiny/blob/master/docs/INSTALL_MANUAL.md#collector)
-to install the collector agent. You don't have to install the Webapp/API.
+to install the collector agent. You don't have to install the web UI / API.
 
 Edit the `/opt/scrutiny/config/collector.yaml` file and change the following parameters:
 
-* `host.id` should be an identifier for your TrueNAS server
+* `host.id` should be an identifier for your Debian server
 * `api.endpoint` should be the HTTP endpoint of the Scrutiny Web server
 
 Add the following tab using `crontab -e`:
@@ -110,3 +113,5 @@ Add the following tab using `crontab -e`:
 ```text
 0 * * * * . /etc/profile; /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --config /opt/scrutiny/config/collector.yaml
 ```
+
+At the start of the next hour, the SMART data should appear in the Scrutiny Web UI.
