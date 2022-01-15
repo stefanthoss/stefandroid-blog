@@ -9,7 +9,7 @@ tags: linux server truenas
 web UI (read more about [SMART on Wikipedia](https://en.wikipedia.org/wiki/S.M.A.R.T.)). You can run a central Docker
 container that contains the database and web UI. Data collection agents on multiple clients will collect the data and
 send it to the central instance. This will provide a single interface to monitor all hard drives in all servers. I'm
-using it to monitor my TrueNAS SSDs and the NVMe drives in my Debian servers.
+using it to monitor my TrueNAS disks and the NVMe drives in my Debian servers.
 
 ## Web UI
 
