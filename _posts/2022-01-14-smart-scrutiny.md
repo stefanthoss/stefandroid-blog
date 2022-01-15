@@ -5,17 +5,17 @@ description: "Scrutiny can monitor the SMART health of multiple disks in multipl
 tags: linux server truenas
 ---
 
-[Scrutiny](https://github.com/AnalogJ/scrutiny) is a tool that collects SMART hard drive data and exposes them
-through a web UI (read more about [SMART on Wikipedia](https://en.wikipedia.org/wiki/S.M.A.R.T.)). You can run a
-central Docker container that contains the database and web UI. Data collection agents on multiple clients will
-collect the data and send it to the central instance. This will provide a single interface to monitor all hard drives
-in all servers. I'm using it to monitor my TrueNAS SSDs and the NVME drives in my Debian servers.
+[Scrutiny](https://github.com/AnalogJ/scrutiny) is a tool that collects SMART hard drive data and exposes them through a
+web UI (read more about [SMART on Wikipedia](https://en.wikipedia.org/wiki/S.M.A.R.T.)). You can run a central Docker
+container that contains the database and web UI. Data collection agents on multiple clients will collect the data and
+send it to the central instance. This will provide a single interface to monitor all hard drives in all servers. I'm
+using it to monitor my TrueNAS SSDs and the NVMe drives in my Debian servers.
 
 ## Web UI
 
 The web UI can be deployed using the `analogj/scrutiny:web` Docker image (the `analogj/scrutiny:latest` image contains
-both the web UI and the data collector but I want to deploy them separately). I use docker-compose files to
-deploy the application. Create a new directory and the following Dockerfile:
+both the web UI and the data collector, but I want to deploy them separately). I use docker-compose files to deploy the
+application. Create a new directory and the following Dockerfile:
 
 ```yaml
 version: "3"
@@ -45,7 +45,8 @@ wget https://raw.githubusercontent.com/stefanthoss/container-fest/main/scrutiny/
 docker-compose up -d
 ```
 
-The web UI will be available at port 8080 of the Docker host. Here's a screenshot of the web ui:
+The web UI will be available at port 8080 of the Docker host. Here's a screenshot of the web UI with 4 disks from
+2 servers:
 
 ![Scrutiny Webapp Dashboard](/assets/images/scrutiny-webapp-dashboard.png)
 
@@ -62,7 +63,7 @@ smartctl 7.2 2020-12-30 r5155 [FreeBSD 12.2-RELEASE-p6 amd64] (local build)
 ```
 
 Download the Collector agent binary (below link is for version 0.3.13 - the latest as of January 2022). Then copy it to
-`/usr/local` and make it executable. Execute the following as `root`:
+`/usr/local` and make it executable. In short, execute the following as `root`:
 
 ```shell
 mkdir -p /usr/local/tools/scrutiny/bin
@@ -70,11 +71,11 @@ wget https://github.com/AnalogJ/scrutiny/releases/download/0.3.13/scrutiny-colle
 chmod +x /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64
 ```
 
-Create the configuration file by downloading the sample `collector.yaml` from the GitHub repo. Edit it (e.g. with `nano`)
-and change the following parameters:
+Create the configuration file by downloading the sample `collector.yaml` from the GitHub repo. Edit it and change the
+following parameters:
 
 * `host.id` should be an identifier for your TrueNAS server
-* `api.endpoint` should be the HTTP endpoint of the Scrutiny Web server
+* `api.endpoint` should be the HTTP endpoint of the Scrutiny Web server that we deployed using Docker (e.g. `http://192.168.1.5:8080`)
 
 Everything else can be left as is. Here are the commands which have  to be executed as `root`:
 
@@ -91,8 +92,8 @@ Now go to **Tasks** → **Cron Jobs** and add a new cron job:
 | Run As User | root |
 | Schedule | Hourly |
 
-Enable both `Hide Standard Output` and `Hide Standard Error` once you confirmed the collector to be working. Otherwise
-TrueNAS will send an email with the full log for every single log.
+Enable both `Hide Standard Output` and `Hide Standard Error` once you confirmed the data collector to be working.
+Otherwise, TrueNAS will send an email with the full log for every single log.
 
 ![TrueNAS Scrutiny Cronjob](/assets/images/truenas-scrutiny-cronjob.png)
 
@@ -105,10 +106,10 @@ to install the collector agent. You don't have to install the web UI / API.
 
 Edit the `/opt/scrutiny/config/collector.yaml` file and change the following parameters:
 
-* `host.id` should be an identifier for your Debian server
-* `api.endpoint` should be the HTTP endpoint of the Scrutiny Web server
+* `host.id` should be an identifier for your Debian server, e.g. the hostname
+* `api.endpoint` should be the HTTP endpoint of the Scrutiny Web server that we deployed using Docker (e.g. `http://192.168.1.5:8080`)
 
-Add the following tab using `crontab -e`:
+Using `crontab -e` you can schedule the data collector to run as an hourly job:
 
 ```text
 0 * * * * . /etc/profile; /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --config /opt/scrutiny/config/collector.yaml
