@@ -88,7 +88,7 @@ nano /usr/local/tools/scrutiny/config/collector.yaml
 Now go to **Tasks** → **Cron Jobs** and add a new cron job:
 
 | Description | Scrutiny |
-| Command | `. /etc/profile; /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64 run --config /usr/local/tools/scrutiny/config/collector.yaml` |
+| Command | `. /etc/profile; /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64 run --config /usr/local/tools/scrutiny/config/collector.yaml`|
 | Run As User | root |
 | Schedule | Hourly |
 
