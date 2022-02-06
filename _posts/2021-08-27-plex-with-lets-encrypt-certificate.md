@@ -82,7 +82,8 @@ chmod 755 /var/lib/plexmediaserver/plex_certificate.p12
 ```
 
 The `chmod` command is necessary because this Bash script will be executed as root and the Plex user has to be able to
-access the file.
+access the file. After the creation of the script file, use `sudo chmod +x /etc/letsencrypt/renewal-hooks/post/create_p12_file.sh`
+to make it executable.
 
 Now you can initialize Certbot and obtain the first Let's Encrypt certificate:
 
