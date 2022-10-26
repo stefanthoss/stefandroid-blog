@@ -18,3 +18,9 @@ theme. It is hosted on [GitHub Pages](https://pages.github.com) and deployed wit
 
 The [bender icon](https://thenounproject.com/term/system/333633) by [Herbert Spencer](https://thenounproject.com/hspencer)
 is licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+
+## Electronic Frontier Foundation
+
+I support the [EFF](https://www.eff.org/work)'s fight for digital privacy, free speech, and innovation in the digital world.
+
+[![Support EFF](/assets/images/eff-banner.png)](https://www.eff.org/work)
