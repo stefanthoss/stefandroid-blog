@@ -2,7 +2,7 @@
 layout: post
 title: "Install Home Assistant OS on Proxmox"
 description: "Home Assistant OS can be easily installed on Proxmox using the qcow2 virtual machine image."
-tags: linux proxmox server
+tags: homeassistant proxmox server
 ---
 
 The Home Assistant Operating System (HAOS) has a couple of advantages over the other installation methods, Home
