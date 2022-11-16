@@ -57,6 +57,7 @@ entities:
   - entity: sensor.living_room_heating_hours_today
     name: Living Room
     show_state: true
+    color: gray
 hours_to_show: 336
 lower_bound: 0
 group_by: date
@@ -68,12 +69,4 @@ show:
   extrema: true
 ```
 
-
-
-
-
-
-
-
-
-
+![Heating Hours Graph in Home Assistant](/assets/images/home-assistant-heating-hours-graph.png)
