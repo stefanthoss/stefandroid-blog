@@ -20,6 +20,7 @@ This works for any unit conversion. You have to change the `state` equation base
 `unit_of_measurement` and `device_class` to whatever your resulting unit will be.
 
 {% raw %}
+
 ```yaml
 template:
   - sensor:
@@ -29,6 +30,7 @@ template:
         state_class: "measurement"
         state: "{{ 1.8 * (states('sensor.living_room_temperature') | float) + 32 }}"
 ```
+
 {% endraw %}
 
 Now you have a new entity `sensor.living_room_temperature_degf` that tracks the same temperature in °F.
