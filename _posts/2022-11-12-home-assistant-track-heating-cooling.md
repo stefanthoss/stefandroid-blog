@@ -1,28 +1,30 @@
 ---
 layout: post
 title: "Track Heating and Cooling Hours with Home Assistant"
-description: ""
+description: "With template and history stats sensors, Home Assistant can track the heating and cooling hours of a thermostat."
 tags: homeassistant
 ---
 
-Home Assistant doesn't provide a capability to track the amount of time that your A/C runs each day. This can be useful to understand how much energy your heating or cooling uses. This functionality can be added with a template sensor and history statistics. This guide assumes that you have a thermostat in Home Assistant that is exposed as a `climate` entity (like most [climate integrations](https://www.home-assistant.io/integrations/#climate) do).
+Home Assistant doesn't provide a built-in capability to track the amount of time that your furnace or A/C runs each day. This can be useful to understand how much energy your heating or cooling uses. This functionality can be added with a template sensor and history statistics. This guide assumes that you have a thermostat in Home Assistant that is exposed as a `climate` entity (like most [climate integrations](https://www.home-assistant.io/integrations/#climate) are).
 
-The current thermostat state (heating/cooling/idle) is not exposed as an entity but only as an entity attribute for the thermostat. So we have to create a [template sensor](https://www.home-assistant.io/integrations/template/) that exposes the state as its own entity.
+The current thermostat state (heating/cooling/idle) is not exposed as an entity but only as an entity attribute in the thermostat. So we have to create a [template sensor](https://www.home-assistant.io/integrations/template/) that exposes the state as its own entity.
 
 Add this to your `configuration.yml` file if you have a thermostat called `climate.living_room_thermostat`: 
 
+{% raw %}
 ```yaml
 template:
   - sensor:
       - name: "Living Room Thermostat State"
-        state: >
-          {{ state_attr('climate.living_room_thermostat', 'hvac_action') }}
+        state: "{{ state_attr('climate.living_room_thermostat', 'hvac_action') }}"
 ```
+{% endraw %}
 
 Now we can create a [history stats sensor](https://www.home-assistant.io/integrations/history_stats/) that calculates the number of hours for each day that a certain state is active.
 
 Add this to your `configuration.yml` file for the template sensor above: 
 
+{% raw %}
 ```yaml
 sensor:
   - platform: history_stats
@@ -40,10 +42,11 @@ sensor:
     start: "{{ now().replace(hour=0, minute=0, second=0) }}"
     end: "{{ now() }}"
 ```
+{% endraw %}
 
 Now you have two sensors (one for heating, one for cooling) that track the heating/cooling duration of your thermostat in hours. If your thermostat provides only heating or only cooling, just omit the other sensor.
 
-When looking at the sensor's history, you'll see that its value increases while the heater runs and resets at midnight. The value at midnight represents the number of hours that heating ran that day.
+When looking at the sensor's history, you'll see that its value increases while the heater runs and resets at midnight. The value at midnight represents the number of hours that heating was used that day.
 
 ![Heating Hours History in Home Assistant](/assets/images/home-assistant-heating-sensor-history.png)
 
