@@ -14,7 +14,7 @@ The current thermostat state (heating/cooling/idle) is not exposed as an entity 
 thermostat. So we have to create a [template sensor](https://www.home-assistant.io/integrations/template/) that exposes
 the state as its own entity.
 
-Add this to your `configuration.yml` file if you have a thermostat called `climate.living_room_thermostat`: 
+Add this to your `configuration.yml` file if you have a thermostat called `climate.living_room_thermostat`:
 
 {% raw %}
 
@@ -30,7 +30,7 @@ template:
 Now we can create a [history stats sensor](https://www.home-assistant.io/integrations/history_stats/) that calculates
 the number of hours for each day that a certain state is active.
 
-Add this to your `configuration.yml` file for the template sensor above: 
+Add this to your `configuration.yml` file for the template sensor above:
 
 {% raw %}
 
