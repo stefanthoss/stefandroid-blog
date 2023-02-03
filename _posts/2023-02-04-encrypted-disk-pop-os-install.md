@@ -5,13 +5,13 @@ description: "With LUKS and LVM, you can set up disk encryption and custom parti
 tags: linux encryption
 ---
 
-Pop_OS! does not offer the option to setup disk encryption when using custom partitioning during the installation process. You have to choose between using the entire disk with encryption or using custom partitioning without encryption. Custom partitioning allows for advanced setups like dual booting, separate `/home` partitions, or installations that span multiple disks. With a few command line tools, it's however possible to install Pop_OS! with disk encryption and custom partitioning. You should defintely use disk encryption so make sure to follow these steps.
+Pop_OS! does not offer the option to set up disk encryption when using custom partitioning during the installation process. You have to choose between using the entire disk with encryption or using custom partitioning without encryption. Custom partitioning allows for advanced setups like dual booting, separate `/home` partitions, or installations that span multiple disks. With a few command line tools, it's however possible to install Pop_OS! with disk encryption and custom partitioning. You should definitely use disk encryption, so make sure to follow these steps.
 
 This applies to Pop!_OS 22.04 LTS as of February 2023, I hope that they add custom encryption capabilities to their installation wizard in the future.
 
-The goal is to setup a LUKS-encrypted partition with an LVM volume. You can install Pop_OS! into an existing LVM volume within a LUKS partition. All of this can be done within Pop_OS! when booted from the installation medium. Check out my post about [encrypting a USB drive with LUKS]({% post_url 2021-02-08-encrypt-usb-drive-with-luks %}) for more details about how to use LUKS encryption. Please make sure you have a backup of your files before doing any of these, there is no recovering lost data.
+The goal of this guide is to set up a LUKS-encrypted partition with an LVM volume. You can install Pop_OS! into an existing LVM volume within a LUKS partition. All of this can be done within Pop_OS! when booted from the installation medium. Check out my post about [encrypting a USB drive with LUKS]({% post_url 2021-02-08-encrypt-usb-drive-with-luks %}) for more details about how to use LUKS encryption. Please make sure you have a backup of your files before doing any of these, there is no recovering lost data.
 
-First, create an empty partition where you want to setup encryption and install Pop_OS! In the following examples, that will be `/dev/sdx`. You perform the partitioning with GParted and check the partitions with `sudo fdisk -l`.
+First, create an empty partition where you want to set up encryption and install Pop_OS! In the following examples, that will be `/dev/sdx`. You perform the partitioning with GParted and check the partitions with `sudo fdisk -l`.
 
 Next, format the partition with LUKS, open it (I use `crypt_sdx` as the mapping name), and initialize it for use by LVM. During these steps, you will be asked to set the encryption password -- use a strong one and memorize it well!
 
