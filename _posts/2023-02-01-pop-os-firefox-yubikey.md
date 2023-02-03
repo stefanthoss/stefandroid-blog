@@ -6,7 +6,7 @@ tags: linux
 ---
 
 I recommend everyone to use a [YubiKey](https://www.yubico.com/products) as a second factor authentication method for
-increased safety. After a fresh installation of [Pop_OS!](https://pop.system76.com), the YubiKey authentication in
+increased security. After a fresh installation of [Pop_OS!](https://pop.system76.com), the YubiKey authentication in
 Firefox doesn't seem to work (I assume the same holds true for Ubuntu and its other derivatives like Linux Mint).
-It's that easy: With a simple `sudo apt update && sudo apt install libu2f-udev`, the necessary U2F libraries are
-installed and the YubiKey will start to work. Stay safe on the Internet, everyone!
+The solution is easy: With a simple `sudo apt update && sudo apt install libu2f-udev`, the necessary U2F libraries
+are installed and the YubiKey will start to work. Stay safe on the Internet, everyone!
