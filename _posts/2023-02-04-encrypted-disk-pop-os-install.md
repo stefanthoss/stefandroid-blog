@@ -17,9 +17,8 @@ out my post about [encrypting a USB drive with LUKS]({% post_url 2021-02-08-encr
 details about how to use LUKS encryption. Please make sure you have a backup of your files before doing any of this
 since there is no recovery of lost data.
 
-First, create an empty partition where you want to set up encryption and use for the Pop_OS! installation. In the
-following examples, that will be `/dev/sdx`. You can perform the partitioning with GParted and check the partitions
-with `sudo fdisk -l`.
+First, create an empty partition that you want to use for the Pop_OS! installation. In the following examples,
+that will be `/dev/sdx`. You can perform the partitioning with GParted and check the partitions with `sudo fdisk -l`.
 
 Next, format the partition with LUKS, open it (I use `crypt_sdx` as the mapping name), and initialize it for use by
 LVM. During these steps, you will be asked to set the disk encryption password -- use a strong one and memorize it well!
