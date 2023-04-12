@@ -76,7 +76,8 @@ openssl pkcs12 -export \
   -in /etc/letsencrypt/live/plex.example.com/cert.pem \
   -inkey /etc/letsencrypt/live/plex.example.com/privkey.pem \
   -certfile /etc/letsencrypt/live/plex.example.com/chain.pem \
-  -passout pass:PASSWORD
+  -passout pass:PASSWORD \
+  -certpbe AES-256-CBC -keypbe AES-256-CBC -macalg SHA256
 
 chmod 755 /var/lib/plexmediaserver/plex_certificate.p12
 ```
@@ -136,3 +137,18 @@ Go to the "Remote Access" tab of the Plex settings and enable remote access. If 
 > Fully accessible outside your network
 
 your setup is working!
+
+## Update (April 22, 2023): OpenSSL 3.0
+
+With Plex 1.32.0.6865, OpenSSL was updated to 3.0 which requires different encryption algorithms to be used. If the
+`create_p12_file.sh` script is not updated, the Plex server will use the default `.plex.direct` certificate instead of
+the custom certificate. This will result in a browser security warning and the following Plex server log lines:
+
+```text
+ERROR - [CERT] PKCS12_parse failed: error:digital envelope routines::unsupported
+ERROR - [CERT] Found a user-provided certificate, but couldn't install it.
+```
+
+Based on the article in <https://forums.plex.tv/t/linux-tips/276247/25>, it can be fixed by adding
+`-certpbe AES-256-CBC -keypbe AES-256-CBC -macalg SHA256` to the `openssl pkcs12` command -- I updated the post above
+accordingly.
