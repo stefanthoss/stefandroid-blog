@@ -138,11 +138,12 @@ Go to the "Remote Access" tab of the Plex settings and enable remote access. If 
 
 your setup is working!
 
-## Update (April 22, 2023): OpenSSL 3.0
+## Update (April 20, 2023): OpenSSL 3.0
 
 With Plex 1.32.0.6865, OpenSSL was updated to 3.0 which requires different encryption algorithms to be used. If the
-`create_p12_file.sh` script is not updated, the Plex server will use the default `.plex.direct` certificate instead of
-the custom certificate. This will result in a browser security warning and the following Plex server log lines:
+`create_p12_file.sh` script does not explicitly use stricter encryption algorithms, the Plex server will use the
+default `.plex.direct` certificate instead of the custom certificate. This will result in a browser security warning
+and the following Plex server log lines:
 
 ```text
 ERROR - [CERT] PKCS12_parse failed: error:digital envelope routines::unsupported
