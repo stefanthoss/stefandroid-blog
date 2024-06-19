@@ -37,4 +37,4 @@ and protected. They provide valuable resources and support individuals and organ
 Supporting the EFF is a great way to help protect your own rights and contribute to a more open, free, and secure
 Internet.
 
-[![Support EFF](/assets/images/eff-banner.png)](https://www.eff.org/work)
+[![EFF Member](/assets/images/eff-2023-member-member.png)](https://www.eff.org)
