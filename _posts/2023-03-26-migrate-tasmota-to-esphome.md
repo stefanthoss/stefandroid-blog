@@ -32,48 +32,45 @@ Now you have to edit the configuration. I'm doing it based on the config that's 
 4. Apend the following config:
 
     ```yaml
-    # Enable web server
-    web_server:
-    port: 80
-
     # Enable time component for use by daily power sensor
     time:
-    - platform: homeassistant
+      - platform: homeassistant
         id: homeassistant_time
 
     binary_sensor:
-    # Reports when the button is pressed
-    - platform: gpio
+      # Reports when the button is pressed
+      - platform: gpio
         device_class: power
         pin:
-        number: GPIO13
-        inverted: True
+          number: GPIO13
+          inverted: True
         name: Button
         on_press:
-        - switch.toggle: relay
+          - switch.toggle: relay
 
-    # Reports if this device is Connected or not
-    - platform: status
+      # Reports if this device is Connected or not
+      - platform: status
         name: Status
 
     sensor:
-    # Reports the WiFi signal strength
-    - platform: wifi_signal
+      # Reports the WiFi signal strength
+      - platform: wifi_signal
         name: WiFi Signal
-        update_interval: 60s
 
-    # Reports how long the device has been powered (in minutes)
-    - platform: uptime
+      # Reports how long the device has been powered (in minutes)
+      - platform: uptime
         name: Uptime
         filters:
-        - lambda: return x / 60.0;
-        unit_of_measurement: minutes
+          - lambda: return x / 60.0;
+        device_class: duration
+        unit_of_measurement: min
+        state_class: total_increasing
 
-    # Reports the Current, Voltage, and Power used by the plugged-in device (not counting this plug's own usage of about 0.7W/0.02A, so subtract those when calibrating with this plugged into a Kill-A-Watt type meter)
-    - platform: hlw8012
+      # Reports the Current, Voltage, and Power used by the plugged-in device (not counting this plug's own usage of about 0.7W/0.02A, so subtract those when calibrating with this plugged into a Kill-A-Watt type meter)
+      - platform: hlw8012
         sel_pin:
-        number: GPIO12
-        inverted: True
+          number: GPIO12
+          inverted: True
         cf_pin: GPIO5
         cf1_pin: GPIO14
         current_resistor: 0.001 #The value of the shunt resistor for current measurement. Defaults to the Sonoff POW’s value 0.001 ohm. Verified on https://fccid.io/2AKBP-X10S/Internal-Photos/X10S-Int-photo-4308983 that we use "R001" = 0.001 ohm
@@ -81,26 +78,27 @@ Now you have to edit the configuration. I'm doing it based on the config that's 
         # but those don't fix the measurement values, probably because we actually have a BL0937 chip instead of a HLW8012, (and part variance aswell) so we have to manually calibrate with a known load or a load and a Kill-A-Watt type meter. My values used below will only be +/-10% of yours I think.
         # The comments about the voltage divider were taken from the AWP04L template. I was unable to verify the voltage divider in the Aoycocr X10S plug.
         power:
-        name: Power
-        unit_of_measurement: W
-        id: wattage
-        filters:
+          name: Power
+          unit_of_measurement: W
+          id: wattage
+          filters:
             - calibrate_linear:
                 # Map 0.0 (from sensor) to 0.0 (true value)
                 - 0.0 -> 0.0 #Need to keep 0 mapped to 0 for when connected device is not drawing any power
                 - 67.6 -> 11.0 #Tested using a Kill-A-Watt meter and LED bulb minus 0.7W from just this plug with LED bulb off
+            - lambda: if (id(relay).state) return x; else return 0;
         current:
-        name: Current
-        unit_of_measurement: A
-        filters:
+          name: Current
+          unit_of_measurement: A
+          filters:
             - calibrate_linear:
                 # Map 0.0 (from sensor) to 0.0 (true value)
                 - 0.0 -> 0.0 #Need to keep 0 mapped to 0 for when connected device is not drawing any power
                 - 0.12 -> 0.08 #Tested using a Kill-A-Watt meter and LED bulb minus 0.02A from just this plug with LED bulb off
         voltage:
-        name: Voltage
-        unit_of_measurement: V
-        filters:
+          name: Voltage
+          unit_of_measurement: V
+          filters:
             - calibrate_linear:
                 # Map 0.0 (from sensor) to 0.0 (true value)
                 - 0.0 -> 0.0
@@ -108,21 +106,24 @@ Now you have to edit the configuration. I'm doing it based on the config that's 
         change_mode_every: 1 #Skips first reading after each change, so this will double the update interval. Default 8
         update_interval: 10s #20 second effective update rate for Power, 40 second for Current and Voltage. Default 60s
 
-    # Reports the total Power so-far each day, resets at midnight, see https://esphome.io/components/sensor/total_daily_energy.html
-    - platform: total_daily_energy
+      # Reports the total Power so-far each day, resets at midnight, see https://esphome.io/components/sensor/total_daily_energy.html
+      - platform: total_daily_energy
         name: Total Daily Energy
         power_id: wattage
         filters:
-        - multiply: 0.001 ## convert Wh to kWh
+          - multiply: 0.001 ## convert Wh to kWh
         unit_of_measurement: kWh
 
     text_sensor:
-    # Reports the ESPHome Version with compile date
-    - platform: version
+      # Reports the ESPHome Version with compile date
+      - platform: version
         name: ESPHome Version
+      - platform: wifi_info
+        ip_address:
+          name: IP Address
 
     switch:
-    - platform: gpio
+      - platform: gpio
         name: Switch
         pin: GPIO4
         id: relay
@@ -132,97 +133,30 @@ Now you have to edit the configuration. I'm doing it based on the config that's 
         #ALWAYS_OFF - Always initialize the pin as OFF on bootup. Does not use flash write cycles.
         #ALWAYS_ON - Always initialize the pin as ON on bootup. Does not use flash write cycles.
         on_turn_on:
-        - light.turn_on:
-            id: blue_led
-            brightness: 100%
+          - light.turn_on:
+              id: blue_led
+              brightness: 100%
         on_turn_off:
-        - light.turn_off: blue_led
+          - light.turn_off: blue_led
 
     output:
-    - platform: esp8266_pwm
-        id: red_output
-        pin: GPIO0
-        inverted: True
-    - platform: esp8266_pwm
+      - platform: esp8266_pwm
         id: blue_output
         pin: GPIO2
         inverted: True
 
     light:
-    - platform: monochromatic
-        name: Red LED
-        output: red_output
-        id: red_led
-        restore_mode: ALWAYS_OFF #Start with light off after reboot/power-loss event.
-        disabled_by_default: true
-        effects:
-        - strobe:
-        - flicker:
-            alpha: 50% #The percentage that the last color value should affect the light. More or less the “forget-factor” of an exponential moving average. Defaults to 95%.
-            intensity: 50% #The intensity of the flickering, basically the maximum amplitude of the random offsets. Defaults to 1.5%.
-        - lambda:
-            name: Throb
-            update_interval: 1s
-            lambda: |-
-                static int state = 0;
-                auto call = id(red_led).turn_on();
-                // Transtion of 1000ms = 1s
-                call.set_transition_length(1000);
-                if (state == 0) {
-                call.set_brightness(1.0);
-                } else {
-                call.set_brightness(0.01);
-                }
-                call.perform();
-                state += 1;
-                if (state == 2)
-                state = 0;
-    - platform: monochromatic
+      - platform: monochromatic
         name: Blue LED
         output: blue_output
         id: blue_led
         restore_mode: ALWAYS_OFF #Start with light off after reboot/power-loss event.
         disabled_by_default: true
-        effects:
-        - strobe:
-        - flicker:
-            alpha: 50% #The percentage that the last color value should affect the light. More or less the “forget-factor” of an exponential moving average. Defaults to 95%.
-            intensity: 50% #The intensity of the flickering, basically the maximum amplitude of the random offsets. Defaults to 1.5%.
-        - lambda:
-            name: Throb
-            update_interval: 1s
-            lambda: |-
-                static int state = 0;
-                auto call = id(blue_led).turn_on();
-                // Transtion of 1000ms = 1s
-                call.set_transition_length(1000);
-                if (state == 0) {
-                call.set_brightness(1.0);
-                } else {
-                call.set_brightness(0.01);
-                }
-                call.perform();
-                state += 1;
-                if (state == 2)
-                state = 0;
 
-    # Blink the red light if we aren't connected to WiFi. Could use https://esphome.io/components/status_led.html instead but then we couldn't use the red light for other things as well.
-    interval:
-    - interval: 500ms
-        then:
-        - if:
-            condition:
-                not:
-                wifi.connected:
-            then:
-                - light.turn_on:
-                    id: red_led
-                    brightness: 100%
-                    transition_length: 0s
-                - delay: 250ms
-                - light.turn_off:
-                    id: red_led
-                    transition_length: 250ms
+    status_led:
+      pin:
+        number: GPIO0
+        inverted: true
     ```
 
 5. Adapt the `restore_mode` of the `switch` section to your preferred switch behavior. See comments for descriptions of the different options.
@@ -234,6 +168,7 @@ Now install ESPHome. Click *Install*, *Manual download*, *Legacy format*, and do
 All future updates can be done directly through the ESPHome add-on.
 
 Helpful links:
+
 * <https://esphome.io/guides/migrate_sonoff_tasmota.html>
 
 ## Full Configuration Example
@@ -259,7 +194,8 @@ api:
     key: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 ota:
-  password: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  platform: esphome
+  password: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
 wifi:
   ssid: !secret wifi_ssid
@@ -268,7 +204,7 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Cloudfree-P2-Espresso-Machine"
-    password: "xxxxxxxxxxxx"
+    password: "XXXXXXXXXXXX"
 
 captive_portal:
 
@@ -300,14 +236,15 @@ sensor:
   # Reports the WiFi signal strength
   - platform: wifi_signal
     name: WiFi Signal
-    update_interval: 60s
 
   # Reports how long the device has been powered (in minutes)
   - platform: uptime
     name: Uptime
     filters:
       - lambda: return x / 60.0;
-    unit_of_measurement: minutes
+    device_class: duration
+    unit_of_measurement: min
+    state_class: total_increasing
 
   # Reports the Current, Voltage, and Power used by the plugged-in device (not counting this plug's own usage of about 0.7W/0.02A, so subtract those when calibrating with this plugged into a Kill-A-Watt type meter)
   - platform: hlw8012
@@ -326,25 +263,31 @@ sensor:
       id: wattage
       filters:
         - calibrate_linear:
-            # Map 0.0 (from sensor) to 0.0 (true value)
-            - 0.0 -> 0.0 #Need to keep 0 mapped to 0 for when connected device is not drawing any power
-            - 67.6 -> 11.0 #Tested using a Kill-A-Watt meter and LED bulb minus 0.7W from just this plug with LED bulb off
+            - 0.0 -> 0.0
+            - 196.48288 -> 35.0
+            - 3642.32764 -> 622.0
+            - 6980.42383 -> 1208.0
+            - 7041.69287 -> 1215.0
+        - lambda: if (id(relay).state) return x; else return 0;
     current:
       name: Current
       unit_of_measurement: A
       filters:
         - calibrate_linear:
-            # Map 0.0 (from sensor) to 0.0 (true value)
-            - 0.0 -> 0.0 #Need to keep 0 mapped to 0 for when connected device is not drawing any power
-            - 0.12 -> 0.08 #Tested using a Kill-A-Watt meter and LED bulb minus 0.02A from just this plug with LED bulb off
+            - 0.0 -> 0.0
+            - 0.51565 -> 0.46
+            - 7.02498 -> 7.91
+            - 12.91727 -> 10.96
+        - lambda: if (id(relay).state) return x; else return 0;
     voltage:
       name: Voltage
       unit_of_measurement: V
       filters:
         - calibrate_linear:
-            # Map 0.0 (from sensor) to 0.0 (true value)
             - 0.0 -> 0.0
-            - 322.4 -> 118.3 #Tested using a Kill-A-Watt meter, value while connected LED bulb was on
+            - 280.19351 -> 110.7
+            - 302.31186 -> 119.7
+            - 306.06781 -> 123.3
     change_mode_every: 1 #Skips first reading after each change, so this will double the update interval. Default 8
     update_interval: 10s #20 second effective update rate for Power, 40 second for Current and Voltage. Default 60s
 
@@ -360,6 +303,9 @@ text_sensor:
   # Reports the ESPHome Version with compile date
   - platform: version
     name: ESPHome Version
+  - platform: wifi_info
+    ip_address:
+      name: IP Address
 
 switch:
   - platform: gpio
@@ -376,87 +322,20 @@ switch:
 
 output:
   - platform: esp8266_pwm
-    id: red_output
-    pin: GPIO0
-    inverted: True
-  - platform: esp8266_pwm
     id: blue_output
     pin: GPIO2
     inverted: True
 
 light:
   - platform: monochromatic
-    name: Red LED
-    output: red_output
-    id: red_led
-    restore_mode: ALWAYS_OFF #Start with light off after reboot/power-loss event.
-    disabled_by_default: true
-    effects:
-      - strobe:
-      - flicker:
-          alpha: 50% #The percentage that the last color value should affect the light. More or less the “forget-factor” of an exponential moving average. Defaults to 95%.
-          intensity: 50% #The intensity of the flickering, basically the maximum amplitude of the random offsets. Defaults to 1.5%.
-      - lambda:
-          name: Throb
-          update_interval: 1s
-          lambda: |-
-            static int state = 0;
-            auto call = id(red_led).turn_on();
-            // Transtion of 1000ms = 1s
-            call.set_transition_length(1000);
-            if (state == 0) {
-              call.set_brightness(1.0);
-            } else {
-              call.set_brightness(0.01);
-            }
-            call.perform();
-            state += 1;
-            if (state == 2)
-              state = 0;
-  - platform: monochromatic
     name: Blue LED
     output: blue_output
     id: blue_led
-    restore_mode: ALWAYS_OFF #Start with light off after reboot/power-loss event.
+    restore_mode: ALWAYS_OFF
     disabled_by_default: true
-    effects:
-      - strobe:
-      - flicker:
-          alpha: 50% #The percentage that the last color value should affect the light. More or less the “forget-factor” of an exponential moving average. Defaults to 95%.
-          intensity: 50% #The intensity of the flickering, basically the maximum amplitude of the random offsets. Defaults to 1.5%.
-      - lambda:
-          name: Throb
-          update_interval: 1s
-          lambda: |-
-            static int state = 0;
-            auto call = id(blue_led).turn_on();
-            // Transtion of 1000ms = 1s
-            call.set_transition_length(1000);
-            if (state == 0) {
-              call.set_brightness(1.0);
-            } else {
-              call.set_brightness(0.01);
-            }
-            call.perform();
-            state += 1;
-            if (state == 2)
-              state = 0;
 
-# Blink the red light if we aren't connected to WiFi. Could use https://esphome.io/components/status_led.html instead but then we couldn't use the red light for other things as well.
-interval:
-  - interval: 500ms
-    then:
-      - if:
-          condition:
-            not:
-              wifi.connected:
-          then:
-            - light.turn_on:
-                id: red_led
-                brightness: 100%
-                transition_length: 0s
-            - delay: 250ms
-            - light.turn_off:
-                id: red_led
-                transition_length: 250ms
+status_led:
+  pin:
+    number: GPIO0
+    inverted: true
 ```
