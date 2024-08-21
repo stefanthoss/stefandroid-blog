@@ -5,30 +5,48 @@ description: "You can replace the firmware of a Tasmota smart plug with ESPHome 
 tags: homeassistant
 ---
 
-I've been using Tasmota smart plugs for a couple of years, but I've recently started migrating them to ESPHome. The migration can be done entirely over-the-air and does not require physical access to the smart plug.
+I've been using Tasmota smart plugs for a couple of years, but I've recently started migrating them to ESPHome. The
+migration can be done entirely over-the-air and does not require physical access to the smart plug.
 
 I prefer ESPHome for a couple of reasons:
 
 * The integration in Home Assistant is better.
 * You don't have to manually configure an MQTT broker on the device.
-* Updates can be done on multiple devices directly through the Home Assistant add-on (there is the [TasmoAdmin](https://github.com/hassio-addons/addon-tasmoadmin) plug-in, but I didn't have a good experience with that).
+* Updates can be done on multiple devices directly through the Home Assistant add-on (there is the
+[TasmoAdmin](https://github.com/hassio-addons/addon-tasmoadmin) plug-in, but I didn't have a good experience with that).
 * I already have a couple of ESPHome devices, so they'll integrate nicely.
 * The configuration of ESPHome devices is driven through a config file instead of a web UI.
-* ESPHome is much more powerful in terms of configuration and customization. Example: I have a plug where I disabled the physical switch, using it only for power monitoring.
+* ESPHome is much more powerful in terms of configuration and customization. Example: I have a plug where I disabled
+the physical switch, using it only for power monitoring.
 
-These instructions should work with all Aoycocr-X10S-based smart plugs. I'm using the awesome [CloudFree Smart Plug 2](https://cloudfree.shop/product/cloudfree-smart-plug-runs-tasmota/) which I strongly recommend -- that plug is solidly built, costs only $13 as of March 2023, includes power monitoring, and is rated for up to 15 A / 1800 W. For other Tasmota devices the steps will be roughly the same, but the configuration file has to be different. Check out [ESPHome Device](https://www.esphome-devices.com/type/plug) for a collection of ESPHome configurations for various devices.
+These instructions should work with all Aoycocr-X10S-based smart plugs. I'm using the awesome [CloudFree Smart Plug 2](https://cloudfree.shop/product/cloudfree-smart-plug-runs-tasmota/)
+which I strongly recommend -- that plug is solidly built, costs only $13 as of March 2023, includes power monitoring,
+and is rated for up to 15 A / 1800 W. For other Tasmota devices the steps will be roughly the same, but the
+configuration file has to be different. Check out [ESPHome Device](https://www.esphome-devices.com/type/plug) for a
+collection of ESPHome configurations for various devices.
 
 ## Installation
 
-The first step is to flash the minimal Tasmota firmware instead of the regular build. If you try to flash ESPHome with the regular Tasmota firmware, you'll get an "Upload Failed. Not enough space." message in Tasmota. Go to your Tasmota plug's web UI, select *Firmware Upgrade* and upgrade by web server using the `http://ota.tasmota.com/tasmota/tasmota-minimal.bin.gz` OTA URL.
+The first step is to flash the minimal Tasmota firmware instead of the regular build. If you try to flash ESPHome with
+the regular Tasmota firmware, you'll get an "Upload Failed. Not enough space." message in Tasmota. Go to your Tasmota
+plug's web UI, select *Firmware Upgrade* and upgrade by web server using the
+`http://ota.tasmota.com/tasmota/tasmota-minimal.bin.gz` OTA URL.
 
-Next, go to the Home Assistant ESPHome add-on, click *New Device*, give the configuration a name, and select the device type (ESP8266 for the CloudFree P2 plugs). Don't install it yet.
+Next, go to the Home Assistant ESPHome add-on, click *New Device*, give the configuration a name, and select the device
+type (ESP8266 for the CloudFree P2 plugs). Don't install it yet.
 
-Now you have to edit the configuration. I'm doing it based on the config that's outlined in the [ESPHome Device page about Aoycocr-X10S](https://www.esphome-devices.com/devices/Aoycocr-X10S-Plug) but with slight modifications to the latest ESPHome firmware (2023.3.1 as of this writing). We're starting off with the default configuration that ESPHome created for you, which will already include a lot of the best practices, secrets, and WiFi configuration.
+Now you have to edit the configuration. I'm doing it based on the config that's outlined in the
+[ESPHome Device page about Aoycocr-X10S](https://www.esphome-devices.com/devices/Aoycocr-X10S-Plug) but with slight
+modifications to the latest ESPHome firmware (2023.3.1 as of this writing). We're starting off with the default
+configuration that ESPHome created for you, which will already include a lot of the best practices, secrets, and WiFi
+configuration.
 
-1. Add `restore_from_flash: true` to the `esp8266` section. This writes each state change to flash for switch or light with restore_mode, check out the [documentation](https://esphome.io/components/esphome.html#esp8266-restore-from-flash) for more info.
+1. Add `restore_from_flash: true` to the `esp8266` section. This writes each state change to flash for switch or light
+with restore_mode, check out the [documentation](https://esphome.io/components/esphome.html#esp8266-restore-from-flash)
+for more info.
 2. Leave the `logger`, `api`, `ota`, `wifi`, and `captive_portal` section as-is.
-3. (Optional) Add a comment to the `esphome` section to describe the device (e.g. `comment: CloudFree Smart Plug 2, based on Aoycocr-X10S Plug`)
+3. (Optional) Add a comment to the `esphome` section to describe the device
+(e.g. `comment: CloudFree Smart Plug 2, based on Aoycocr-X10S Plug`)
 4. Apend the following config:
 
     ```yaml
@@ -159,11 +177,19 @@ Now you have to edit the configuration. I'm doing it based on the config that's 
         inverted: true
     ```
 
-5. Adapt the `restore_mode` of the `switch` section to your preferred switch behavior. See comments for descriptions of the different options.
+5. Adapt the `restore_mode` of the `switch` section to your preferred switch behavior. See comments for descriptions
+of the different options.
 
-Next, remove the old Tasmota device from Home Assistant, otherwise it mix with the new ESPHome device. Since we already downgraded to the "minimal" Tasmota firmware, it will no longer publish MQTT messages to the MQTT broker. There are a couple of ways to do this, the easiest being purging the respective topics in the MQTT broker. I use [MQTT Explorer](https://mqtt-explorer.com/) to delete the topics `/tasmota/discovery/XXXXXXXXXXXX` and `/tele/tasmota_XXXXXX` for the device.
+Next, remove the old Tasmota device from Home Assistant, otherwise it mix with the new ESPHome device. Since we already
+downgraded to the "minimal" Tasmota firmware, it will no longer publish MQTT messages to the MQTT broker. There are a
+couple of ways to do this, the easiest being purging the respective topics in the MQTT broker. I use
+[MQTT Explorer](https://mqtt-explorer.com/) to delete the topics `/tasmota/discovery/XXXXXXXXXXXX` and
+`/tele/tasmota_XXXXXX` for the device.
 
-Now install ESPHome. Click *Install*, *Manual download*, *Legacy format*, and download the `bin` file. Go to your Tasmota plug's web UI, select *Firmware Upgrade* and upgrade by uploading the `bin` file. The plug should reboot and run ESPHome! The final step is to adopt the device in Home Assistant which is easy since Home Assistant auto-detects the new device.
+Now install ESPHome. Click *Install*, *Manual download*, *Legacy format*, and download the `bin` file. Go to your
+Tasmota plug's web UI, select *Firmware Upgrade* and upgrade by uploading the `bin` file. The plug should reboot and
+run ESPHome! The final step is to adopt the device in Home Assistant which is easy since Home Assistant auto-detects
+the new device.
 
 All future updates can be done directly through the ESPHome add-on.
 
