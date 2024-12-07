@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Supermicro Fans Are Repeatedly Ramping Up and Down | Stefandroid Blog</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Supermicro Fans Are Repeatedly Ramping Up and Down" />
+<meta name="author" content="Stefan Thoss" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Fan thresholds for low RPM Noctua fans on a Supermicro server motherboards have to be adjusted so that the fans are not repeatedly ramping up and down." />
+<meta property="og:description" content="Fan thresholds for low RPM Noctua fans on a Supermicro server motherboards have to be adjusted so that the fans are not repeatedly ramping up and down." />
+<link rel="canonical" href="https://blog.stefandroid.com/2021/09/24/supermicro-fans-ramping-up-down.html" />
+<meta property="og:url" content="https://blog.stefandroid.com/2021/09/24/supermicro-fans-ramping-up-down.html" />
+<meta property="og:site_name" content="Stefandroid Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-09-24T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Supermicro Fans Are Repeatedly Ramping Up and Down" />
+<meta name="google-site-verification" content="IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Stefan Thoss"},"dateModified":"2024-12-07T05:28:15+00:00","datePublished":"2021-09-24T00:00:00+00:00","description":"Fan thresholds for low RPM Noctua fans on a Supermicro server motherboards have to be adjusted so that the fans are not repeatedly ramping up and down.","headline":"Supermicro Fans Are Repeatedly Ramping Up and Down","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.stefandroid.com/2021/09/24/supermicro-fans-ramping-up-down.html"},"url":"https://blog.stefandroid.com/2021/09/24/supermicro-fans-ramping-up-down.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.stefandroid.com/feed.xml" title="Stefandroid Blog" /><meta http-equiv="Content-Security-Policy" content="base-uri 'self'; default-src 'self' 'unsafe-inline' *.stefandroid.com;" />
+  <script async defer data-domain="blog.stefandroid.com" src="https://stats.stefandroid.com/js/plausible.js" data-exclude="/last-comments"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Stefandroid Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Supermicro Fans Are Repeatedly Ramping Up and Down</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2021-09-24T00:00:00+00:00" itemprop="datePublished">
+        Sep 24, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>When connecting low RPM Noctua fans to a Supermicro motherboard, I noticed that the fans were repeatedly ramping up and
+down every few seconds - essentially cycling between “normal” RPM and maximum RPM. This is because the normal operating
+RPM of these fans is below the default threshold of 500 RPM, and the motherboard will go into a critical state and ramp
+up the fans to maximum RPM. It can be fixed by setting new thresholds on the Supermicro motherboard that fit the low RPM
+fans. By default, these server motherboards expect high RPM fans, as used in server racks.</p>
+
+<p>You will see the following log lines in the Health Event Log if you encounter this issue:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Lower Critical - going low - Assertion
+Lower Non-recoverable - going low - Assertion
+Lower Non-recoverable - going low - Deassertion
+Lower Critical - going low - Deassertion
+</code></pre></div></div>
+
+<p><img src="/assets/images/supermicro-fan-speed-critical.png" alt="Critical Supermicro Fan Speed" /></p>
+
+<p>I use multiple Noctua NF-R8 redux-1800 PWM fans on X11 generation server motherboards. The fans are connected to the
+FAN1 - FAN6 headers, which are controlled by the CPU temperature (the FANA and FANB headers are not). Below commands are
+tested on Debian Bullseye.</p>
+
+<p>First install <code class="language-plaintext highlighter-rouge">ipmitool</code> which can be used to read and modify the fan controller:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt update
+apt <span class="nb">install </span>ipmitool
+</code></pre></div></div>
+
+<p>First check the current sensor’s properties:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ipmitool sensor get FAN2
+Locating sensor record...
+Sensor ID              : FAN2 (0x42)
+ Entity ID             : 29.2
+ Sensor Type (Threshold)  : Fan
+ Sensor Reading        : 500 (+/- 0) RPM
+ Status                : Lower Critical
+ Lower Non-Recoverable : 300.000
+ Lower Critical        : 500.000
+ Lower Non-Critical    : 700.000
+ Upper Non-Critical    : 25300.000
+ Upper Critical        : 25400.000
+ Upper Non-Recoverable : 25500.000
+ Positive Hysteresis   : 100.000
+ Negative Hysteresis   : 100.000
+ Assertion Events      : lcr- 
+ Assertions Enabled    : lcr- lnr- ucr+ unr+ 
+ Deassertions Enabled  : lcr- lnr- ucr+ unr+
+</code></pre></div></div>
+
+<p>The lower critical threshold is set at 500. The Noctua fans I’m using have a maximum RPM of 1800, so they will fall
+below this threshold when the motherboard sets the fan speed to 27% or less.</p>
+
+<p>The fix is to create a small Bash script which sets the critical threshold to 100 RPM and the non-recoverable
+threshold to 200 RPM. You can set the thresholds for multiple fans at once - in the below example I’m doing it for
+FAN2 and FAN3. Create the file <code class="language-plaintext highlighter-rouge">/opt/fancontrol.sh</code> with the following content (adjust the fan sensor names according
+to your setup):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+
+/usr/bin/ipmitool sensor thresh FAN2 lower 0 100 200
+/usr/bin/ipmitool sensor thresh FAN3 lower 0 100 200
+</code></pre></div></div>
+
+<p>Make the script executable:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">chmod </span>755 /opt/fancontrol.sh
+</code></pre></div></div>
+
+<p>You could just execute this file to set the new limits. To make sure the new fan thresholds are set even after a
+motherboard reset, I created a systemd service that re-applies them after every boot.</p>
+
+<p>Create the service file <code class="language-plaintext highlighter-rouge">/etc/systemd/system/fancontrol.service</code> with the following content:</p>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[Unit]</span>
+<span class="py">Description</span><span class="p">=</span><span class="s">Set fan thresholds for low RPM fans.</span>
+
+<span class="nn">[Service]</span>
+<span class="py">Type</span><span class="p">=</span><span class="s">simple</span>
+<span class="py">ExecStart</span><span class="p">=</span><span class="s">/bin/bash /opt/fancontrol.sh</span>
+
+<span class="nn">[Install]</span>
+<span class="py">WantedBy</span><span class="p">=</span><span class="s">multi-user.target</span>
+</code></pre></div></div>
+
+<p>Set the permissions of the service file and enable the service:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">chmod </span>644 /etc/systemd/system/fancontrol.service
+systemctl <span class="nb">enable </span>fancontrol.service
+</code></pre></div></div>
+
+<p>After a reboot or manual execution of the script, you can check the new threshold limits:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code># ipmitool sensor get FAN2
+Locating sensor record...
+Sensor ID              : FAN2 (0x42)
+ Entity ID             : 29.2
+ Sensor Type (Threshold)  : Fan
+ Sensor Reading        : 500 (+/- 0) RPM
+ Status                : ok
+ Lower Non-Recoverable : 0.000
+ Lower Critical        : 100.000
+ Lower Non-Critical    : 200.000
+ Upper Non-Critical    : 25300.000
+ Upper Critical        : 25400.000
+ Upper Non-Recoverable : 25500.000
+ Positive Hysteresis   : 100.000
+ Negative Hysteresis   : 100.000
+ Assertion Events      : 
+ Assertions Enabled    : lcr- lnr- ucr+ unr+ 
+ Deassertions Enabled  : lcr- lnr- ucr+ unr+
+</code></pre></div></div>
+
+<p>The fans should now run smoothly while being temperature-controlled by the Supermicro motherboard.</p>
+
+  </div>
+
+  <div id="remark42"></div>
+
+  <a class="u-url" href="/2021/09/24/supermicro-fans-ramping-up-down.html" hidden></a>
+</article>
+
+<script>
+  var remark_config = {
+    host: 'https://remark.stefandroid.com',
+    site_id: 'STEFANDROID_BLOG',
+    components: ['embed'],
+    url: 'https://blog.stefandroid.com/2021/09/24/supermicro-fans-ramping-up-down.html',
+    theme: 'light',
+    locale: 'en',
+    show_email_subscription: false
+  };
+</script>
+<script>!function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <ul class="contact-list">
+          
+        </ul>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <ul class="social-media-list"><li><a href="https://github.com/stefanthoss" target="_blank"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">stefanthoss</span></a></li><li><a rel="me" href="https://sfba.social/@stefandroid" target="_blank"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#mastodon"></use></svg> <span>Mastodon</span></a></li><li><a href="/feed.xml"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#rss"></use></svg> <span>Subscribe via Atom</span></a></li></ul>      
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Dual Boot Windows Entry Disappears from GRUB (Manjaro) | Stefandroid Blog</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Dual Boot Windows Entry Disappears from GRUB (Manjaro)" />
+<meta name="author" content="Stefan Thoss" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A missing dual boot windows entry in GRUB can be fixed using update-grub on Manjaro." />
+<meta property="og:description" content="A missing dual boot windows entry in GRUB can be fixed using update-grub on Manjaro." />
+<link rel="canonical" href="https://blog.stefandroid.com/2020/10/25/manjaro-missing-windows-boot.html" />
+<meta property="og:url" content="https://blog.stefandroid.com/2020/10/25/manjaro-missing-windows-boot.html" />
+<meta property="og:site_name" content="Stefandroid Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-25T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Dual Boot Windows Entry Disappears from GRUB (Manjaro)" />
+<meta name="google-site-verification" content="IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Stefan Thoss"},"dateModified":"2024-12-07T05:28:15+00:00","datePublished":"2020-10-25T00:00:00+00:00","description":"A missing dual boot windows entry in GRUB can be fixed using update-grub on Manjaro.","headline":"Dual Boot Windows Entry Disappears from GRUB (Manjaro)","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.stefandroid.com/2020/10/25/manjaro-missing-windows-boot.html"},"url":"https://blog.stefandroid.com/2020/10/25/manjaro-missing-windows-boot.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.stefandroid.com/feed.xml" title="Stefandroid Blog" /><meta http-equiv="Content-Security-Policy" content="base-uri 'self'; default-src 'self' 'unsafe-inline' *.stefandroid.com;" />
+  <script async defer data-domain="blog.stefandroid.com" src="https://stats.stefandroid.com/js/plausible.js" data-exclude="/last-comments"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Stefandroid Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Dual Boot Windows Entry Disappears from GRUB (Manjaro)</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2020-10-25T00:00:00+00:00" itemprop="datePublished">
+        Oct 25, 2020
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>After a Manjaro Kernel upgrade the Windows 10 entry in GRUB disappears sometimes so that Windows can’t be booted again.</p>
+
+<p>This can easily be fixed with <code class="language-plaintext highlighter-rouge">update-grub</code>. This command will generate a new GRUB configuration file that will include
+the GRUB entry for the Windows boot manager. The command has to be executed as root:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo update-grub
+Generating grub configuration file ...
+Found theme: /usr/share/grub/themes/manjaro/theme.txt
+Found linux image: /boot/vmlinuz-5.8-x86_64
+Found initrd image: /boot/intel-ucode.img /boot/initramfs-5.8-x86_64.img
+Found initrd fallback image: /boot/initramfs-5.8-x86_64-fallback.img
+Found Windows Boot Manager on /dev/nvme0n1p1@/efi/Microsoft/Boot/bootmgfw.efi
+Adding boot menu entry for UEFI Firmware Settings ...
+Found memtest86+ image: /boot/memtest86+/memtest.bin
+done
+</code></pre></div></div>
+
+<p>After that you’ll see the <em>Manjaro Linux</em> (with options for each installed kernel) and the <em>Windows Boot Manager</em>
+entries in GRUB.</p>
+
+  </div>
+
+  <div id="remark42"></div>
+
+  <a class="u-url" href="/2020/10/25/manjaro-missing-windows-boot.html" hidden></a>
+</article>
+
+<script>
+  var remark_config = {
+    host: 'https://remark.stefandroid.com',
+    site_id: 'STEFANDROID_BLOG',
+    components: ['embed'],
+    url: 'https://blog.stefandroid.com/2020/10/25/manjaro-missing-windows-boot.html',
+    theme: 'light',
+    locale: 'en',
+    show_email_subscription: false
+  };
+</script>
+<script>!function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <ul class="contact-list">
+          
+        </ul>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <ul class="social-media-list"><li><a href="https://github.com/stefanthoss" target="_blank"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">stefanthoss</span></a></li><li><a rel="me" href="https://sfba.social/@stefandroid" target="_blank"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#mastodon"></use></svg> <span>Mastodon</span></a></li><li><a href="/feed.xml"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#rss"></use></svg> <span>Subscribe via Atom</span></a></li></ul>      
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

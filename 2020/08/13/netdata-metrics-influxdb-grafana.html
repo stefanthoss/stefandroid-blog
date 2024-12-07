@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Collect Metrics with Netdata/InfluxDB from Multiple Raspberry Pis | Stefandroid Blog</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Collect Metrics with Netdata/InfluxDB from Multiple Raspberry Pis" />
+<meta name="author" content="Stefan Thoss" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="With Netdata, InfluxDB, and Grafana, you can collect and visualize system metrics from multiple Raspberry Pis in a central location." />
+<meta property="og:description" content="With Netdata, InfluxDB, and Grafana, you can collect and visualize system metrics from multiple Raspberry Pis in a central location." />
+<link rel="canonical" href="https://blog.stefandroid.com/2020/08/13/netdata-metrics-influxdb-grafana.html" />
+<meta property="og:url" content="https://blog.stefandroid.com/2020/08/13/netdata-metrics-influxdb-grafana.html" />
+<meta property="og:site_name" content="Stefandroid Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-08-13T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Collect Metrics with Netdata/InfluxDB from Multiple Raspberry Pis" />
+<meta name="google-site-verification" content="IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Stefan Thoss"},"dateModified":"2024-12-07T05:28:15+00:00","datePublished":"2020-08-13T00:00:00+00:00","description":"With Netdata, InfluxDB, and Grafana, you can collect and visualize system metrics from multiple Raspberry Pis in a central location.","headline":"Collect Metrics with Netdata/InfluxDB from Multiple Raspberry Pis","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.stefandroid.com/2020/08/13/netdata-metrics-influxdb-grafana.html"},"url":"https://blog.stefandroid.com/2020/08/13/netdata-metrics-influxdb-grafana.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.stefandroid.com/feed.xml" title="Stefandroid Blog" /><meta http-equiv="Content-Security-Policy" content="base-uri 'self'; default-src 'self' 'unsafe-inline' *.stefandroid.com;" />
+  <script async defer data-domain="blog.stefandroid.com" src="https://stats.stefandroid.com/js/plausible.js" data-exclude="/last-comments"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Stefandroid Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Collect Metrics with Netdata/InfluxDB from Multiple Raspberry Pis</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2020-08-13T00:00:00+00:00" itemprop="datePublished">
+        Aug 13, 2020
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>To collect metrics from multiple Raspberry Pis or other Linux servers in a central location, the
+Netdata/InfluxDB/Grafana stack is a good solution. Netdata will collect the actual metrics and send them to a central
+InfluxDB instance. A Grafana dashboard will display the metrics.</p>
+
+<p>A central InfluxDB and Grafana instance should be installed and available at <code class="language-plaintext highlighter-rouge">192.168.1.18</code>. Activate the
+<a href="https://docs.influxdata.com/influxdb/v1.8/administration/config/#opentsdb-settings">OpenTSDB protocol support in InfluxDB</a>
+on port 4242. This guide assumes a private network and does not consider encryption and authentication.</p>
+
+<h2 id="install-netdata">Install Netdata</h2>
+
+<p>First make sure that the hostname is set to something useful as it is used to identify different servers in InfluxDB. On
+Raspbian the hostname can be easily changed under Network Options in <code class="language-plaintext highlighter-rouge">sudo raspi-config</code>.</p>
+
+<p>Now install the Netdata client. On most Linux systems (including Raspbian) it’s as easy as</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://my-netdata.io/kickstart.sh
+bash kickstart.sh <span class="nt">--disable-telemetry</span>
+</code></pre></div></div>
+
+<p>Use <code class="language-plaintext highlighter-rouge">--disable-telemetry</code> to prevent Netdata from sending usage statistics. The <code class="language-plaintext highlighter-rouge">kickstart.sh</code> script takes
+approximately 30 minutes to finish on a Raspberry Pi 2. For other systems check the
+<a href="https://learn.netdata.cloud/docs/agent/packaging/installer">Netdata installation guide</a>.</p>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>Tip: If you want to use <code class="language-plaintext highlighter-rouge">nano</code> for editing the configuration files, execute <code class="language-plaintext highlighter-rouge">export EDITOR=nano</code> first.</p>
+
+<p>Use</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> /etc/netdata
+<span class="nb">sudo</span> ./edit-config exporting.conf
+</code></pre></div></div>
+
+<p>to add the lines</p>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[opentsdb:my_instance]</span>
+    <span class="py">enabled</span> <span class="p">=</span> <span class="s">yes</span>
+    <span class="py">destination</span> <span class="p">=</span> <span class="s">192.168.1.18:4242</span>
+</code></pre></div></div>
+
+<p>to the <code class="language-plaintext highlighter-rouge">exporting.conf</code> file (change the IP address to point to your InfluxDB). This will forward all Netdata metrics
+via the OpenTSDB protocol to your InfluxDB instance. Check the
+<a href="https://learn.netdata.cloud/docs/agent/exporting/opentsdb">Netdata documentation</a> for more details about the OpenTSDB
+exporter.</p>
+
+<p>Optionally, you can also disable the integrated <a href="https://learn.netdata.cloud/docs/agent/web/server">Netdata web server</a>
+that usually serves the Netdata UI via HTTP on port 19999. You will check the metrics through Grafana and this will save
+some system resources. Disable the web server by editing the <code class="language-plaintext highlighter-rouge">netdata.conf</code> file. Use</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> /etc/netdata
+<span class="nb">sudo</span> ./edit-config netdata.conf
+</code></pre></div></div>
+
+<p>to set <code class="language-plaintext highlighter-rouge">mode = none</code> in the <code class="language-plaintext highlighter-rouge">[web]</code> section.</p>
+
+<p>Restart the Netdata client with <code class="language-plaintext highlighter-rouge">sudo service netdata restart</code> and start collecting metrics!</p>
+
+<h2 id="grafana-dashboard">Grafana Dashboard</h2>
+
+<p>The Netdata metrics will now be stored in InfluxDB. Use a dashboard like the
+<a href="https://grafana.com/grafana/dashboards/2701">Templated Netdata Dashboard</a> to display the metrics.</p>
+
+  </div>
+
+  <div id="remark42"></div>
+
+  <a class="u-url" href="/2020/08/13/netdata-metrics-influxdb-grafana.html" hidden></a>
+</article>
+
+<script>
+  var remark_config = {
+    host: 'https://remark.stefandroid.com',
+    site_id: 'STEFANDROID_BLOG',
+    components: ['embed'],
+    url: 'https://blog.stefandroid.com/2020/08/13/netdata-metrics-influxdb-grafana.html',
+    theme: 'light',
+    locale: 'en',
+    show_email_subscription: false
+  };
+</script>
+<script>!function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <ul class="contact-list">
+          
+        </ul>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <ul class="social-media-list"><li><a href="https://github.com/stefanthoss" target="_blank"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">stefanthoss</span></a></li><li><a rel="me" href="https://sfba.social/@stefandroid" target="_blank"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#mastodon"></use></svg> <span>Mastodon</span></a></li><li><a href="/feed.xml"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#rss"></use></svg> <span>Subscribe via Atom</span></a></li></ul>      
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="https://blog.stefandroid.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://blog.stefandroid.com/" rel="alternate" type="text/html" /><updated>2024-12-07T05:29:38+00:00</updated><id>https://blog.stefandroid.com/feed.xml</id><title type="html">Stefandroid Blog</title><subtitle>This is Stefan's tech blog - focusing on self-hosting, home automation, privacy, and building homelabs. Sharing experiences, tips, and tutorials on these topics.</subtitle><author><name>Stefan Thoss</name></author><entry><title type="html">Migrate Smart Plugs from Tasmota to ESPHome</title><link href="https://blog.stefandroid.com/2024/08/20/migrate-tasmota-to-esphome.html" rel="alternate" type="text/html" title="Migrate Smart Plugs from Tasmota to ESPHome" /><published>2024-08-20T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2024/08/20/migrate-tasmota-to-esphome</id><content type="html" xml:base="https://blog.stefandroid.com/2024/08/20/migrate-tasmota-to-esphome.html"><![CDATA[<p>I’ve been using Tasmota smart plugs for a couple of years, but I’ve recently started migrating them to ESPHome. The
+migration can be done entirely over-the-air and does not require physical access to the smart plug.</p>
+
+<p>I prefer ESPHome for a couple of reasons:</p>
+
+<ul>
+  <li>The integration in Home Assistant is better.</li>
+  <li>You don’t have to manually configure an MQTT broker on the device.</li>
+  <li>Updates can be done on multiple devices directly through the Home Assistant add-on (there is the
+<a href="https://github.com/hassio-addons/addon-tasmoadmin">TasmoAdmin</a> plug-in, but I didn’t have a good experience with that).</li>
+  <li>I already have a couple of ESPHome devices, so they’ll integrate nicely.</li>
+  <li>The configuration of ESPHome devices is driven through a config file instead of a web UI.</li>
+  <li>ESPHome is much more powerful in terms of configuration and customization. Example: I have a plug where I disabled
+the physical switch, using it only for power monitoring.</li>
+</ul>
+
+<p>These instructions should work with all Aoycocr-X10S-based smart plugs. I’m using the awesome <a href="https://cloudfree.shop/product/cloudfree-smart-plug-runs-tasmota/">CloudFree Smart Plug 2</a>
+which I strongly recommend – that plug is solidly built, costs only $13 as of March 2023, includes power monitoring,
+and is rated for up to 15 A / 1800 W. For other Tasmota devices the steps will be roughly the same, but the
+configuration file has to be different. Check out <a href="https://www.esphome-devices.com/type/plug">ESPHome Device</a> for a
+collection of ESPHome configurations for various devices.</p>
+
+<h2 id="installation">Installation</h2>
+
+<p>The first step is to flash the minimal Tasmota firmware instead of the regular build. If you try to flash ESPHome with
+the regular Tasmota firmware, you’ll get an “Upload Failed. Not enough space.” message in Tasmota. Go to your Tasmota
+plug’s web UI, select <em>Firmware Upgrade</em> and upgrade by web server using the
+<code class="language-plaintext highlighter-rouge">http://ota.tasmota.com/tasmota/tasmota-minimal.bin.gz</code> OTA URL.</p>
+
+<p>Next, go to the Home Assistant ESPHome add-on, click <em>New Device</em>, give the configuration a name, and select the device
+type (ESP8266 for the CloudFree P2 plugs). Don’t install it yet.</p>
+
+<p>Now you have to edit the configuration. I’m doing it based on the config that’s outlined in the
+<a href="https://www.esphome-devices.com/devices/Aoycocr-X10S-Plug">ESPHome Device page about Aoycocr-X10S</a> but with slight
+modifications to the latest ESPHome firmware (2023.3.1 as of this writing). We’re starting off with the default
+configuration that ESPHome created for you, which will already include a lot of the best practices, secrets, and WiFi
+configuration.</p>
+
+<ol>
+  <li>Add <code class="language-plaintext highlighter-rouge">restore_from_flash: true</code> to the <code class="language-plaintext highlighter-rouge">esp8266</code> section. This writes each state change to flash for switch or light
+with restore_mode, check out the <a href="https://esphome.io/components/esphome.html#esp8266-restore-from-flash">documentation</a>
+for more info.</li>
+  <li>Leave the <code class="language-plaintext highlighter-rouge">logger</code>, <code class="language-plaintext highlighter-rouge">api</code>, <code class="language-plaintext highlighter-rouge">ota</code>, <code class="language-plaintext highlighter-rouge">wifi</code>, and <code class="language-plaintext highlighter-rouge">captive_portal</code> section as-is.</li>
+  <li>(Optional) Add a comment to the <code class="language-plaintext highlighter-rouge">esphome</code> section to describe the device
+(e.g. <code class="language-plaintext highlighter-rouge">comment: CloudFree Smart Plug 2, based on Aoycocr-X10S Plug</code>)</li>
+  <li>
+    <p>Apend the following config:</p>
+
+    <div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1"># Enable time component for use by daily power sensor</span>
+ <span class="na">time</span><span class="pi">:</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">homeassistant</span>
+     <span class="na">id</span><span class="pi">:</span> <span class="s">homeassistant_time</span>
+
+ <span class="na">binary_sensor</span><span class="pi">:</span>
+   <span class="c1"># Reports when the button is pressed</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">gpio</span>
+     <span class="na">device_class</span><span class="pi">:</span> <span class="s">power</span>
+     <span class="na">pin</span><span class="pi">:</span>
+       <span class="na">number</span><span class="pi">:</span> <span class="s">GPIO13</span>
+       <span class="na">inverted</span><span class="pi">:</span> <span class="s">True</span>
+     <span class="na">name</span><span class="pi">:</span> <span class="s">Button</span>
+     <span class="na">on_press</span><span class="pi">:</span>
+       <span class="pi">-</span> <span class="na">switch.toggle</span><span class="pi">:</span> <span class="s">relay</span>
+
+   <span class="c1"># Reports if this device is Connected or not</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">status</span>
+     <span class="na">name</span><span class="pi">:</span> <span class="s">Status</span>
+
+ <span class="na">sensor</span><span class="pi">:</span>
+   <span class="c1"># Reports the WiFi signal strength</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">wifi_signal</span>
+     <span class="na">name</span><span class="pi">:</span> <span class="s">WiFi Signal</span>
+
+   <span class="c1"># Reports how long the device has been powered (in minutes)</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">uptime</span>
+     <span class="na">name</span><span class="pi">:</span> <span class="s">Uptime</span>
+     <span class="na">filters</span><span class="pi">:</span>
+       <span class="pi">-</span> <span class="na">lambda</span><span class="pi">:</span> <span class="s">return x / 60.0;</span>
+     <span class="na">device_class</span><span class="pi">:</span> <span class="s">duration</span>
+     <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">min</span>
+     <span class="na">state_class</span><span class="pi">:</span> <span class="s">total_increasing</span>
+
+   <span class="c1"># Reports the Current, Voltage, and Power used by the plugged-in device (not counting this plug's own usage of about 0.7W/0.02A, so subtract those when calibrating with this plugged into a Kill-A-Watt type meter)</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">hlw8012</span>
+     <span class="na">sel_pin</span><span class="pi">:</span>
+       <span class="na">number</span><span class="pi">:</span> <span class="s">GPIO12</span>
+       <span class="na">inverted</span><span class="pi">:</span> <span class="s">True</span>
+     <span class="na">cf_pin</span><span class="pi">:</span> <span class="s">GPIO5</span>
+     <span class="na">cf1_pin</span><span class="pi">:</span> <span class="s">GPIO14</span>
+     <span class="na">current_resistor</span><span class="pi">:</span> <span class="m">0.001</span> <span class="c1">#The value of the shunt resistor for current measurement. Defaults to the Sonoff POW’s value 0.001 ohm. Verified on https://fccid.io/2AKBP-X10S/Internal-Photos/X10S-Int-photo-4308983 that we use "R001" = 0.001 ohm</span>
+     <span class="na">voltage_divider</span><span class="pi">:</span> <span class="m">2401</span> <span class="c1">#The value of the voltage divider on the board as (R_upstream + R_downstream) / R_downstream. Defaults to the Sonoff POW’s value 2351. From the pic we use 2x "125" = 2x 1.2Mohm for R_upstream and "102" = 1kohm for R_downstream, so (1,200,000+1,200,000+1,000)/1,000 = 2401</span>
+     <span class="c1"># but those don't fix the measurement values, probably because we actually have a BL0937 chip instead of a HLW8012, (and part variance aswell) so we have to manually calibrate with a known load or a load and a Kill-A-Watt type meter. My values used below will only be +/-10% of yours I think.</span>
+     <span class="c1"># The comments about the voltage divider were taken from the AWP04L template. I was unable to verify the voltage divider in the Aoycocr X10S plug.</span>
+     <span class="na">power</span><span class="pi">:</span>
+       <span class="na">name</span><span class="pi">:</span> <span class="s">Power</span>
+       <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">W</span>
+       <span class="na">id</span><span class="pi">:</span> <span class="s">wattage</span>
+       <span class="na">filters</span><span class="pi">:</span>
+         <span class="pi">-</span> <span class="na">calibrate_linear</span><span class="pi">:</span>
+             <span class="c1"># Map 0.0 (from sensor) to 0.0 (true value)</span>
+             <span class="pi">-</span> <span class="s">0.0 -&gt; </span><span class="m">0.0</span> <span class="c1">#Need to keep 0 mapped to 0 for when connected device is not drawing any power</span>
+             <span class="pi">-</span> <span class="s">67.6 -&gt; </span><span class="m">11.0</span> <span class="c1">#Tested using a Kill-A-Watt meter and LED bulb minus 0.7W from just this plug with LED bulb off</span>
+         <span class="pi">-</span> <span class="na">lambda</span><span class="pi">:</span> <span class="s">if (id(relay).state) return x; else return 0;</span>
+     <span class="na">current</span><span class="pi">:</span>
+       <span class="na">name</span><span class="pi">:</span> <span class="s">Current</span>
+       <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">A</span>
+       <span class="na">filters</span><span class="pi">:</span>
+         <span class="pi">-</span> <span class="na">calibrate_linear</span><span class="pi">:</span>
+             <span class="c1"># Map 0.0 (from sensor) to 0.0 (true value)</span>
+             <span class="pi">-</span> <span class="s">0.0 -&gt; </span><span class="m">0.0</span> <span class="c1">#Need to keep 0 mapped to 0 for when connected device is not drawing any power</span>
+             <span class="pi">-</span> <span class="s">0.12 -&gt; </span><span class="m">0.08</span> <span class="c1">#Tested using a Kill-A-Watt meter and LED bulb minus 0.02A from just this plug with LED bulb off</span>
+     <span class="na">voltage</span><span class="pi">:</span>
+       <span class="na">name</span><span class="pi">:</span> <span class="s">Voltage</span>
+       <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">V</span>
+       <span class="na">filters</span><span class="pi">:</span>
+         <span class="pi">-</span> <span class="na">calibrate_linear</span><span class="pi">:</span>
+             <span class="c1"># Map 0.0 (from sensor) to 0.0 (true value)</span>
+             <span class="pi">-</span> <span class="s">0.0 -&gt; </span><span class="m">0.0</span>
+             <span class="pi">-</span> <span class="s">322.4 -&gt; </span><span class="m">118.3</span> <span class="c1">#Tested using a Kill-A-Watt meter, value while connected LED bulb was on</span>
+     <span class="na">change_mode_every</span><span class="pi">:</span> <span class="m">1</span> <span class="c1">#Skips first reading after each change, so this will double the update interval. Default 8</span>
+     <span class="na">update_interval</span><span class="pi">:</span> <span class="s">10s</span> <span class="c1">#20 second effective update rate for Power, 40 second for Current and Voltage. Default 60s</span>
+
+   <span class="c1"># Reports the total Power so-far each day, resets at midnight, see https://esphome.io/components/sensor/total_daily_energy.html</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">total_daily_energy</span>
+     <span class="na">name</span><span class="pi">:</span> <span class="s">Total Daily Energy</span>
+     <span class="na">power_id</span><span class="pi">:</span> <span class="s">wattage</span>
+     <span class="na">filters</span><span class="pi">:</span>
+       <span class="pi">-</span> <span class="na">multiply</span><span class="pi">:</span> <span class="m">0.001</span> <span class="c1">## convert Wh to kWh</span>
+     <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">kWh</span>
+
+ <span class="na">text_sensor</span><span class="pi">:</span>
+   <span class="c1"># Reports the ESPHome Version with compile date</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">version</span>
+     <span class="na">name</span><span class="pi">:</span> <span class="s">ESPHome Version</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">wifi_info</span>
+     <span class="na">ip_address</span><span class="pi">:</span>
+       <span class="na">name</span><span class="pi">:</span> <span class="s">IP Address</span>
+
+ <span class="na">switch</span><span class="pi">:</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">gpio</span>
+     <span class="na">name</span><span class="pi">:</span> <span class="s">Switch</span>
+     <span class="na">pin</span><span class="pi">:</span> <span class="s">GPIO4</span>
+     <span class="na">id</span><span class="pi">:</span> <span class="s">relay</span>
+     <span class="na">restore_mode</span><span class="pi">:</span> <span class="s">ALWAYS_ON</span>
+     <span class="c1">#RESTORE_DEFAULT_OFF (Default) - Attempt to restore state and default to OFF if not possible to restore. Uses flash write cycles.</span>
+     <span class="c1">#RESTORE_DEFAULT_ON - Attempt to restore state and default to ON. Uses flash write cycles.</span>
+     <span class="c1">#ALWAYS_OFF - Always initialize the pin as OFF on bootup. Does not use flash write cycles.</span>
+     <span class="c1">#ALWAYS_ON - Always initialize the pin as ON on bootup. Does not use flash write cycles.</span>
+     <span class="na">on_turn_on</span><span class="pi">:</span>
+       <span class="pi">-</span> <span class="na">light.turn_on</span><span class="pi">:</span>
+           <span class="na">id</span><span class="pi">:</span> <span class="s">blue_led</span>
+           <span class="na">brightness</span><span class="pi">:</span> <span class="s">100%</span>
+     <span class="na">on_turn_off</span><span class="pi">:</span>
+       <span class="pi">-</span> <span class="na">light.turn_off</span><span class="pi">:</span> <span class="s">blue_led</span>
+
+ <span class="na">output</span><span class="pi">:</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">esp8266_pwm</span>
+     <span class="na">id</span><span class="pi">:</span> <span class="s">blue_output</span>
+     <span class="na">pin</span><span class="pi">:</span> <span class="s">GPIO2</span>
+     <span class="na">inverted</span><span class="pi">:</span> <span class="s">True</span>
+
+ <span class="na">light</span><span class="pi">:</span>
+   <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">monochromatic</span>
+     <span class="na">name</span><span class="pi">:</span> <span class="s">Blue LED</span>
+     <span class="na">output</span><span class="pi">:</span> <span class="s">blue_output</span>
+     <span class="na">id</span><span class="pi">:</span> <span class="s">blue_led</span>
+     <span class="na">restore_mode</span><span class="pi">:</span> <span class="s">ALWAYS_OFF</span> <span class="c1">#Start with light off after reboot/power-loss event.</span>
+     <span class="na">disabled_by_default</span><span class="pi">:</span> <span class="kc">true</span>
+
+ <span class="na">status_led</span><span class="pi">:</span>
+   <span class="na">pin</span><span class="pi">:</span>
+     <span class="na">number</span><span class="pi">:</span> <span class="s">GPIO0</span>
+     <span class="na">inverted</span><span class="pi">:</span> <span class="kc">true</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Adapt the <code class="language-plaintext highlighter-rouge">restore_mode</code> of the <code class="language-plaintext highlighter-rouge">switch</code> section to your preferred switch behavior. See comments for descriptions
+of the different options.</li>
+</ol>
+
+<p>Next, remove the old Tasmota device from Home Assistant, otherwise it mix with the new ESPHome device. Since we already
+downgraded to the “minimal” Tasmota firmware, it will no longer publish MQTT messages to the MQTT broker. There are a
+couple of ways to do this, the easiest being purging the respective topics in the MQTT broker. I use
+<a href="https://mqtt-explorer.com/">MQTT Explorer</a> to delete the topics <code class="language-plaintext highlighter-rouge">/tasmota/discovery/XXXXXXXXXXXX</code> and
+<code class="language-plaintext highlighter-rouge">/tele/tasmota_XXXXXX</code> for the device.</p>
+
+<p>Now install ESPHome. Click <em>Install</em>, <em>Manual download</em>, <em>Legacy format</em>, and download the <code class="language-plaintext highlighter-rouge">bin</code> file. Go to your
+Tasmota plug’s web UI, select <em>Firmware Upgrade</em> and upgrade by uploading the <code class="language-plaintext highlighter-rouge">bin</code> file. The plug should reboot and
+run ESPHome! The final step is to adopt the device in Home Assistant which is easy since Home Assistant auto-detects
+the new device.</p>
+
+<p>All future updates can be done directly through the ESPHome add-on.</p>
+
+<p>Helpful links:</p>
+
+<ul>
+  <li><a href="https://esphome.io/guides/migrate_sonoff_tasmota.html">https://esphome.io/guides/migrate_sonoff_tasmota.html</a></li>
+</ul>
+
+<h2 id="full-configuration-example">Full Configuration Example</h2>
+
+<p>Here’s a full config example I’m using for my espresso machine’s smart plug:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">esphome</span><span class="pi">:</span>
+  <span class="na">name</span><span class="pi">:</span> <span class="s">cloudfree-p2-espresso-machine</span>
+  <span class="na">friendly_name</span><span class="pi">:</span> <span class="s">CloudFree P2 Espresso Machine</span>
+  <span class="na">comment</span><span class="pi">:</span> <span class="s">CloudFree Smart Plug 2, based on Aoycocr-X10S Plug</span>
+
+<span class="na">esp8266</span><span class="pi">:</span>
+  <span class="na">board</span><span class="pi">:</span> <span class="s">esp01_1m</span>
+  <span class="na">restore_from_flash</span><span class="pi">:</span> <span class="kc">true</span>
+
+<span class="c1"># Enable logging</span>
+<span class="na">logger</span><span class="pi">:</span>
+
+<span class="c1"># Enable Home Assistant API</span>
+<span class="na">api</span><span class="pi">:</span>
+  <span class="na">encryption</span><span class="pi">:</span>
+    <span class="na">key</span><span class="pi">:</span> <span class="s2">"</span><span class="s">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"</span>
+
+<span class="na">ota</span><span class="pi">:</span>
+  <span class="na">platform</span><span class="pi">:</span> <span class="s">esphome</span>
+  <span class="na">password</span><span class="pi">:</span> <span class="s2">"</span><span class="s">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"</span>
+
+<span class="na">wifi</span><span class="pi">:</span>
+  <span class="na">ssid</span><span class="pi">:</span> <span class="kt">!secret</span> <span class="s">wifi_ssid</span>
+  <span class="na">password</span><span class="pi">:</span> <span class="kt">!secret</span> <span class="s">wifi_password</span>
+
+  <span class="c1"># Enable fallback hotspot (captive portal) in case wifi connection fails</span>
+  <span class="na">ap</span><span class="pi">:</span>
+    <span class="na">ssid</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Cloudfree-P2-Espresso-Machine"</span>
+    <span class="na">password</span><span class="pi">:</span> <span class="s2">"</span><span class="s">XXXXXXXXXXXX"</span>
+
+<span class="na">captive_portal</span><span class="pi">:</span>
+
+<span class="c1"># Enable web server</span>
+<span class="na">web_server</span><span class="pi">:</span>
+  <span class="na">port</span><span class="pi">:</span> <span class="m">80</span>
+
+<span class="c1"># Enable time component for use by daily power sensor</span>
+<span class="na">time</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">homeassistant</span>
+    <span class="na">id</span><span class="pi">:</span> <span class="s">homeassistant_time</span>
+
+<span class="na">binary_sensor</span><span class="pi">:</span>
+  <span class="c1"># Reports when the button is pressed</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">gpio</span>
+    <span class="na">device_class</span><span class="pi">:</span> <span class="s">power</span>
+    <span class="na">pin</span><span class="pi">:</span>
+      <span class="na">number</span><span class="pi">:</span> <span class="s">GPIO13</span>
+      <span class="na">inverted</span><span class="pi">:</span> <span class="s">True</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">Button</span>
+    <span class="na">on_press</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">switch.toggle</span><span class="pi">:</span> <span class="s">relay</span>
+
+  <span class="c1"># Reports if this device is Connected or not</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">status</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">Status</span>
+
+<span class="na">sensor</span><span class="pi">:</span>
+  <span class="c1"># Reports the WiFi signal strength</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">wifi_signal</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">WiFi Signal</span>
+
+  <span class="c1"># Reports how long the device has been powered (in minutes)</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">uptime</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">Uptime</span>
+    <span class="na">filters</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">lambda</span><span class="pi">:</span> <span class="s">return x / 60.0;</span>
+    <span class="na">device_class</span><span class="pi">:</span> <span class="s">duration</span>
+    <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">min</span>
+    <span class="na">state_class</span><span class="pi">:</span> <span class="s">total_increasing</span>
+
+  <span class="c1"># Reports the Current, Voltage, and Power used by the plugged-in device (not counting this plug's own usage of about 0.7W/0.02A, so subtract those when calibrating with this plugged into a Kill-A-Watt type meter)</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">hlw8012</span>
+    <span class="na">sel_pin</span><span class="pi">:</span>
+      <span class="na">number</span><span class="pi">:</span> <span class="s">GPIO12</span>
+      <span class="na">inverted</span><span class="pi">:</span> <span class="s">True</span>
+    <span class="na">cf_pin</span><span class="pi">:</span> <span class="s">GPIO5</span>
+    <span class="na">cf1_pin</span><span class="pi">:</span> <span class="s">GPIO14</span>
+    <span class="na">current_resistor</span><span class="pi">:</span> <span class="m">0.001</span> <span class="c1">#The value of the shunt resistor for current measurement. Defaults to the Sonoff POW’s value 0.001 ohm. Verified on https://fccid.io/2AKBP-X10S/Internal-Photos/X10S-Int-photo-4308983 that we use "R001" = 0.001 ohm</span>
+    <span class="na">voltage_divider</span><span class="pi">:</span> <span class="m">2401</span> <span class="c1">#The value of the voltage divider on the board as (R_upstream + R_downstream) / R_downstream. Defaults to the Sonoff POW’s value 2351. From the pic we use 2x "125" = 2x 1.2Mohm for R_upstream and "102" = 1kohm for R_downstream, so (1,200,000+1,200,000+1,000)/1,000 = 2401</span>
+    <span class="c1"># but those don't fix the measurement values, probably because we actually have a BL0937 chip instead of a HLW8012, (and part variance aswell) so we have to manually calibrate with a known load or a load and a Kill-A-Watt type meter. My values used below will only be +/-10% of yours I think.</span>
+    <span class="c1"># The comments about the voltage divider were taken from the AWP04L template. I was unable to verify the voltage divider in the Aoycocr X10S plug.</span>
+    <span class="na">power</span><span class="pi">:</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">Power</span>
+      <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">W</span>
+      <span class="na">id</span><span class="pi">:</span> <span class="s">wattage</span>
+      <span class="na">filters</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">calibrate_linear</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">0.0 -&gt; </span><span class="m">0.0</span>
+            <span class="pi">-</span> <span class="s">196.48288 -&gt; </span><span class="m">35.0</span>
+            <span class="pi">-</span> <span class="s">3642.32764 -&gt; </span><span class="m">622.0</span>
+            <span class="pi">-</span> <span class="s">6980.42383 -&gt; </span><span class="m">1208.0</span>
+            <span class="pi">-</span> <span class="s">7041.69287 -&gt; </span><span class="m">1215.0</span>
+        <span class="pi">-</span> <span class="na">lambda</span><span class="pi">:</span> <span class="s">if (id(relay).state) return x; else return 0;</span>
+    <span class="na">current</span><span class="pi">:</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">Current</span>
+      <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">A</span>
+      <span class="na">filters</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">calibrate_linear</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">0.0 -&gt; </span><span class="m">0.0</span>
+            <span class="pi">-</span> <span class="s">0.51565 -&gt; </span><span class="m">0.46</span>
+            <span class="pi">-</span> <span class="s">7.02498 -&gt; </span><span class="m">7.91</span>
+            <span class="pi">-</span> <span class="s">12.91727 -&gt; </span><span class="m">10.96</span>
+        <span class="pi">-</span> <span class="na">lambda</span><span class="pi">:</span> <span class="s">if (id(relay).state) return x; else return 0;</span>
+    <span class="na">voltage</span><span class="pi">:</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">Voltage</span>
+      <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">V</span>
+      <span class="na">filters</span><span class="pi">:</span>
+        <span class="pi">-</span> <span class="na">calibrate_linear</span><span class="pi">:</span>
+            <span class="pi">-</span> <span class="s">0.0 -&gt; </span><span class="m">0.0</span>
+            <span class="pi">-</span> <span class="s">280.19351 -&gt; </span><span class="m">110.7</span>
+            <span class="pi">-</span> <span class="s">302.31186 -&gt; </span><span class="m">119.7</span>
+            <span class="pi">-</span> <span class="s">306.06781 -&gt; </span><span class="m">123.3</span>
+    <span class="na">change_mode_every</span><span class="pi">:</span> <span class="m">1</span> <span class="c1">#Skips first reading after each change, so this will double the update interval. Default 8</span>
+    <span class="na">update_interval</span><span class="pi">:</span> <span class="s">10s</span> <span class="c1">#20 second effective update rate for Power, 40 second for Current and Voltage. Default 60s</span>
+
+  <span class="c1"># Reports the total Power so-far each day, resets at midnight, see https://esphome.io/components/sensor/total_daily_energy.html</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">total_daily_energy</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">Total Daily Energy</span>
+    <span class="na">power_id</span><span class="pi">:</span> <span class="s">wattage</span>
+    <span class="na">filters</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">multiply</span><span class="pi">:</span> <span class="m">0.001</span> <span class="c1">## convert Wh to kWh</span>
+    <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s">kWh</span>
+
+<span class="na">text_sensor</span><span class="pi">:</span>
+  <span class="c1"># Reports the ESPHome Version with compile date</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">version</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">ESPHome Version</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">wifi_info</span>
+    <span class="na">ip_address</span><span class="pi">:</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">IP Address</span>
+
+<span class="na">switch</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">gpio</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">Switch</span>
+    <span class="na">pin</span><span class="pi">:</span> <span class="s">GPIO4</span>
+    <span class="na">id</span><span class="pi">:</span> <span class="s">relay</span>
+    <span class="na">restore_mode</span><span class="pi">:</span> <span class="s">ALWAYS_OFF</span>
+    <span class="na">on_turn_on</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">light.turn_on</span><span class="pi">:</span>
+          <span class="na">id</span><span class="pi">:</span> <span class="s">blue_led</span>
+          <span class="na">brightness</span><span class="pi">:</span> <span class="s">100%</span>
+    <span class="na">on_turn_off</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">light.turn_off</span><span class="pi">:</span> <span class="s">blue_led</span>
+
+<span class="na">output</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">esp8266_pwm</span>
+    <span class="na">id</span><span class="pi">:</span> <span class="s">blue_output</span>
+    <span class="na">pin</span><span class="pi">:</span> <span class="s">GPIO2</span>
+    <span class="na">inverted</span><span class="pi">:</span> <span class="s">True</span>
+
+<span class="na">light</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">monochromatic</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">Blue LED</span>
+    <span class="na">output</span><span class="pi">:</span> <span class="s">blue_output</span>
+    <span class="na">id</span><span class="pi">:</span> <span class="s">blue_led</span>
+    <span class="na">restore_mode</span><span class="pi">:</span> <span class="s">ALWAYS_OFF</span>
+    <span class="na">disabled_by_default</span><span class="pi">:</span> <span class="kc">true</span>
+
+<span class="na">status_led</span><span class="pi">:</span>
+  <span class="na">pin</span><span class="pi">:</span>
+    <span class="na">number</span><span class="pi">:</span> <span class="s">GPIO0</span>
+    <span class="na">inverted</span><span class="pi">:</span> <span class="kc">true</span>
+</code></pre></div></div>]]></content><author><name>Stefan Thoss</name></author><category term="homeassistant" /><summary type="html"><![CDATA[You can replace the firmware of a Tasmota smart plug with ESPHome through the web interface.]]></summary></entry><entry><title type="html">Use Disk Encryption with Pop_OS! and Custom Partitioning</title><link href="https://blog.stefandroid.com/2023/02/04/encrypted-disk-pop-os-install.html" rel="alternate" type="text/html" title="Use Disk Encryption with Pop_OS! and Custom Partitioning" /><published>2023-02-04T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2023/02/04/encrypted-disk-pop-os-install</id><content type="html" xml:base="https://blog.stefandroid.com/2023/02/04/encrypted-disk-pop-os-install.html"><![CDATA[<p>As of Pop!_OS 22.04 LTS, there is no option to set up disk encryption when using custom partitioning during the
+installation process. You have to choose between using the entire disk with encryption or using custom partitioning
+without encryption. This is unfortunate since disk encryption is important and custom partitioning allows for advanced
+setups like dual booting, separate <code class="language-plaintext highlighter-rouge">/home</code> partitions, or installations that span multiple disks. With a few command
+line tools, it’s possible to install Pop_OS! with disk encryption and custom partitioning.</p>
+
+<p>The goal of this guide is to set up a LUKS-encrypted partition that contains an LVM volume. You can install Pop_OS!
+into that existing LVM volume. All of this can be done within Pop_OS! when booted from the installation medium. Check
+out my post about <a href="/2021/02/08/encrypt-usb-drive-with-luks.html">encrypting a USB drive with LUKS</a> for more
+details about how to use LUKS encryption. Please make sure you have a backup of your files before doing any of this
+since there is no recovery of lost data.</p>
+
+<p>First, create an empty partition that you want to use for the Pop_OS! installation. In the following examples,
+that will be <code class="language-plaintext highlighter-rouge">/dev/sdx</code>. You can perform the partitioning with GParted and check the partitions with <code class="language-plaintext highlighter-rouge">sudo fdisk -l</code>.</p>
+
+<p>Next, format the partition with LUKS, open it (I use <code class="language-plaintext highlighter-rouge">crypt_sdx</code> as the mapping name), and initialize it for use by
+LVM. During these steps, you will be asked to set the disk encryption password – use a strong one and memorize it well!</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>cryptsetup luksFormat <span class="nt">--type</span> luks2 /dev/sdx
+<span class="nb">sudo </span>cryptsetup luksOpen /dev/sdx crypt_sdx
+<span class="nb">sudo </span>pvcreate /dev/mapper/crypt_sdx
+</code></pre></div></div>
+
+<p>List all LVM physical volumes with <code class="language-plaintext highlighter-rouge">pvs</code> and check that it got created correctly:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo pvs
+  PV                    VG Fmt  Attr PSize   PFree
+  /dev/mapper/crypt_sdx    lvm2 ---  240.00g 240.00g
+</code></pre></div></div>
+
+<p>Create a new LVM volume group (which I call <code class="language-plaintext highlighter-rouge">vge01</code>):</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>vgcreate vge01 /dev/mapper/crypt_sdx
+</code></pre></div></div>
+
+<p>List all LVM volume groups with <code class="language-plaintext highlighter-rouge">vgdisplay</code> (you can also use <code class="language-plaintext highlighter-rouge">vgs</code> for a shorter output) and check that it got
+created correctly:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo vgdisplay
+  --- Volume group ---
+  VG Name               vge01
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  1
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                0
+  Open LV               0
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               240.00 GiB
+  PE Size               4.00 MiB
+  Total PE              61488
+  Alloc PE / Size       0 / 0
+  Free  PE / Size       61488 / 240.00 GiB
+  VG UUID               XXXXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXXXX
+</code></pre></div></div>
+
+<p>Last step is to create the logical volume (which I call <code class="language-plaintext highlighter-rouge">lv00</code>). The size has to be specified with the <code class="language-plaintext highlighter-rouge">-L</code> option
+which is 240 GB for this case (see “VG Size” above).</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>lvcreate <span class="nt">-n</span> lv00 <span class="nt">-L</span> 240G vge01
+</code></pre></div></div>
+
+<p>List all logical volumes with <code class="language-plaintext highlighter-rouge">lvs</code> and check that it got created correctly:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ sudo lvs
+  LV   VG    Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  lv00 vge01 -wi-a----- 240.00g
+</code></pre></div></div>
+
+<p>Now you’re ready for the installation of Pop_OS! (see <a href="https://support.system76.com/articles/install-pop">official installation guide</a>).
+In the installation wizard, select <code class="language-plaintext highlighter-rouge">Custom (Advanced)</code> for partitioning. Select the <code class="language-plaintext highlighter-rouge">/dev/sdx</code> partition from earlier
+and it will ask you for the encryption password. Select the logical volume within the encrypted partition as the
+destination for the OS installation. Finish the installation as usual.</p>
+
+<p>You’re done! Pop_OS! will ask you for your disk password on every boot.</p>
+
+<p>Once booted, you can see with <code class="language-plaintext highlighter-rouge">mount</code> that the mapped encrypted volume <code class="language-plaintext highlighter-rouge">/dev/mapper/vge01-lv00</code> is mounted, rather than
+the <code class="language-plaintext highlighter-rouge">/dev/sdx</code> partition directly:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dev/mapper/vge01-lv00 on / type ext4 (rw,noatime,errors=remount-ro)
+</code></pre></div></div>
+
+<p>I hope that Pop!_OS will add the capability to enable disk encryption with custom partioning to their installation
+wizard in the future.</p>]]></content><author><name>Stefan Thoss</name></author><category term="linux" /><category term="encryption" /><summary type="html"><![CDATA[With LUKS and LVM, you can set up disk encryption and custom partitioning for a new Pop_OS! installation.]]></summary></entry><entry><title type="html">Use a YubiKey with Firefox on Pop_OS!</title><link href="https://blog.stefandroid.com/2023/02/01/pop-os-firefox-yubikey.html" rel="alternate" type="text/html" title="Use a YubiKey with Firefox on Pop_OS!" /><published>2023-02-01T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2023/02/01/pop-os-firefox-yubikey</id><content type="html" xml:base="https://blog.stefandroid.com/2023/02/01/pop-os-firefox-yubikey.html"><![CDATA[<p>I recommend everyone to use a <a href="https://www.yubico.com/products">YubiKey</a> as a second factor authentication method for
+increased security. After a fresh installation of <a href="https://pop.system76.com">Pop_OS!</a>, the YubiKey authentication in
+Firefox doesn’t seem to work (I assume the same holds true for Ubuntu and its other derivatives like Linux Mint).
+The solution is easy: With a simple <code class="language-plaintext highlighter-rouge">sudo apt update &amp;&amp; sudo apt install libu2f-udev</code>, the necessary U2F libraries
+are installed and the YubiKey will start to work. Stay safe on the Internet, everyone!</p>]]></content><author><name>Stefan Thoss</name></author><category term="linux" /><summary type="html"><![CDATA[After a fresh Pop_OS! installation, you need to install U2F libraries to use a YubiKey with Firefox.]]></summary></entry><entry><title type="html">Track Heating and Cooling Hours with Home Assistant</title><link href="https://blog.stefandroid.com/2022/11/12/home-assistant-track-heating-cooling.html" rel="alternate" type="text/html" title="Track Heating and Cooling Hours with Home Assistant" /><published>2022-11-12T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2022/11/12/home-assistant-track-heating-cooling</id><content type="html" xml:base="https://blog.stefandroid.com/2022/11/12/home-assistant-track-heating-cooling.html"><![CDATA[<p>Home Assistant doesn’t provide a built-in capability to track the amount of time that your furnace or A/C runs each day.
+Tracking this can be useful to understand your heating/cooling needs and maybe reducing them. This functionality can be
+added with a template sensor and history statistics. This guide assumes that you have a thermostat in Home Assistant
+that is exposed as a <code class="language-plaintext highlighter-rouge">climate</code> entity (like most <a href="https://www.home-assistant.io/integrations/#climate">climate integrations</a>
+are).</p>
+
+<p>The current thermostat state (heating/cooling/idle) is not exposed as an entity but only as an entity attribute in the
+thermostat. So we have to create a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a> that exposes
+the state as its own entity.</p>
+
+<p>Add this to your <code class="language-plaintext highlighter-rouge">configuration.yml</code> file if you have a thermostat called <code class="language-plaintext highlighter-rouge">climate.living_room_thermostat</code>:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">template</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">sensor</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Living</span><span class="nv"> </span><span class="s">Room</span><span class="nv"> </span><span class="s">Thermostat</span><span class="nv"> </span><span class="s">State"</span>
+        <span class="na">state</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">state_attr('climate.living_room_thermostat',</span><span class="nv"> </span><span class="s">'hvac_action')</span><span class="nv"> </span><span class="s">}}"</span>
+</code></pre></div></div>
+
+<p>Now we can create a <a href="https://www.home-assistant.io/integrations/history_stats/">history stats sensor</a> that calculates
+the number of hours for each day that a certain state is active.</p>
+
+<p>Add this to your <code class="language-plaintext highlighter-rouge">configuration.yml</code> file for the template sensor above:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">sensor</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">history_stats</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Living</span><span class="nv"> </span><span class="s">Room</span><span class="nv"> </span><span class="s">Heating</span><span class="nv"> </span><span class="s">Hours</span><span class="nv"> </span><span class="s">Today"</span>
+    <span class="na">entity_id</span><span class="pi">:</span> <span class="s">sensor.living_room_thermostat_state</span>
+    <span class="na">state</span><span class="pi">:</span> <span class="s2">"</span><span class="s">heating"</span>
+    <span class="na">type</span><span class="pi">:</span> <span class="s">time</span>
+    <span class="na">start</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">now().replace(hour=0,</span><span class="nv"> </span><span class="s">minute=0,</span><span class="nv"> </span><span class="s">second=0)</span><span class="nv"> </span><span class="s">}}"</span>
+    <span class="na">end</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">now()</span><span class="nv"> </span><span class="s">}}"</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">history_stats</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Living</span><span class="nv"> </span><span class="s">Room</span><span class="nv"> </span><span class="s">Cooling</span><span class="nv"> </span><span class="s">Hours</span><span class="nv"> </span><span class="s">Today"</span>
+    <span class="na">entity_id</span><span class="pi">:</span> <span class="s">sensor.living_room_thermostat_state</span>
+    <span class="na">state</span><span class="pi">:</span> <span class="s2">"</span><span class="s">cooling"</span>
+    <span class="na">type</span><span class="pi">:</span> <span class="s">time</span>
+    <span class="na">start</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">now().replace(hour=0,</span><span class="nv"> </span><span class="s">minute=0,</span><span class="nv"> </span><span class="s">second=0)</span><span class="nv"> </span><span class="s">}}"</span>
+    <span class="na">end</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">now()</span><span class="nv"> </span><span class="s">}}"</span>
+</code></pre></div></div>
+
+<p>Now you have two sensors (<code class="language-plaintext highlighter-rouge">sensor.living_room_heating_hours_today</code> for heating, <code class="language-plaintext highlighter-rouge">sensor.living_room_cooling_hours_today</code>
+for cooling) that track the heating/cooling duration of your thermostat in hours. If your thermostat provides only
+heating or only cooling, just omit the other sensor.</p>
+
+<p>When looking at the sensor’s history, you’ll see that its value increases while the heater runs and resets at midnight.
+The value at midnight represents the number of hours that heating was used that day.</p>
+
+<p><img src="/assets/images/home-assistant-heating-sensor-history.png" alt="Heating Hours History in Home Assistant" /></p>
+
+<p>I prefer to present this data using the <a href="https://github.com/kalkih/mini-graph-card">Lovelace Mini Graph Card</a> (can be
+installed through <a href="https://hacs.xyz">HACS</a>). This graph card is one of my favorite ways to show data in Home Assistant
+and it can plot a nice bar diagram of the daily heating (or cooling) hours over the last 2 weeks:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">type</span><span class="pi">:</span> <span class="s">custom:mini-graph-card</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">Daily Living Room Heating Hours</span>
+<span class="na">icon</span><span class="pi">:</span> <span class="s">mdi:air-conditioner</span>
+<span class="na">entities</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">entity</span><span class="pi">:</span> <span class="s">sensor.living_room_heating_hours_today</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">Living Room</span>
+    <span class="na">show_state</span><span class="pi">:</span> <span class="kc">true</span>
+    <span class="na">color</span><span class="pi">:</span> <span class="s">gray</span>
+<span class="na">hours_to_show</span><span class="pi">:</span> <span class="m">336</span>
+<span class="na">lower_bound</span><span class="pi">:</span> <span class="m">0</span>
+<span class="na">group_by</span><span class="pi">:</span> <span class="s">date</span>
+<span class="na">aggregate_func</span><span class="pi">:</span> <span class="s">max</span>
+<span class="na">show</span><span class="pi">:</span>
+  <span class="na">labels</span><span class="pi">:</span> <span class="kc">true</span>
+  <span class="na">graph</span><span class="pi">:</span> <span class="s">bar</span>
+  <span class="na">average</span><span class="pi">:</span> <span class="kc">true</span>
+  <span class="na">extrema</span><span class="pi">:</span> <span class="kc">true</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/home-assistant-heating-hours-graph.png" alt="Heating Hours Graph in Home Assistant" /></p>]]></content><author><name>Stefan Thoss</name></author><category term="homeassistant" /><summary type="html"><![CDATA[With template and history stats sensors, Home Assistant can track the heating and cooling hours of a thermostat.]]></summary></entry><entry><title type="html">Unit Conversion in Home Assistant</title><link href="https://blog.stefandroid.com/2022/10/29/home-assistant-unit-conversion.html" rel="alternate" type="text/html" title="Unit Conversion in Home Assistant" /><published>2022-10-29T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2022/10/29/home-assistant-unit-conversion</id><content type="html" xml:base="https://blog.stefandroid.com/2022/10/29/home-assistant-unit-conversion.html"><![CDATA[<p>Unit conversions in Home Assistant are not straight-forward, but easy to accomplish. For my use case, I have a sensor
+that exposes a temperature only in Celsius, but I want to show it in Fahrenheit in the Home Assistant UI.</p>
+
+<p>Home Assistant doesn’t offer the functionality to convert units in-place. Instead, we have to create a second entity
+with the converted value. This can be accomplished with a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a>
+that converts the unit and exposes it as an additional entity.</p>
+
+<p>I have a sensor entity <code class="language-plaintext highlighter-rouge">sensor.living_room_temperature</code> that tracks a temperature in Celsius. With the code snippet
+below added to the <code class="language-plaintext highlighter-rouge">configuration.yml</code> file, the unit can be converted. The <code class="language-plaintext highlighter-rouge">state</code> configuration variable contains the
+equation for the Celsius to Fahrenheit conversion (Fahrenheit = 1.8 * Celsius + 32).</p>
+
+<p>This works for any unit conversion. You have to change the <code class="language-plaintext highlighter-rouge">state</code> equation based on your use case and adjust the
+<code class="language-plaintext highlighter-rouge">unit_of_measurement</code> and <code class="language-plaintext highlighter-rouge">device_class</code> to whatever your resulting unit will be.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">template</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">sensor</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Living</span><span class="nv"> </span><span class="s">Room</span><span class="nv"> </span><span class="s">Temperature</span><span class="nv"> </span><span class="s">(°F)"</span>
+        <span class="na">unit_of_measurement</span><span class="pi">:</span> <span class="s2">"</span><span class="s">°F"</span>
+        <span class="na">device_class</span><span class="pi">:</span> <span class="s2">"</span><span class="s">temperature"</span>
+        <span class="na">state_class</span><span class="pi">:</span> <span class="s2">"</span><span class="s">measurement"</span>
+        <span class="na">state</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">1.8</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">(states('sensor.living_room_temperature')</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">float)</span><span class="nv"> </span><span class="s">+</span><span class="nv"> </span><span class="s">32</span><span class="nv"> </span><span class="s">}}"</span>
+</code></pre></div></div>
+
+<p>Now you have a new entity <code class="language-plaintext highlighter-rouge">sensor.living_room_temperature_degf</code> that tracks the same temperature in °F.</p>
+
+<p><em>Note: Don’t judge me for this conversion. Celsius is a superior unit of measurement, but if you live in the US,
+Fahrenheit is what you have to use or nobody will understand your Home Assistant setup.</em></p>
+
+<p>For reference, this is the original Celsius and the converted Fahrenheit value in Home Assistant:</p>
+
+<p><img src="/assets/images/home-assistant-celsius-fahrenheit.png" alt="Celsius and converted Fahrenheit values in Home Assistant" /></p>]]></content><author><name>Stefan Thoss</name></author><category term="homeassistant" /><summary type="html"><![CDATA[Using a template sensor, units (like Celsius and Fahrenheit) can be easily converted in Home Assistant.]]></summary></entry><entry><title type="html">Monitor the Health of Multiple SMART Disks with Scrutiny</title><link href="https://blog.stefandroid.com/2022/01/14/smart-scrutiny.html" rel="alternate" type="text/html" title="Monitor the Health of Multiple SMART Disks with Scrutiny" /><published>2022-01-14T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2022/01/14/smart-scrutiny</id><content type="html" xml:base="https://blog.stefandroid.com/2022/01/14/smart-scrutiny.html"><![CDATA[<p><a href="https://github.com/AnalogJ/scrutiny">Scrutiny</a> is a tool that collects SMART hard drive data and exposes them through a
+web UI (read more about <a href="https://en.wikipedia.org/wiki/S.M.A.R.T.">SMART on Wikipedia</a>). You can run a central Docker
+container that contains the database and web UI. Data collection agents on multiple clients will collect the data and
+send it to the central instance. This will provide a single interface to monitor all hard drives in all servers. I’m
+using it to monitor my TrueNAS disks and the NVMe drives in my Debian servers.</p>
+
+<h2 id="web-ui">Web UI</h2>
+
+<p>The web UI can be deployed using the <code class="language-plaintext highlighter-rouge">analogj/scrutiny:web</code> Docker image (the <code class="language-plaintext highlighter-rouge">analogj/scrutiny:latest</code> image contains
+both the web UI and the data collector, but I want to deploy them separately). I use docker-compose files to deploy the
+application. Create a new directory and the following Dockerfile:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">version</span><span class="pi">:</span> <span class="s2">"</span><span class="s">3"</span>
+
+<span class="na">services</span><span class="pi">:</span>
+  <span class="na">scrutiny</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">analogj/scrutiny:web</span>
+    <span class="na">container_name</span><span class="pi">:</span> <span class="s">scrutiny-web</span>
+    <span class="na">restart</span><span class="pi">:</span> <span class="s">unless-stopped</span>
+    <span class="na">ports</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">8080:8080"</span>
+    <span class="na">healthcheck</span><span class="pi">:</span>
+      <span class="na">test</span><span class="pi">:</span> <span class="s2">"</span><span class="s">curl</span><span class="nv"> </span><span class="s">-f</span><span class="nv"> </span><span class="s">-s</span><span class="nv"> </span><span class="s">http://localhost:8080/web/dashboard"</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">./config:/scrutiny/config</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">GIN_MODE=release</span>
+</code></pre></div></div>
+
+<p>Or download the file from <a href="https://github.com/stefanthoss/container-fest">my collection of docker-compose files</a> and
+start it:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir </span>scrutiny
+<span class="nb">cd </span>scrutiny
+wget https://raw.githubusercontent.com/stefanthoss/container-fest/main/scrutiny/docker-compose.yml
+docker-compose up <span class="nt">-d</span>
+</code></pre></div></div>
+
+<p>The web UI will be available at port 8080 of the Docker host. Here’s a screenshot of the web UI with 4 disks from
+2 servers:</p>
+
+<p><img src="/assets/images/scrutiny-webapp-dashboard.png" alt="Scrutiny Webapp Dashboard" /></p>
+
+<p>Now you have to install the data collector on the servers that contain the disks you want to monitor. Below are
+instructions for TrueNAS and Debian.</p>
+
+<h2 id="data-collector-on-truenas">Data Collector on TrueNAS</h2>
+
+<p>Scrutiny needs Smartmontools version 7. Check on the TrueNAS terminal that version 7 is installed. TrueNAS Core 12.0
+ships with Smartmontools 7.2 as checked with the <code class="language-plaintext highlighter-rouge">smartctl -V</code> command:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>smartctl 7.2 2020-12-30 r5155 [FreeBSD 12.2-RELEASE-p6 amd64] (local build)
+</code></pre></div></div>
+
+<p>Download the Collector agent binary (below link is for version 0.3.13 - the latest as of January 2022). Then copy it to
+<code class="language-plaintext highlighter-rouge">/usr/local</code> and make it executable. In short, execute the following as <code class="language-plaintext highlighter-rouge">root</code>:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> /usr/local/tools/scrutiny/bin
+wget https://github.com/AnalogJ/scrutiny/releases/download/0.3.13/scrutiny-collector-metrics-freebsd-amd64 <span class="nt">-P</span> /usr/local/tools/scrutiny/bin
+<span class="nb">chmod</span> +x /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64
+</code></pre></div></div>
+
+<p>Create the configuration file by downloading the sample <code class="language-plaintext highlighter-rouge">collector.yaml</code> from the GitHub repo. Edit it and change the
+following parameters:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">host.id</code> should be an identifier for your TrueNAS server</li>
+  <li><code class="language-plaintext highlighter-rouge">api.endpoint</code> should be the HTTP endpoint of the Scrutiny Web server that we deployed using Docker (e.g. <code class="language-plaintext highlighter-rouge">http://192.168.1.5:8080</code>)</li>
+</ul>
+
+<p>Everything else can be left as is. Here are the commands which have  to be executed as <code class="language-plaintext highlighter-rouge">root</code>:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> /usr/local/tools/scrutiny/config
+wget https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.collector.yaml <span class="nt">-O</span> /usr/local/tools/scrutiny/config/collector.yaml
+nano /usr/local/tools/scrutiny/config/collector.yaml
+</code></pre></div></div>
+
+<p>Now go to <strong>Tasks</strong> → <strong>Cron Jobs</strong> and add a new cron job:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Description</td>
+      <td>Scrutiny</td>
+    </tr>
+    <tr>
+      <td>Command</td>
+      <td><code class="language-plaintext highlighter-rouge">. /etc/profile; /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64 run --config /usr/local/tools/scrutiny/config/collector.yaml</code></td>
+    </tr>
+    <tr>
+      <td>Run As User</td>
+      <td>root</td>
+    </tr>
+    <tr>
+      <td>Schedule</td>
+      <td>Hourly</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Enable both <code class="language-plaintext highlighter-rouge">Hide Standard Output</code> and <code class="language-plaintext highlighter-rouge">Hide Standard Error</code> once you confirmed the data collector to be working.
+Otherwise, TrueNAS will send an email with the full log for every single log.</p>
+
+<p><img src="/assets/images/truenas-scrutiny-cronjob.png" alt="TrueNAS Scrutiny Cronjob" /></p>
+
+<p>At the start of the next hour, the SMART data should appear in the Scrutiny Web UI.</p>
+
+<h2 id="data-collector-on-debian">Data Collector on Debian</h2>
+
+<p>Follow the <a href="https://github.com/AnalogJ/scrutiny/blob/master/docs/INSTALL_MANUAL.md#collector">Scrutiny installation instructions</a>
+to install the collector agent. You don’t have to install the web UI / API.</p>
+
+<p>Edit the <code class="language-plaintext highlighter-rouge">/opt/scrutiny/config/collector.yaml</code> file and change the following parameters:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">host.id</code> should be an identifier for your Debian server, e.g. the hostname</li>
+  <li><code class="language-plaintext highlighter-rouge">api.endpoint</code> should be the HTTP endpoint of the Scrutiny Web server that we deployed using Docker (e.g. <code class="language-plaintext highlighter-rouge">http://192.168.1.5:8080</code>)</li>
+</ul>
+
+<p>Using <code class="language-plaintext highlighter-rouge">crontab -e</code> you can schedule the data collector to run as an hourly job:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0 * * * * . /etc/profile; /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --config /opt/scrutiny/config/collector.yaml
+</code></pre></div></div>
+
+<p>At the start of the next hour, the SMART data should appear in the Scrutiny Web UI.</p>]]></content><author><name>Stefan Thoss</name></author><category term="linux" /><category term="server" /><category term="truenas" /><summary type="html"><![CDATA[Scrutiny can monitor the SMART health of multiple disks in multiple servers and expose it through a web interface.]]></summary></entry><entry><title type="html">Share UPS Information from TrueNAS with a Debian Server</title><link href="https://blog.stefandroid.com/2022/01/07/truenas-debian-ups-share.html" rel="alternate" type="text/html" title="Share UPS Information from TrueNAS with a Debian Server" /><published>2022-01-07T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2022/01/07/truenas-debian-ups-share</id><content type="html" xml:base="https://blog.stefandroid.com/2022/01/07/truenas-debian-ups-share.html"><![CDATA[<p>I have one UPS which powers two servers, one TrueNAS storage server and one Debian server. While the UPS is connected
+via USB to the TrueNAS server, I also want to shut down the Debian server when the UPS reaches low battery. In order to
+achieve this, the TrueNAS server has to communicate the UPS status to the Debian server. <a href="https://networkupstools.org">Network UPS Tools</a>
+can do that and is supported by both TrueNAS/FreeBSD and Debian. This guide also applies to a Proxmox hypervisor which
+doesn’t have any special built-in support for UPS devices and should be treated like a regular Debian server.</p>
+
+<h2 id="expose-ups-on-the-host-truenas">Expose UPS on the Host (TrueNAS)</h2>
+
+<p>Enable the UPS service and configure your UPS (check the <a href="https://www.truenas.com/docs/core/services/ups/">TrueNAS UPS documentation</a>
+for details). Enable <strong>Remote Monitor</strong> and configure an extra UPS user (change the password <code class="language-plaintext highlighter-rouge">changeme</code>) that can be
+used by the Debian server:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[upsmon]
+  password = changeme
+  upsmon slave
+</code></pre></div></div>
+
+<p><img src="/assets/images/truenas-ups-service.png" alt="UPS Configuration in TrueNAS" /></p>
+
+<p>Choose <strong>UPS reaches low battery</strong> as shutdown mode. Your TrueNAS server will now expose the UPS status using
+<a href="https://networkupstools.org">Network UPS Tools</a>.</p>
+
+<h2 id="configure-ups-on-the-client-debian">Configure UPS on the Client (Debian)</h2>
+
+<p>On the client, we only need the <a href="https://networkupstools.org">Network UPS Tools</a> client which can be installed via the
+<a href="https://packages.debian.org/en/bullseye/nut-client">nut-client Debian package</a> using root privileges:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt update
+apt <span class="nb">install </span>nut-client
+</code></pre></div></div>
+
+<p>After the installation, we have to configure NUT to start the network client. Change the <code class="language-plaintext highlighter-rouge">MODE</code> in the file
+<code class="language-plaintext highlighter-rouge">/etc/nut/nut.conf</code> to the following line:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MODE=netclient
+</code></pre></div></div>
+
+<p>In the file <code class="language-plaintext highlighter-rouge">nano /etc/nut/upsmon.conf</code> we have to add the monitoring configuration. Assuming that the TrueNAS server
+has the IP 192.168.1.2, the UPS is called <code class="language-plaintext highlighter-rouge">rack-ups</code>, and the UPS is configured as shown in the screenshot shown
+earlier, add the following line to the file:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MONITOR rack-ups@192.168.1.2 1 upsmon changeme slave
+</code></pre></div></div>
+
+<p>The rest of the <code class="language-plaintext highlighter-rouge">upsmon.conf</code> can stay with the default configuration. Now you can enable system start of the NUT
+service, start it, and check the service status:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl <span class="nb">enable </span>nut-monitor.service
+systemctl start nut-monitor.service
+systemctl status nut-monitor.service
+</code></pre></div></div>
+
+<p>If the service is running without error messages, you can check with <code class="language-plaintext highlighter-rouge">upsc rack-ups@192.168.1.2</code> whether the UPS data
+can be retrieved. The NUT monitor service logs and dmesg should show the following log line:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upsmon[1141]: Communications with UPS rack-ups@192.168.1.2 established
+</code></pre></div></div>
+
+<p>The UPS is now configured correctly, and both the host (TrueNAS) and the client (Debian) should shut down when the UPS
+battery is low.</p>
+
+<h2 id="test">Test</h2>
+
+<p>To test the setup, we can simulate a low battery event. Use the command <code class="language-plaintext highlighter-rouge">upsmon -c fsd</code> on the TrueNAS host to trigger a
+shutdown of all connected clients and itself. After executing the command, the TrueNAS host will notify the Debian
+client to shut down and then shut down itself. On the Debian client, the NUT monitor service logs and dmesg will show
+the following log lines:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upsmon[1141]: UPS rack-ups@192.168.1.2: forced shutdown in progress
+upsmon[1141]: Executing automatic power-fail shutdown
+upsmon[1141]: Auto logout and shutdown proceeding
+</code></pre></div></div>
+
+<p>If both servers shut down gracefully, the test was successful.</p>]]></content><author><name>Stefan Thoss</name></author><category term="linux" /><category term="ups" /><category term="server" /><category term="truenas" /><summary type="html"><![CDATA[TrueNAS can share information from a USB-connected UPS with a Debian server that is powered by the same UPS.]]></summary></entry><entry><title type="html">Adding TrueNAS Boot Mirror Disk via CLI</title><link href="https://blog.stefandroid.com/2021/12/29/truenas-boot-mirror-cli.html" rel="alternate" type="text/html" title="Adding TrueNAS Boot Mirror Disk via CLI" /><published>2021-12-29T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2021/12/29/truenas-boot-mirror-cli</id><content type="html" xml:base="https://blog.stefandroid.com/2021/12/29/truenas-boot-mirror-cli.html"><![CDATA[<p>Adding a second disk to the TrueNAS boot pool will increase resilience of the TrueNAS installation in case the original
+boot device fails - by creating a ZFS mirror (RAID1). This can be easily configured via the web UI or via the CLI. The
+way of using the command line interface (CLI) is not well documented, so I documented it here.</p>
+
+<p><em>Note</em>: Make a backup of your TrueNAS configuration before you do any of this - if things go wrong, it will break your
+TrueNAS installation.</p>
+
+<p>As described in the <a href="https://www.truenas.com/docs/core/system/boot/bootpoolmirror/">TrueNAS documentation about mirroring the boot pool</a>,
+you can configure a boot pool mirror in the web UI by selecting a second disk at <strong>System</strong> → <strong>Boot</strong> → <strong>Actions</strong> →
+<strong>Boot Pool Status</strong> → <strong>Attach</strong>. But I’ve frequently gotten the error message <code class="language-plaintext highlighter-rouge">Error: [EFAULT] None</code> when attempting
+this, and I couldn’t figure out why or how to fix it. It worked however with the CLI.</p>
+
+<p>All the following commands should be executed with root privileges, e.g. via the web UI <strong>Shell</strong>. First check the
+current boot pool with the command <code class="language-plaintext highlighter-rouge">zpool status boot-pool</code> which should output something like this:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  pool: boot-pool
+ state: ONLINE
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        boot-pool   ONLINE       0     0     0
+          ada0p2    ONLINE       0     0     0
+
+errors: No known data
+</code></pre></div></div>
+
+<p>Adding a mirror disk is a two-step process. Since TrueNAS ZFS mirrors are based on partitions and not entire disks, we
+first have to create the correct partition table on the new disk. In the following, I want to add the <code class="language-plaintext highlighter-rouge">ada1</code> disk as a
+mirror to the existing <code class="language-plaintext highlighter-rouge">ada0</code> disk. Clone the partition table from <code class="language-plaintext highlighter-rouge">ada0</code> to <code class="language-plaintext highlighter-rouge">ada1</code> with <code class="language-plaintext highlighter-rouge">gpart</code> (effectively backing up
+the <code class="language-plaintext highlighter-rouge">ada0</code> partition table and restoring it on <code class="language-plaintext highlighter-rouge">ada1</code>):</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gpart backup ada0 | gpart restore <span class="nt">-F</span> ada1
+</code></pre></div></div>
+
+<p>You can then double-check the partition table using <code class="language-plaintext highlighter-rouge">gpart show ada1</code>. A TrueNAS 12 system has a bootloader partition
+(partition 1), a swap partition (partition 3), and the main file system partition (partition 2). Output for a 64 GB boot
+disk should look like this:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>=&gt;       40  125045344  ada0  GPT  (60G)
+         40       1024     1  freebsd-boot  (512K)
+       1064   33554432     3  freebsd-swap  (16G)
+   33555496   91488256     2  freebsd-zfs  (44G)
+  125043752       1632        - free -  (816K)
+</code></pre></div></div>
+
+<p>Now we can add the second partition (<code class="language-plaintext highlighter-rouge">ada1p2</code>) of the newly formatted disk to the boot pool using <code class="language-plaintext highlighter-rouge">zpool attach</code> (the
+usage is <code class="language-plaintext highlighter-rouge">zpool attach pool device new_device</code>). Execute the following command:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>zpool attach boot-pool /dev/ada0p2 /dev/ada1p2
+</code></pre></div></div>
+
+<p>Now check the boot pool with <code class="language-plaintext highlighter-rouge">zpool status boot-pool</code>. You should see that the pool is currently being resilvered with
+the status looking like this:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  pool: boot-pool
+ state: ONLINE
+status: One or more devices is currently being resilvered.  The pool will
+        continue to function, possibly in a degraded state.
+action: Wait for the resilver to complete.
+config:
+
+        NAME        STATE     READ WRITE CKSUM
+        boot-pool   ONLINE       0     0     0
+          mirror-0  ONLINE       0     0     0
+            ada0p2  ONLINE       0     0     0
+            ada1p2  ONLINE       0     0     0  (resilvering)
+
+errors: No known data errors
+</code></pre></div></div>
+
+<p>Depending on the size of your boot pool, it might take a few minutes until the resilvering is complete. After that, all
+data will be copied from your original boot disk to the new boot disk. You now have a mirrored boot disk (RAID1)!</p>]]></content><author><name>Stefan Thoss</name></author><category term="truenas" /><category term="server" /><summary type="html"><![CDATA[You can configure a mirrored boot pool for your TrueNAS system using the CLI.]]></summary></entry><entry><title type="html">Disable Annoying UPS Beeps with pfSense</title><link href="https://blog.stefandroid.com/2021/12/17/disable-ups-beeps-pfsense.html" rel="alternate" type="text/html" title="Disable Annoying UPS Beeps with pfSense" /><published>2021-12-17T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2021/12/17/disable-ups-beeps-pfsense</id><content type="html" xml:base="https://blog.stefandroid.com/2021/12/17/disable-ups-beeps-pfsense.html"><![CDATA[<p>I have my modem and pfSense router connected to an uninterruptible power supply (UPS) - useful if you live in California
+with plenty of power outages. Most UPS units beep when they are on battery power during power outages. Assuming that you
+have enabled email notifications for the UPS (<strong>Services</strong> → <strong>UPS</strong> → <strong>UPS Settings</strong> → <strong>General Settings</strong> →
+<strong>Enable E-Mail notifications</strong>), it is not really necessary since you will receive an email and the beeping is just
+annoying. In this guide, I show how to disable the beeps using pfSense.</p>
+
+<p>I assume that the UPS is connected via USB and is recognized by pfSense. In <strong>Services</strong> → <strong>UPS</strong> → <strong>UPS Status</strong> you
+should see a bunch of information about the UPS if that is the case.</p>
+
+<p>You need the UPS name which is defined in <strong>Services</strong> → <strong>UPS</strong> → <strong>UPS Settings</strong> → <strong>UPS Name</strong>. Then you need to get
+the admin password for the UPS. pfSense will automatically generate one, but you can’t see it in the UPS section of the
+web UI. Go to <strong>Diagnostics</strong> → <strong>Command Prompt</strong> and use <strong>Execute Shell Command</strong> to execute the command
+<code class="language-plaintext highlighter-rouge">cat /usr/local/etc/nut/upsd.users</code>. It will print the UPS user configuration. Take note of the password in the
+<code class="language-plaintext highlighter-rouge">[admin]</code> section of the file. You will need that to authenticate the <code class="language-plaintext highlighter-rouge">upscmd</code> command below.</p>
+
+<p>Let’s assume the UPS name is <code class="language-plaintext highlighter-rouge">router-ups</code> and the admin password is <code class="language-plaintext highlighter-rouge">ncf3c2op</code>. Execute the following three commands
+using the pfSense <strong>Execute Shell Command</strong> functionality:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upsc router-ups ups.beeper.status
+<span class="c"># Returns: enabled</span>
+
+upscmd <span class="nt">-u</span> admin <span class="nt">-p</span> ncf3c2op router-ups beeper.disable
+<span class="c"># Returns: OK</span>
+
+upsc router-ups ups.beeper.status
+<span class="c"># Returns: disabled</span>
+</code></pre></div></div>
+
+<p>The beeps should now be disabled. If the above doesn’t work, the command <code class="language-plaintext highlighter-rouge">upscmd -l router-ups</code> will list all available
+commands for this UPS. Check whether disabling beeps is a supported command for your UPS.</p>]]></content><author><name>Stefan Thoss</name></author><category term="pfsense" /><category term="ups" /><summary type="html"><![CDATA[You can disable the beeps that UPS units emit on battery power using pfSense.]]></summary></entry><entry><title type="html">Install Home Assistant OS on Proxmox</title><link href="https://blog.stefandroid.com/2021/10/01/haos-on-proxmox.html" rel="alternate" type="text/html" title="Install Home Assistant OS on Proxmox" /><published>2021-10-01T00:00:00+00:00</published><updated>2024-12-07T05:28:15+00:00</updated><id>https://blog.stefandroid.com/2021/10/01/haos-on-proxmox</id><content type="html" xml:base="https://blog.stefandroid.com/2021/10/01/haos-on-proxmox.html"><![CDATA[<p>The Home Assistant Operating System (HAOS) has a couple of advantages over the other installation methods, Home
+Assistant Container and Core. It includes among other things the Supervisor, <a href="https://www.home-assistant.io/addons">add-ons</a>,
+and backup functionality (<a href="https://www.home-assistant.io/installation/#compare-installation-methods">detailed comparison</a>).
+Using the official virtual machine image that is built on top of Alpine Linux, you can get Home Assistant OS running on
+Proxmox in a few minutes.</p>
+
+<p>These instructions assume you have SSH/terminal access to the Proxmox host. This makes it easy to import the VM image
+and create the VM.</p>
+
+<p>First identify the release by going to the <a href="https://github.com/home-assistant/operating-system/releases">Home Assistant OS release page on GitHub</a>
+and find the latest release. You want to find the compressed <code class="language-plaintext highlighter-rouge">qcow2</code> image. As of September 2021, that’s
+<a href="https://github.com/home-assistant/operating-system/releases/download/6.4/haos_ova-6.4.qcow2.xz">haos_ova-6.4.qcow2.xz</a>.</p>
+
+<p>Now login to the Proxmox host, download the image (replace the URL with the latest link from the GitHub release page),
+and decompress it:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://github.com/home-assistant/operating-system/releases/download/6.4/haos_ova-6.4.qcow2.xz
+xz <span class="nt">-d</span> haos_ova-6.4.qcow2.xz
+</code></pre></div></div>
+
+<p>I’m setting up Home Assistant OS with VM ID <code class="language-plaintext highlighter-rouge">101</code> and VM name <code class="language-plaintext highlighter-rouge">haos-vm</code> which you should change to fit your personal
+setup. Execute the following steps to import the VM image as a new Proxmox VM:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>qm create 101 <span class="nt">--name</span> haos-vm <span class="nt">--net0</span> virtio,bridge<span class="o">=</span>vmbr0 <span class="nt">--bios</span> ovmf <span class="nt">--cores</span> 2 <span class="nt">--memory</span> 4096 <span class="nt">--agent</span> <span class="nv">enabled</span><span class="o">=</span>1
+qm importdisk 101 haos_ova-6.4.qcow2 local-lvm <span class="nt">--format</span> qcow2
+qm <span class="nb">set </span>101 <span class="nt">--scsihw</span> virtio-scsi-pci <span class="nt">--scsi0</span> local-lvm:vm-101-disk-0
+qm <span class="nb">set </span>101 <span class="nt">--boot</span> c <span class="nt">--bootdisk</span> scsi0
+pvesm alloc local-lvm 101 vm-101-disk-1 4M
+qm <span class="nb">set </span>101 <span class="nt">-efidisk0</span> local-lvm:vm-101-disk-1
+</code></pre></div></div>
+
+<p>Here’s the explanation for the above steps:</p>
+
+<ol>
+  <li>Create the VM. I found 2 CPU cores and 4096 MiB of memory sufficient for a small installation with a few plugins.</li>
+  <li>Import the decompressed qcow2 image as a disk to the <code class="language-plaintext highlighter-rouge">local-lvm</code> storage. Change the storage if you store your
+Proxmox VMs somewhere else.</li>
+  <li>Assign the imported disk from (2) to the VM.</li>
+  <li>Set the imported disk from (2) as the boot disk.</li>
+  <li>Allocate 4 MiB for the EFI disk.</li>
+  <li>Assign the EFI disk to the VM.</li>
+</ol>
+
+<p>Now you can start the VM. Since we enabled the QEMU Guest Agent daemon using <code class="language-plaintext highlighter-rouge">--agent enabled=1</code> during VM creation,
+you can see the VM’s IP address in the Proxmox web interface. Go to <code class="language-plaintext highlighter-rouge">http://VM_IP:8123</code> in your browser and finish the
+setup.</p>]]></content><author><name>Stefan Thoss</name></author><category term="homeassistant" /><category term="proxmox" /><category term="server" /><summary type="html"><![CDATA[Home Assistant OS can be easily installed on Proxmox using the qcow2 virtual machine image.]]></summary></entry></feed>

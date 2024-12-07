@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Share UPS Information from TrueNAS with a Debian Server | Stefandroid Blog</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Share UPS Information from TrueNAS with a Debian Server" />
+<meta name="author" content="Stefan Thoss" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="TrueNAS can share information from a USB-connected UPS with a Debian server that is powered by the same UPS." />
+<meta property="og:description" content="TrueNAS can share information from a USB-connected UPS with a Debian server that is powered by the same UPS." />
+<link rel="canonical" href="https://blog.stefandroid.com/2022/01/07/truenas-debian-ups-share.html" />
+<meta property="og:url" content="https://blog.stefandroid.com/2022/01/07/truenas-debian-ups-share.html" />
+<meta property="og:site_name" content="Stefandroid Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-01-07T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Share UPS Information from TrueNAS with a Debian Server" />
+<meta name="google-site-verification" content="IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Stefan Thoss"},"dateModified":"2024-12-07T05:28:15+00:00","datePublished":"2022-01-07T00:00:00+00:00","description":"TrueNAS can share information from a USB-connected UPS with a Debian server that is powered by the same UPS.","headline":"Share UPS Information from TrueNAS with a Debian Server","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.stefandroid.com/2022/01/07/truenas-debian-ups-share.html"},"url":"https://blog.stefandroid.com/2022/01/07/truenas-debian-ups-share.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.stefandroid.com/feed.xml" title="Stefandroid Blog" /><meta http-equiv="Content-Security-Policy" content="base-uri 'self'; default-src 'self' 'unsafe-inline' *.stefandroid.com;" />
+  <script async defer data-domain="blog.stefandroid.com" src="https://stats.stefandroid.com/js/plausible.js" data-exclude="/last-comments"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Stefandroid Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Share UPS Information from TrueNAS with a Debian Server</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2022-01-07T00:00:00+00:00" itemprop="datePublished">
+        Jan 7, 2022
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>I have one UPS which powers two servers, one TrueNAS storage server and one Debian server. While the UPS is connected
+via USB to the TrueNAS server, I also want to shut down the Debian server when the UPS reaches low battery. In order to
+achieve this, the TrueNAS server has to communicate the UPS status to the Debian server. <a href="https://networkupstools.org">Network UPS Tools</a>
+can do that and is supported by both TrueNAS/FreeBSD and Debian. This guide also applies to a Proxmox hypervisor which
+doesn’t have any special built-in support for UPS devices and should be treated like a regular Debian server.</p>
+
+<h2 id="expose-ups-on-the-host-truenas">Expose UPS on the Host (TrueNAS)</h2>
+
+<p>Enable the UPS service and configure your UPS (check the <a href="https://www.truenas.com/docs/core/services/ups/">TrueNAS UPS documentation</a>
+for details). Enable <strong>Remote Monitor</strong> and configure an extra UPS user (change the password <code class="language-plaintext highlighter-rouge">changeme</code>) that can be
+used by the Debian server:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[upsmon]
+  password = changeme
+  upsmon slave
+</code></pre></div></div>
+
+<p><img src="/assets/images/truenas-ups-service.png" alt="UPS Configuration in TrueNAS" /></p>
+
+<p>Choose <strong>UPS reaches low battery</strong> as shutdown mode. Your TrueNAS server will now expose the UPS status using
+<a href="https://networkupstools.org">Network UPS Tools</a>.</p>
+
+<h2 id="configure-ups-on-the-client-debian">Configure UPS on the Client (Debian)</h2>
+
+<p>On the client, we only need the <a href="https://networkupstools.org">Network UPS Tools</a> client which can be installed via the
+<a href="https://packages.debian.org/en/bullseye/nut-client">nut-client Debian package</a> using root privileges:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt update
+apt <span class="nb">install </span>nut-client
+</code></pre></div></div>
+
+<p>After the installation, we have to configure NUT to start the network client. Change the <code class="language-plaintext highlighter-rouge">MODE</code> in the file
+<code class="language-plaintext highlighter-rouge">/etc/nut/nut.conf</code> to the following line:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MODE=netclient
+</code></pre></div></div>
+
+<p>In the file <code class="language-plaintext highlighter-rouge">nano /etc/nut/upsmon.conf</code> we have to add the monitoring configuration. Assuming that the TrueNAS server
+has the IP 192.168.1.2, the UPS is called <code class="language-plaintext highlighter-rouge">rack-ups</code>, and the UPS is configured as shown in the screenshot shown
+earlier, add the following line to the file:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MONITOR rack-ups@192.168.1.2 1 upsmon changeme slave
+</code></pre></div></div>
+
+<p>The rest of the <code class="language-plaintext highlighter-rouge">upsmon.conf</code> can stay with the default configuration. Now you can enable system start of the NUT
+service, start it, and check the service status:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>systemctl <span class="nb">enable </span>nut-monitor.service
+systemctl start nut-monitor.service
+systemctl status nut-monitor.service
+</code></pre></div></div>
+
+<p>If the service is running without error messages, you can check with <code class="language-plaintext highlighter-rouge">upsc rack-ups@192.168.1.2</code> whether the UPS data
+can be retrieved. The NUT monitor service logs and dmesg should show the following log line:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upsmon[1141]: Communications with UPS rack-ups@192.168.1.2 established
+</code></pre></div></div>
+
+<p>The UPS is now configured correctly, and both the host (TrueNAS) and the client (Debian) should shut down when the UPS
+battery is low.</p>
+
+<h2 id="test">Test</h2>
+
+<p>To test the setup, we can simulate a low battery event. Use the command <code class="language-plaintext highlighter-rouge">upsmon -c fsd</code> on the TrueNAS host to trigger a
+shutdown of all connected clients and itself. After executing the command, the TrueNAS host will notify the Debian
+client to shut down and then shut down itself. On the Debian client, the NUT monitor service logs and dmesg will show
+the following log lines:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>upsmon[1141]: UPS rack-ups@192.168.1.2: forced shutdown in progress
+upsmon[1141]: Executing automatic power-fail shutdown
+upsmon[1141]: Auto logout and shutdown proceeding
+</code></pre></div></div>
+
+<p>If both servers shut down gracefully, the test was successful.</p>
+
+  </div>
+
+  <div id="remark42"></div>
+
+  <a class="u-url" href="/2022/01/07/truenas-debian-ups-share.html" hidden></a>
+</article>
+
+<script>
+  var remark_config = {
+    host: 'https://remark.stefandroid.com',
+    site_id: 'STEFANDROID_BLOG',
+    components: ['embed'],
+    url: 'https://blog.stefandroid.com/2022/01/07/truenas-debian-ups-share.html',
+    theme: 'light',
+    locale: 'en',
+    show_email_subscription: false
+  };
+</script>
+<script>!function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <ul class="contact-list">
+          
+        </ul>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <ul class="social-media-list"><li><a href="https://github.com/stefanthoss" target="_blank"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">stefanthoss</span></a></li><li><a rel="me" href="https://sfba.social/@stefandroid" target="_blank"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#mastodon"></use></svg> <span>Mastodon</span></a></li><li><a href="/feed.xml"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#rss"></use></svg> <span>Subscribe via Atom</span></a></li></ul>      
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Stefandroid Blog | This is Stefan’s tech blog - focusing on self-hosting, home automation, privacy, and building homelabs. Sharing experiences, tips, and tutorials on these topics.</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Stefandroid Blog" />
+<meta name="author" content="Stefan Thoss" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This is Stefan’s tech blog - focusing on self-hosting, home automation, privacy, and building homelabs. Sharing experiences, tips, and tutorials on these topics." />
+<meta property="og:description" content="This is Stefan’s tech blog - focusing on self-hosting, home automation, privacy, and building homelabs. Sharing experiences, tips, and tutorials on these topics." />
+<link rel="canonical" href="https://blog.stefandroid.com/" />
+<meta property="og:url" content="https://blog.stefandroid.com/" />
+<meta property="og:site_name" content="Stefandroid Blog" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Stefandroid Blog" />
+<meta name="google-site-verification" content="IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","author":{"@type":"Person","name":"Stefan Thoss"},"dateModified":"2024-12-07T05:28:15+00:00","description":"This is Stefan’s tech blog - focusing on self-hosting, home automation, privacy, and building homelabs. Sharing experiences, tips, and tutorials on these topics.","headline":"Stefandroid Blog","name":"Stefandroid Blog","url":"https://blog.stefandroid.com/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.stefandroid.com/feed.xml" title="Stefandroid Blog" /><meta http-equiv="Content-Security-Policy" content="base-uri 'self'; default-src 'self' 'unsafe-inline' *.stefandroid.com;" />
+  <script async defer data-domain="blog.stefandroid.com" src="https://stats.stefandroid.com/js/plausible.js" data-exclude="/last-comments"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Stefandroid Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="home">
+<h2 class="post-list-heading">Posts</h2>
+    <ul class="post-list"><li><span class="post-meta">Aug 20, 2024</span>
+        <h3>
+          <a class="post-link" href="/2024/08/20/migrate-tasmota-to-esphome.html">
+            Migrate Smart Plugs from Tasmota to ESPHome
+          </a>
+        </h3><p>I’ve been using Tasmota smart plugs for a couple of years, but I’ve recently started migrating them to ESPHome. The
+migration can be done entirely over-the-air and does not require physical access to the smart plug.</p>
+</li><li><span class="post-meta">Feb 4, 2023</span>
+        <h3>
+          <a class="post-link" href="/2023/02/04/encrypted-disk-pop-os-install.html">
+            Use Disk Encryption with Pop_OS! and Custom Partitioning
+          </a>
+        </h3><p>As of Pop!_OS 22.04 LTS, there is no option to set up disk encryption when using custom partitioning during the
+installation process. You have to choose between using the entire disk with encryption or using custom partitioning
+without encryption. This is unfortunate since disk encryption is important and custom partitioning allows for advanced
+setups like dual booting, separate <code class="language-plaintext highlighter-rouge">/home</code> partitions, or installations that span multiple disks. With a few command
+line tools, it’s possible to install Pop_OS! with disk encryption and custom partitioning.</p>
+</li><li><span class="post-meta">Feb 1, 2023</span>
+        <h3>
+          <a class="post-link" href="/2023/02/01/pop-os-firefox-yubikey.html">
+            Use a YubiKey with Firefox on Pop_OS!
+          </a>
+        </h3><p>I recommend everyone to use a <a href="https://www.yubico.com/products">YubiKey</a> as a second factor authentication method for
+increased security. After a fresh installation of <a href="https://pop.system76.com">Pop_OS!</a>, the YubiKey authentication in
+Firefox doesn’t seem to work (I assume the same holds true for Ubuntu and its other derivatives like Linux Mint).
+The solution is easy: With a simple <code class="language-plaintext highlighter-rouge">sudo apt update &amp;&amp; sudo apt install libu2f-udev</code>, the necessary U2F libraries
+are installed and the YubiKey will start to work. Stay safe on the Internet, everyone!</p>
+</li><li><span class="post-meta">Nov 12, 2022</span>
+        <h3>
+          <a class="post-link" href="/2022/11/12/home-assistant-track-heating-cooling.html">
+            Track Heating and Cooling Hours with Home Assistant
+          </a>
+        </h3><p>Home Assistant doesn’t provide a built-in capability to track the amount of time that your furnace or A/C runs each day.
+Tracking this can be useful to understand your heating/cooling needs and maybe reducing them. This functionality can be
+added with a template sensor and history statistics. This guide assumes that you have a thermostat in Home Assistant
+that is exposed as a <code class="language-plaintext highlighter-rouge">climate</code> entity (like most <a href="https://www.home-assistant.io/integrations/#climate">climate integrations</a>
+are).</p>
+</li><li><span class="post-meta">Oct 29, 2022</span>
+        <h3>
+          <a class="post-link" href="/2022/10/29/home-assistant-unit-conversion.html">
+            Unit Conversion in Home Assistant
+          </a>
+        </h3><p>Unit conversions in Home Assistant are not straight-forward, but easy to accomplish. For my use case, I have a sensor
+that exposes a temperature only in Celsius, but I want to show it in Fahrenheit in the Home Assistant UI.</p>
+</li><li><span class="post-meta">Jan 14, 2022</span>
+        <h3>
+          <a class="post-link" href="/2022/01/14/smart-scrutiny.html">
+            Monitor the Health of Multiple SMART Disks with Scrutiny
+          </a>
+        </h3><p><a href="https://github.com/AnalogJ/scrutiny">Scrutiny</a> is a tool that collects SMART hard drive data and exposes them through a
+web UI (read more about <a href="https://en.wikipedia.org/wiki/S.M.A.R.T.">SMART on Wikipedia</a>). You can run a central Docker
+container that contains the database and web UI. Data collection agents on multiple clients will collect the data and
+send it to the central instance. This will provide a single interface to monitor all hard drives in all servers. I’m
+using it to monitor my TrueNAS disks and the NVMe drives in my Debian servers.</p>
+</li><li><span class="post-meta">Jan 7, 2022</span>
+        <h3>
+          <a class="post-link" href="/2022/01/07/truenas-debian-ups-share.html">
+            Share UPS Information from TrueNAS with a Debian Server
+          </a>
+        </h3><p>I have one UPS which powers two servers, one TrueNAS storage server and one Debian server. While the UPS is connected
+via USB to the TrueNAS server, I also want to shut down the Debian server when the UPS reaches low battery. In order to
+achieve this, the TrueNAS server has to communicate the UPS status to the Debian server. <a href="https://networkupstools.org">Network UPS Tools</a>
+can do that and is supported by both TrueNAS/FreeBSD and Debian. This guide also applies to a Proxmox hypervisor which
+doesn’t have any special built-in support for UPS devices and should be treated like a regular Debian server.</p>
+</li><li><span class="post-meta">Dec 29, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/12/29/truenas-boot-mirror-cli.html">
+            Adding TrueNAS Boot Mirror Disk via CLI
+          </a>
+        </h3><p>Adding a second disk to the TrueNAS boot pool will increase resilience of the TrueNAS installation in case the original
+boot device fails - by creating a ZFS mirror (RAID1). This can be easily configured via the web UI or via the CLI. The
+way of using the command line interface (CLI) is not well documented, so I documented it here.</p>
+</li><li><span class="post-meta">Dec 17, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/12/17/disable-ups-beeps-pfsense.html">
+            Disable Annoying UPS Beeps with pfSense
+          </a>
+        </h3><p>I have my modem and pfSense router connected to an uninterruptible power supply (UPS) - useful if you live in California
+with plenty of power outages. Most UPS units beep when they are on battery power during power outages. Assuming that you
+have enabled email notifications for the UPS (<strong>Services</strong> → <strong>UPS</strong> → <strong>UPS Settings</strong> → <strong>General Settings</strong> →
+<strong>Enable E-Mail notifications</strong>), it is not really necessary since you will receive an email and the beeping is just
+annoying. In this guide, I show how to disable the beeps using pfSense.</p>
+</li><li><span class="post-meta">Oct 1, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/10/01/haos-on-proxmox.html">
+            Install Home Assistant OS on Proxmox
+          </a>
+        </h3><p>The Home Assistant Operating System (HAOS) has a couple of advantages over the other installation methods, Home
+Assistant Container and Core. It includes among other things the Supervisor, <a href="https://www.home-assistant.io/addons">add-ons</a>,
+and backup functionality (<a href="https://www.home-assistant.io/installation/#compare-installation-methods">detailed comparison</a>).
+Using the official virtual machine image that is built on top of Alpine Linux, you can get Home Assistant OS running on
+Proxmox in a few minutes.</p>
+</li><li><span class="post-meta">Sep 24, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/09/24/supermicro-fans-ramping-up-down.html">
+            Supermicro Fans Are Repeatedly Ramping Up and Down
+          </a>
+        </h3><p>When connecting low RPM Noctua fans to a Supermicro motherboard, I noticed that the fans were repeatedly ramping up and
+down every few seconds - essentially cycling between “normal” RPM and maximum RPM. This is because the normal operating
+RPM of these fans is below the default threshold of 500 RPM, and the motherboard will go into a critical state and ramp
+up the fans to maximum RPM. It can be fixed by setting new thresholds on the Supermicro motherboard that fit the low RPM
+fans. By default, these server motherboards expect high RPM fans, as used in server racks.</p>
+</li><li><span class="post-meta">Aug 27, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/08/27/plex-with-lets-encrypt-certificate.html">
+            Use Plex Media Server with a Let&#39;s Encrypt Certificate
+          </a>
+        </h3><p>You can use a free <a href="https://letsencrypt.org">Let’s Encrypt</a> certificate for your
+<a href="/2021/07/17/install-plex-on-debian.html">self-hosted Plex Media Server VM</a>. With
+<a href="https://certbot.eff.org">Certbot</a> and a simple Bash script, this will provide a secure connection without certificate
+warnings. It will also auto-renew certificates. I’m using Debian Bullseye, but this will work on any Linux distribution.</p>
+</li><li><span class="post-meta">Aug 20, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/08/20/upgrade-debian-buster-to-bullseye.html">
+            Upgrade Debian from Buster to Bullseye
+          </a>
+        </h3><p>I run Debian 10 Buster on all of my <a href="/2021/07/02/proxmox-debian-cloud-init-template.html">Proxmox VMs</a>. This
+week, Debian 11 Bullseye was released, so it’s time to upgrade. You can check with <code class="language-plaintext highlighter-rouge">cat /etc/os-release</code> what OS version
+you’re running at the moment. For further details on the upgrade process, check out the
+<a href="https://wiki.debian.org/DebianUpgrade">official Debian upgrade guide</a>.</p>
+</li><li><span class="post-meta">Jul 17, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/07/17/install-plex-on-debian.html">
+            Install Plex Media Server on Debian Buster
+          </a>
+        </h3><p>I run my <a href="https://www.plex.tv">Plex Media Server</a> on a Debian VM. I think this is the easiest way to run a
+Plex Media Server and I prefer it over the Docker container version. I’m using a
+<a href="/2021/07/02/proxmox-debian-cloud-init-template.html">Debian Buster Proxmox template</a> to set up the base VM quickly.</p>
+</li><li><span class="post-meta">Jul 2, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/07/02/proxmox-debian-cloud-init-template.html">
+            Create a Debian Cloud-Init Template on Proxmox
+          </a>
+        </h3><p>Proxmox templates together with Cloud-Init can be used to quickly deploy new VMs. A template quickly creates a new VM
+and Cloud-Init will initialize the new VM so that you only have to set the host name and the initial user account.
+No more installing the operating system from scratch for every new VM. In this guide, I’m describing how to do this with
+Debian Buster to spin up headless Debian servers.</p>
+</li><li><span class="post-meta">Jun 20, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/06/20/migrate-gmail-emails.html">
+            Migrate Emails from Gmail to Another IMAP Server
+          </a>
+        </h3><p>If you decided that you want to move away from Gmail, you can migrate all emails from Gmail to a different
+IMAP server. Using the tool <a href="https://github.com/imapsync/imapsync"><code class="language-plaintext highlighter-rouge">imapsync</code></a> that’s an easy task. It transfers emails
+from one IMAP server to another and preserves all email data including headers, attachments, timestamps, and folder structure.</p>
+</li><li><span class="post-meta">May 28, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/05/28/unifi-controller-on-debian.html">
+            Install UniFi Network Controller on Debian Buster
+          </a>
+        </h3><p>To administrate Ubiquiti network equipment you can either buy a UniFi Dream Machine/Cloud Key or host the controller
+software yourself. This can be done on almost any Linux host, e.g. in a
+<a href="/2020/08/15/unifi-controller-on-freenas.html">FreeNAS Jail</a> or on a Debian server - both physical and VM.
+Unfortunately the current UniFi Network Controller (version 6.1) requires some older versions of MongoDB and JVM which
+makes the installation procedure on a modern Debian 10 “Buster” a bit more complicated.</p>
+</li><li><span class="post-meta">Mar 19, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/03/19/high-security-pfsense-haproxy.html">
+            High Security pfSense HAProxy with TLS 1.3
+          </a>
+        </h3><p>Using the <a href="https://docs.netgate.com/pfsense/en/latest/packages/haproxy.html">HAProxy package in pfSense</a> you can set up
+a simple reverse proxy and SSL offloader on pfSense for your self-hosted applications. pfSense 2.5.0 supports a TLS 1.3
+only configuration with maximum security for modern clients. By default, HAProxy offers TLS 1.0 and TLS 1.1 which are
+considered insecure and should be disabled.</p>
+</li><li><span class="post-meta">Mar 12, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/03/12/pfsense-high-latency-bufferbloat.html">
+            Fix High Latency When Maxing out Upload Bandwidth on pfSense
+          </a>
+        </h3><p>If you max out the upload bandwidth that your Internet connection provides, you might experience degraded performance on
+your pfSense router. You will see high latency/ping (RTT) and high packet loss. The clients accessing the Internet will
+experience slow-loading web pages, distorted video/voice calls, and unresponsive behavior. This is known as
+<a href="https://www.bufferbloat.net/projects/bloat/wiki/Introduction/">bufferbloat</a> and is basically traffic piling up on the
+router due to the Internet upload bandwith being limiting to outgoing traffic.</p>
+</li><li><span class="post-meta">Mar 5, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/03/05/sonos-docker-samba-server.html">
+            Use Docker SMBv1 Server to Share Music with Sonos
+          </a>
+        </h3><p>You can use a Samba server to share music from your file server with Sonos. Unfortunately Sonos only supports the
+outdated and insecure SMBv1. You should not enable SMBv1 on your main file server (e.g. TrueNAS) for security reasons.
+An alternative way to share the music is to use a simple Docker container to share files via the SMBv1 protocol. I use
+this setup to share music files from my TrueNAS server to my Sonos which keeps music files local and works without an
+Internet connection.</p>
+</li><li><span class="post-meta">Mar 3, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/03/03/mount-nfs-share-in-docker-compose.html">
+            Mount NFS Share Directly in docker-compose File
+          </a>
+        </h3><p>An NFS share can be directly mounted in a Docker container. This is a much cleaner way than mounting the NFS share on
+the Docker host first and then mounting the host directory in the Docker container. With docker-compose, it is very easy
+to configure an NFS mount.</p>
+</li><li><span class="post-meta">Feb 10, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/02/10/bridge-unifi-wireless-uplink.html">
+            Bridge UniFi Switches with Wireless Uplink
+          </a>
+        </h3><p>You can use UniFi networking gear to bridge two areas of wired networking with a wireless connection. This is a good
+solution if you live in a home where you can’t run wires between rooms. The setup is relatively straight-forward and I
+was able to achieve throughputs of 360 to 460 Mbit/s for both upload and download. This is far from wired throughput
+but still pretty good for a lot of use cases.</p>
+</li><li><span class="post-meta">Feb 8, 2021</span>
+        <h3>
+          <a class="post-link" href="/2021/02/08/encrypt-usb-drive-with-luks.html">
+            Encrypt a USB Drive with LUKS on Linux
+          </a>
+        </h3><p>It’s important to back up your data. The backup is ideally stored on an encrypted drive so that nobody except for
+yourself can access your data. This is especially important for removable USB drives because they can more easily get
+lost or stolen. In this guide I use Linux Unified Key Setup (LUKS) for encrypting a hard drive (which can be an external
+USB drive but also an internal drive). This is supported by pretty much any modern Linux system, so it’s easy to take
+your drive to a different computer and access the encrypted data.</p>
+</li><li><span class="post-meta">Oct 25, 2020</span>
+        <h3>
+          <a class="post-link" href="/2020/10/25/manjaro-missing-windows-boot.html">
+            Dual Boot Windows Entry Disappears from GRUB (Manjaro)
+          </a>
+        </h3><p>After a Manjaro Kernel upgrade the Windows 10 entry in GRUB disappears sometimes so that Windows can’t be booted again.</p>
+</li><li><span class="post-meta">Aug 15, 2020</span>
+        <h3>
+          <a class="post-link" href="/2020/08/15/unifi-controller-on-freenas.html">
+            Install UniFi Network Controller in a FreeNAS Jail
+          </a>
+        </h3><p>You can use the UniFi Network Controller to administrate Ubiquiti network equipment from a macOS/Linux/Windows client
+if you have a Dream Machine or Cloud Key. But there’s another way: Using the FreshPort
+<a href="https://www.freshports.org/net-mgmt/unifi5">unifi5</a> it’s possible to install the controller in a FreeNAS jail so you
+don’t have to run a server 24/7 for this specific purpose. This FreshPort is not an official Ubiquiti package but as of
+July 2020 it’s well maintained.</p>
+</li><li><span class="post-meta">Aug 13, 2020</span>
+        <h3>
+          <a class="post-link" href="/2020/08/13/netdata-metrics-influxdb-grafana.html">
+            Collect Metrics with Netdata/InfluxDB from Multiple Raspberry Pis
+          </a>
+        </h3><p>To collect metrics from multiple Raspberry Pis or other Linux servers in a central location, the
+Netdata/InfluxDB/Grafana stack is a good solution. Netdata will collect the actual metrics and send them to a central
+InfluxDB instance. A Grafana dashboard will display the metrics.</p>
+</li><li><span class="post-meta">May 10, 2020</span>
+        <h3>
+          <a class="post-link" href="/2020/05/10/usb-turntable-sonos-bridge.html">
+            Play Music from a USB Turntable on Sonos Using a Raspberry Pi
+          </a>
+        </h3><p>The goal is to stream music from my <a href="https://www.audio-technica.com/cms/turntables/583f30b3a8662772/index.html">Audio-Technica AT-LP120-USB</a>
+to my Sonos system without using a Sonos Connect, Sonos Port, or Sonos Amp. The instructions should work for any USB
+turntable or USB soundcard.</p>
+</li></ul>
+
+    <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p></div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <ul class="contact-list">
+          
+        </ul>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <ul class="social-media-list"><li><a href="https://github.com/stefanthoss" target="_blank"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">stefanthoss</span></a></li><li><a rel="me" href="https://sfba.social/@stefandroid" target="_blank"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#mastodon"></use></svg> <span>Mastodon</span></a></li><li><a href="/feed.xml"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#rss"></use></svg> <span>Subscribe via Atom</span></a></li></ul>      
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

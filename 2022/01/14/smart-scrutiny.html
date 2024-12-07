@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Monitor the Health of Multiple SMART Disks with Scrutiny | Stefandroid Blog</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Monitor the Health of Multiple SMART Disks with Scrutiny" />
+<meta name="author" content="Stefan Thoss" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Scrutiny can monitor the SMART health of multiple disks in multiple servers and expose it through a web interface." />
+<meta property="og:description" content="Scrutiny can monitor the SMART health of multiple disks in multiple servers and expose it through a web interface." />
+<link rel="canonical" href="https://blog.stefandroid.com/2022/01/14/smart-scrutiny.html" />
+<meta property="og:url" content="https://blog.stefandroid.com/2022/01/14/smart-scrutiny.html" />
+<meta property="og:site_name" content="Stefandroid Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-01-14T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Monitor the Health of Multiple SMART Disks with Scrutiny" />
+<meta name="google-site-verification" content="IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Stefan Thoss"},"dateModified":"2024-12-07T05:28:15+00:00","datePublished":"2022-01-14T00:00:00+00:00","description":"Scrutiny can monitor the SMART health of multiple disks in multiple servers and expose it through a web interface.","headline":"Monitor the Health of Multiple SMART Disks with Scrutiny","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.stefandroid.com/2022/01/14/smart-scrutiny.html"},"url":"https://blog.stefandroid.com/2022/01/14/smart-scrutiny.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.stefandroid.com/feed.xml" title="Stefandroid Blog" /><meta http-equiv="Content-Security-Policy" content="base-uri 'self'; default-src 'self' 'unsafe-inline' *.stefandroid.com;" />
+  <script async defer data-domain="blog.stefandroid.com" src="https://stats.stefandroid.com/js/plausible.js" data-exclude="/last-comments"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Stefandroid Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Monitor the Health of Multiple SMART Disks with Scrutiny</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2022-01-14T00:00:00+00:00" itemprop="datePublished">
+        Jan 14, 2022
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p><a href="https://github.com/AnalogJ/scrutiny">Scrutiny</a> is a tool that collects SMART hard drive data and exposes them through a
+web UI (read more about <a href="https://en.wikipedia.org/wiki/S.M.A.R.T.">SMART on Wikipedia</a>). You can run a central Docker
+container that contains the database and web UI. Data collection agents on multiple clients will collect the data and
+send it to the central instance. This will provide a single interface to monitor all hard drives in all servers. I’m
+using it to monitor my TrueNAS disks and the NVMe drives in my Debian servers.</p>
+
+<h2 id="web-ui">Web UI</h2>
+
+<p>The web UI can be deployed using the <code class="language-plaintext highlighter-rouge">analogj/scrutiny:web</code> Docker image (the <code class="language-plaintext highlighter-rouge">analogj/scrutiny:latest</code> image contains
+both the web UI and the data collector, but I want to deploy them separately). I use docker-compose files to deploy the
+application. Create a new directory and the following Dockerfile:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">version</span><span class="pi">:</span> <span class="s2">"</span><span class="s">3"</span>
+
+<span class="na">services</span><span class="pi">:</span>
+  <span class="na">scrutiny</span><span class="pi">:</span>
+    <span class="na">image</span><span class="pi">:</span> <span class="s">analogj/scrutiny:web</span>
+    <span class="na">container_name</span><span class="pi">:</span> <span class="s">scrutiny-web</span>
+    <span class="na">restart</span><span class="pi">:</span> <span class="s">unless-stopped</span>
+    <span class="na">ports</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s2">"</span><span class="s">8080:8080"</span>
+    <span class="na">healthcheck</span><span class="pi">:</span>
+      <span class="na">test</span><span class="pi">:</span> <span class="s2">"</span><span class="s">curl</span><span class="nv"> </span><span class="s">-f</span><span class="nv"> </span><span class="s">-s</span><span class="nv"> </span><span class="s">http://localhost:8080/web/dashboard"</span>
+    <span class="na">volumes</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">./config:/scrutiny/config</span>
+    <span class="na">environment</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="s">GIN_MODE=release</span>
+</code></pre></div></div>
+
+<p>Or download the file from <a href="https://github.com/stefanthoss/container-fest">my collection of docker-compose files</a> and
+start it:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir </span>scrutiny
+<span class="nb">cd </span>scrutiny
+wget https://raw.githubusercontent.com/stefanthoss/container-fest/main/scrutiny/docker-compose.yml
+docker-compose up <span class="nt">-d</span>
+</code></pre></div></div>
+
+<p>The web UI will be available at port 8080 of the Docker host. Here’s a screenshot of the web UI with 4 disks from
+2 servers:</p>
+
+<p><img src="/assets/images/scrutiny-webapp-dashboard.png" alt="Scrutiny Webapp Dashboard" /></p>
+
+<p>Now you have to install the data collector on the servers that contain the disks you want to monitor. Below are
+instructions for TrueNAS and Debian.</p>
+
+<h2 id="data-collector-on-truenas">Data Collector on TrueNAS</h2>
+
+<p>Scrutiny needs Smartmontools version 7. Check on the TrueNAS terminal that version 7 is installed. TrueNAS Core 12.0
+ships with Smartmontools 7.2 as checked with the <code class="language-plaintext highlighter-rouge">smartctl -V</code> command:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>smartctl 7.2 2020-12-30 r5155 [FreeBSD 12.2-RELEASE-p6 amd64] (local build)
+</code></pre></div></div>
+
+<p>Download the Collector agent binary (below link is for version 0.3.13 - the latest as of January 2022). Then copy it to
+<code class="language-plaintext highlighter-rouge">/usr/local</code> and make it executable. In short, execute the following as <code class="language-plaintext highlighter-rouge">root</code>:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> /usr/local/tools/scrutiny/bin
+wget https://github.com/AnalogJ/scrutiny/releases/download/0.3.13/scrutiny-collector-metrics-freebsd-amd64 <span class="nt">-P</span> /usr/local/tools/scrutiny/bin
+<span class="nb">chmod</span> +x /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64
+</code></pre></div></div>
+
+<p>Create the configuration file by downloading the sample <code class="language-plaintext highlighter-rouge">collector.yaml</code> from the GitHub repo. Edit it and change the
+following parameters:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">host.id</code> should be an identifier for your TrueNAS server</li>
+  <li><code class="language-plaintext highlighter-rouge">api.endpoint</code> should be the HTTP endpoint of the Scrutiny Web server that we deployed using Docker (e.g. <code class="language-plaintext highlighter-rouge">http://192.168.1.5:8080</code>)</li>
+</ul>
+
+<p>Everything else can be left as is. Here are the commands which have  to be executed as <code class="language-plaintext highlighter-rouge">root</code>:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">mkdir</span> <span class="nt">-p</span> /usr/local/tools/scrutiny/config
+wget https://raw.githubusercontent.com/AnalogJ/scrutiny/master/example.collector.yaml <span class="nt">-O</span> /usr/local/tools/scrutiny/config/collector.yaml
+nano /usr/local/tools/scrutiny/config/collector.yaml
+</code></pre></div></div>
+
+<p>Now go to <strong>Tasks</strong> → <strong>Cron Jobs</strong> and add a new cron job:</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>Description</td>
+      <td>Scrutiny</td>
+    </tr>
+    <tr>
+      <td>Command</td>
+      <td><code class="language-plaintext highlighter-rouge">. /etc/profile; /usr/local/tools/scrutiny/bin/scrutiny-collector-metrics-freebsd-amd64 run --config /usr/local/tools/scrutiny/config/collector.yaml</code></td>
+    </tr>
+    <tr>
+      <td>Run As User</td>
+      <td>root</td>
+    </tr>
+    <tr>
+      <td>Schedule</td>
+      <td>Hourly</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Enable both <code class="language-plaintext highlighter-rouge">Hide Standard Output</code> and <code class="language-plaintext highlighter-rouge">Hide Standard Error</code> once you confirmed the data collector to be working.
+Otherwise, TrueNAS will send an email with the full log for every single log.</p>
+
+<p><img src="/assets/images/truenas-scrutiny-cronjob.png" alt="TrueNAS Scrutiny Cronjob" /></p>
+
+<p>At the start of the next hour, the SMART data should appear in the Scrutiny Web UI.</p>
+
+<h2 id="data-collector-on-debian">Data Collector on Debian</h2>
+
+<p>Follow the <a href="https://github.com/AnalogJ/scrutiny/blob/master/docs/INSTALL_MANUAL.md#collector">Scrutiny installation instructions</a>
+to install the collector agent. You don’t have to install the web UI / API.</p>
+
+<p>Edit the <code class="language-plaintext highlighter-rouge">/opt/scrutiny/config/collector.yaml</code> file and change the following parameters:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">host.id</code> should be an identifier for your Debian server, e.g. the hostname</li>
+  <li><code class="language-plaintext highlighter-rouge">api.endpoint</code> should be the HTTP endpoint of the Scrutiny Web server that we deployed using Docker (e.g. <code class="language-plaintext highlighter-rouge">http://192.168.1.5:8080</code>)</li>
+</ul>
+
+<p>Using <code class="language-plaintext highlighter-rouge">crontab -e</code> you can schedule the data collector to run as an hourly job:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0 * * * * . /etc/profile; /opt/scrutiny/bin/scrutiny-collector-metrics-linux-amd64 run --config /opt/scrutiny/config/collector.yaml
+</code></pre></div></div>
+
+<p>At the start of the next hour, the SMART data should appear in the Scrutiny Web UI.</p>
+
+  </div>
+
+  <div id="remark42"></div>
+
+  <a class="u-url" href="/2022/01/14/smart-scrutiny.html" hidden></a>
+</article>
+
+<script>
+  var remark_config = {
+    host: 'https://remark.stefandroid.com',
+    site_id: 'STEFANDROID_BLOG',
+    components: ['embed'],
+    url: 'https://blog.stefandroid.com/2022/01/14/smart-scrutiny.html',
+    theme: 'light',
+    locale: 'en',
+    show_email_subscription: false
+  };
+</script>
+<script>!function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <ul class="contact-list">
+          
+        </ul>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <ul class="social-media-list"><li><a href="https://github.com/stefanthoss" target="_blank"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">stefanthoss</span></a></li><li><a rel="me" href="https://sfba.social/@stefandroid" target="_blank"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#mastodon"></use></svg> <span>Mastodon</span></a></li><li><a href="/feed.xml"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#rss"></use></svg> <span>Subscribe via Atom</span></a></li></ul>      
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

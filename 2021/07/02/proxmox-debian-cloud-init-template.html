@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Create a Debian Cloud-Init Template on Proxmox | Stefandroid Blog</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Create a Debian Cloud-Init Template on Proxmox" />
+<meta name="author" content="Stefan Thoss" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="With a Debian Cloud-Init template VM, it’s super easy to spin up new Proxmox VMs for servers without repetitive configuration work." />
+<meta property="og:description" content="With a Debian Cloud-Init template VM, it’s super easy to spin up new Proxmox VMs for servers without repetitive configuration work." />
+<link rel="canonical" href="https://blog.stefandroid.com/2021/07/02/proxmox-debian-cloud-init-template.html" />
+<meta property="og:url" content="https://blog.stefandroid.com/2021/07/02/proxmox-debian-cloud-init-template.html" />
+<meta property="og:site_name" content="Stefandroid Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-07-02T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Create a Debian Cloud-Init Template on Proxmox" />
+<meta name="google-site-verification" content="IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Stefan Thoss"},"dateModified":"2024-12-07T05:28:15+00:00","datePublished":"2021-07-02T00:00:00+00:00","description":"With a Debian Cloud-Init template VM, it’s super easy to spin up new Proxmox VMs for servers without repetitive configuration work.","headline":"Create a Debian Cloud-Init Template on Proxmox","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.stefandroid.com/2021/07/02/proxmox-debian-cloud-init-template.html"},"url":"https://blog.stefandroid.com/2021/07/02/proxmox-debian-cloud-init-template.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.stefandroid.com/feed.xml" title="Stefandroid Blog" /><meta http-equiv="Content-Security-Policy" content="base-uri 'self'; default-src 'self' 'unsafe-inline' *.stefandroid.com;" />
+  <script async defer data-domain="blog.stefandroid.com" src="https://stats.stefandroid.com/js/plausible.js" data-exclude="/last-comments"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Stefandroid Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Create a Debian Cloud-Init Template on Proxmox</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2021-07-02T00:00:00+00:00" itemprop="datePublished">
+        Jul 2, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Proxmox templates together with Cloud-Init can be used to quickly deploy new VMs. A template quickly creates a new VM
+and Cloud-Init will initialize the new VM so that you only have to set the host name and the initial user account.
+No more installing the operating system from scratch for every new VM. In this guide, I’m describing how to do this with
+Debian Buster to spin up headless Debian servers.</p>
+
+<p>Debian doesn’t provide a special image for this use case, but the Debian images designed for OpenStack come with
+Cloud-Init support. Check out the <a href="https://pve.proxmox.com/wiki/Cloud-Init_Support">Proxmox’s documentation</a> for details
+on how Proxmox’s Cloud-Init support works.</p>
+
+<p>Download <code class="language-plaintext highlighter-rouge">debian-10-openstack-amd64.qcow2</code> from <a href="https://cloud.debian.org/images/cloud/OpenStack/current-10">https://cloud.debian.org/images/cloud/OpenStack/current-10</a> to the
+Proxmox host. Then execute the following steps:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>qm create 900 <span class="nt">--name</span> debian-10-openstack-amd64 <span class="nt">--net0</span> virtio,bridge<span class="o">=</span>vmbr0
+qm importdisk 900 debian-10-openstack-amd64.qcow2 local-lvm
+qm <span class="nb">set </span>900 <span class="nt">--scsihw</span> virtio-scsi-pci <span class="nt">--scsi0</span> local-lvm:vm-900-disk-0
+qm <span class="nb">set </span>900 <span class="nt">--ide2</span> local-lvm:cloudinit
+qm <span class="nb">set </span>900 <span class="nt">--boot</span> c <span class="nt">--bootdisk</span> scsi0
+qm <span class="nb">set </span>900 <span class="nt">--serial0</span> socket <span class="nt">--vga</span> serial0
+qm template 900
+</code></pre></div></div>
+
+<p>Here’s the explanation for above steps:</p>
+
+<ol>
+  <li>Create a new VM with ID 900 using VirtIO networking drivers.</li>
+  <li>Import the qcow Debian image as a disk to the new VM. The disk will be called <code class="language-plaintext highlighter-rouge">local-lvm:vm-900-disk-0</code>.</li>
+  <li>Attach the imported disk as a VirtIO SCSI device to the VM.</li>
+  <li>Attach a drive for the Cloud-Init config to the VM.</li>
+  <li>Set the VM to boot from the imported disk image.</li>
+  <li>Add a serial console to the VM, which is needed by OpenStack.</li>
+  <li>Convert the VM into a template.</li>
+</ol>
+
+<h2 id="usage">Usage</h2>
+
+<p>To deploy a new server VM based on the template using the ID 101 and the name <code class="language-plaintext highlighter-rouge">VM-NAME</code>, execute the following command
+on the Proxmox host:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>qm clone 900 101 <span class="nt">--name</span> VM-NAME
+</code></pre></div></div>
+
+<p>More details about templates can be found in the <a href="https://pve.proxmox.com/wiki/VM_Templates_and_Clones">Proxmox wiki</a>.</p>
+
+<p>After the new VM is created, you can finish the setup in the Proxmox web interface:</p>
+
+<ol>
+  <li>In the <em>Cloud-Init</em> tab of the VM, configure the name of the default user and the public SSH key you want to use for
+authentication.</li>
+  <li>In the <em>Options</em> tab, enable the QEMU Guest Agent.</li>
+  <li>In the <em>Hardware</em> tab, select the <code class="language-plaintext highlighter-rouge">scsi0</code> hard disk and click <em>Resize disk</em>. The default size of the Debian image is
+2 GiB. Specify the amount you want the disk to be increased by (e.g. 30 GiB for a total size of 32 GiB).</li>
+</ol>
+
+<p>Everything is ready to go! Start the VM, run a system upgrade, and install the
+<a href="https://pve.proxmox.com/wiki/Qemu-guest-agent">QEMU guest agent</a>:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt update
+<span class="nb">sudo </span>apt full-upgrade
+<span class="nb">sudo </span>apt <span class="nb">install </span>qemu-guest-agent
+</code></pre></div></div>
+
+  </div>
+
+  <div id="remark42"></div>
+
+  <a class="u-url" href="/2021/07/02/proxmox-debian-cloud-init-template.html" hidden></a>
+</article>
+
+<script>
+  var remark_config = {
+    host: 'https://remark.stefandroid.com',
+    site_id: 'STEFANDROID_BLOG',
+    components: ['embed'],
+    url: 'https://blog.stefandroid.com/2021/07/02/proxmox-debian-cloud-init-template.html',
+    theme: 'light',
+    locale: 'en',
+    show_email_subscription: false
+  };
+</script>
+<script>!function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <ul class="contact-list">
+          
+        </ul>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <ul class="social-media-list"><li><a href="https://github.com/stefanthoss" target="_blank"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">stefanthoss</span></a></li><li><a rel="me" href="https://sfba.social/@stefandroid" target="_blank"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#mastodon"></use></svg> <span>Mastodon</span></a></li><li><a href="/feed.xml"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#rss"></use></svg> <span>Subscribe via Atom</span></a></li></ul>      
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>

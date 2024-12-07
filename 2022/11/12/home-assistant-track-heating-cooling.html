@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Track Heating and Cooling Hours with Home Assistant | Stefandroid Blog</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Track Heating and Cooling Hours with Home Assistant" />
+<meta name="author" content="Stefan Thoss" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="With template and history stats sensors, Home Assistant can track the heating and cooling hours of a thermostat." />
+<meta property="og:description" content="With template and history stats sensors, Home Assistant can track the heating and cooling hours of a thermostat." />
+<link rel="canonical" href="https://blog.stefandroid.com/2022/11/12/home-assistant-track-heating-cooling.html" />
+<meta property="og:url" content="https://blog.stefandroid.com/2022/11/12/home-assistant-track-heating-cooling.html" />
+<meta property="og:site_name" content="Stefandroid Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-11-12T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Track Heating and Cooling Hours with Home Assistant" />
+<meta name="google-site-verification" content="IfD8jtnHx4mJpYOmj73jbGqeMSrR8K9C5AIUW6p0Uzs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Stefan Thoss"},"dateModified":"2024-12-07T05:28:15+00:00","datePublished":"2022-11-12T00:00:00+00:00","description":"With template and history stats sensors, Home Assistant can track the heating and cooling hours of a thermostat.","headline":"Track Heating and Cooling Hours with Home Assistant","mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.stefandroid.com/2022/11/12/home-assistant-track-heating-cooling.html"},"url":"https://blog.stefandroid.com/2022/11/12/home-assistant-track-heating-cooling.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://blog.stefandroid.com/feed.xml" title="Stefandroid Blog" /><meta http-equiv="Content-Security-Policy" content="base-uri 'self'; default-src 'self' 'unsafe-inline' *.stefandroid.com;" />
+  <script async defer data-domain="blog.stefandroid.com" src="https://stats.stefandroid.com/js/plausible.js" data-exclude="/last-comments"></script>
+</head>
+<body><header class="site-header" role="banner">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Stefandroid Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/about">About</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Track Heating and Cooling Hours with Home Assistant</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2022-11-12T00:00:00+00:00" itemprop="datePublished">
+        Nov 12, 2022
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p>Home Assistant doesn’t provide a built-in capability to track the amount of time that your furnace or A/C runs each day.
+Tracking this can be useful to understand your heating/cooling needs and maybe reducing them. This functionality can be
+added with a template sensor and history statistics. This guide assumes that you have a thermostat in Home Assistant
+that is exposed as a <code class="language-plaintext highlighter-rouge">climate</code> entity (like most <a href="https://www.home-assistant.io/integrations/#climate">climate integrations</a>
+are).</p>
+
+<p>The current thermostat state (heating/cooling/idle) is not exposed as an entity but only as an entity attribute in the
+thermostat. So we have to create a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a> that exposes
+the state as its own entity.</p>
+
+<p>Add this to your <code class="language-plaintext highlighter-rouge">configuration.yml</code> file if you have a thermostat called <code class="language-plaintext highlighter-rouge">climate.living_room_thermostat</code>:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">template</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">sensor</span><span class="pi">:</span>
+      <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Living</span><span class="nv"> </span><span class="s">Room</span><span class="nv"> </span><span class="s">Thermostat</span><span class="nv"> </span><span class="s">State"</span>
+        <span class="na">state</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">state_attr('climate.living_room_thermostat',</span><span class="nv"> </span><span class="s">'hvac_action')</span><span class="nv"> </span><span class="s">}}"</span>
+</code></pre></div></div>
+
+<p>Now we can create a <a href="https://www.home-assistant.io/integrations/history_stats/">history stats sensor</a> that calculates
+the number of hours for each day that a certain state is active.</p>
+
+<p>Add this to your <code class="language-plaintext highlighter-rouge">configuration.yml</code> file for the template sensor above:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">sensor</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">history_stats</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Living</span><span class="nv"> </span><span class="s">Room</span><span class="nv"> </span><span class="s">Heating</span><span class="nv"> </span><span class="s">Hours</span><span class="nv"> </span><span class="s">Today"</span>
+    <span class="na">entity_id</span><span class="pi">:</span> <span class="s">sensor.living_room_thermostat_state</span>
+    <span class="na">state</span><span class="pi">:</span> <span class="s2">"</span><span class="s">heating"</span>
+    <span class="na">type</span><span class="pi">:</span> <span class="s">time</span>
+    <span class="na">start</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">now().replace(hour=0,</span><span class="nv"> </span><span class="s">minute=0,</span><span class="nv"> </span><span class="s">second=0)</span><span class="nv"> </span><span class="s">}}"</span>
+    <span class="na">end</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">now()</span><span class="nv"> </span><span class="s">}}"</span>
+  <span class="pi">-</span> <span class="na">platform</span><span class="pi">:</span> <span class="s">history_stats</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s2">"</span><span class="s">Living</span><span class="nv"> </span><span class="s">Room</span><span class="nv"> </span><span class="s">Cooling</span><span class="nv"> </span><span class="s">Hours</span><span class="nv"> </span><span class="s">Today"</span>
+    <span class="na">entity_id</span><span class="pi">:</span> <span class="s">sensor.living_room_thermostat_state</span>
+    <span class="na">state</span><span class="pi">:</span> <span class="s2">"</span><span class="s">cooling"</span>
+    <span class="na">type</span><span class="pi">:</span> <span class="s">time</span>
+    <span class="na">start</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">now().replace(hour=0,</span><span class="nv"> </span><span class="s">minute=0,</span><span class="nv"> </span><span class="s">second=0)</span><span class="nv"> </span><span class="s">}}"</span>
+    <span class="na">end</span><span class="pi">:</span> <span class="s2">"</span><span class="s">{{</span><span class="nv"> </span><span class="s">now()</span><span class="nv"> </span><span class="s">}}"</span>
+</code></pre></div></div>
+
+<p>Now you have two sensors (<code class="language-plaintext highlighter-rouge">sensor.living_room_heating_hours_today</code> for heating, <code class="language-plaintext highlighter-rouge">sensor.living_room_cooling_hours_today</code>
+for cooling) that track the heating/cooling duration of your thermostat in hours. If your thermostat provides only
+heating or only cooling, just omit the other sensor.</p>
+
+<p>When looking at the sensor’s history, you’ll see that its value increases while the heater runs and resets at midnight.
+The value at midnight represents the number of hours that heating was used that day.</p>
+
+<p><img src="/assets/images/home-assistant-heating-sensor-history.png" alt="Heating Hours History in Home Assistant" /></p>
+
+<p>I prefer to present this data using the <a href="https://github.com/kalkih/mini-graph-card">Lovelace Mini Graph Card</a> (can be
+installed through <a href="https://hacs.xyz">HACS</a>). This graph card is one of my favorite ways to show data in Home Assistant
+and it can plot a nice bar diagram of the daily heating (or cooling) hours over the last 2 weeks:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">type</span><span class="pi">:</span> <span class="s">custom:mini-graph-card</span>
+<span class="na">name</span><span class="pi">:</span> <span class="s">Daily Living Room Heating Hours</span>
+<span class="na">icon</span><span class="pi">:</span> <span class="s">mdi:air-conditioner</span>
+<span class="na">entities</span><span class="pi">:</span>
+  <span class="pi">-</span> <span class="na">entity</span><span class="pi">:</span> <span class="s">sensor.living_room_heating_hours_today</span>
+    <span class="na">name</span><span class="pi">:</span> <span class="s">Living Room</span>
+    <span class="na">show_state</span><span class="pi">:</span> <span class="kc">true</span>
+    <span class="na">color</span><span class="pi">:</span> <span class="s">gray</span>
+<span class="na">hours_to_show</span><span class="pi">:</span> <span class="m">336</span>
+<span class="na">lower_bound</span><span class="pi">:</span> <span class="m">0</span>
+<span class="na">group_by</span><span class="pi">:</span> <span class="s">date</span>
+<span class="na">aggregate_func</span><span class="pi">:</span> <span class="s">max</span>
+<span class="na">show</span><span class="pi">:</span>
+  <span class="na">labels</span><span class="pi">:</span> <span class="kc">true</span>
+  <span class="na">graph</span><span class="pi">:</span> <span class="s">bar</span>
+  <span class="na">average</span><span class="pi">:</span> <span class="kc">true</span>
+  <span class="na">extrema</span><span class="pi">:</span> <span class="kc">true</span>
+</code></pre></div></div>
+
+<p><img src="/assets/images/home-assistant-heating-hours-graph.png" alt="Heating Hours Graph in Home Assistant" /></p>
+
+  </div>
+
+  <div id="remark42"></div>
+
+  <a class="u-url" href="/2022/11/12/home-assistant-track-heating-cooling.html" hidden></a>
+</article>
+
+<script>
+  var remark_config = {
+    host: 'https://remark.stefandroid.com',
+    site_id: 'STEFANDROID_BLOG',
+    components: ['embed'],
+    url: 'https://blog.stefandroid.com/2022/11/12/home-assistant-track-heating-cooling.html',
+    theme: 'light',
+    locale: 'en',
+    show_email_subscription: false
+  };
+</script>
+<script>!function(e,n){for(var o=0;o<e.length;o++){var r=n.createElement("script"),c=".js",d=n.head||n.body;"noModule"in r?(r.type="module",c=".mjs"):r.async=!0,r.defer=!0,r.src=remark_config.host+"/web/"+e[o]+c,d.appendChild(r)}}(remark_config.components||["embed"],document);</script>
+
+      </div>
+    </main><footer class="site-footer h-card">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <ul class="contact-list">
+          
+        </ul>
+      </div>
+    </div>
+
+    <div class="social-links">
+      <ul class="social-media-list"><li><a href="https://github.com/stefanthoss" target="_blank"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg> <span class="username">stefanthoss</span></a></li><li><a rel="me" href="https://sfba.social/@stefandroid" target="_blank"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#mastodon"></use></svg> <span>Mastodon</span></a></li><li><a href="/feed.xml"><svg class="svg-icon"><use xlink:href="/assets/minima-social-icons.svg#rss"></use></svg> <span>Subscribe via Atom</span></a></li></ul>      
+    </div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
