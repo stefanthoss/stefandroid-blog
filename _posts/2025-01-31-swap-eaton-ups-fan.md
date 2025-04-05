@@ -13,8 +13,7 @@ The factory-installed fan is a DWPH EFS-08E12D-ER09. It's hard to find exact spe
 
 ## Fan Swap
 
-First turn off the UPS and disconnect it from the grid. You have to remove only one screw in the back to slide off the top cover:
-
+First turn off the UPS and disconnect it from the grid. You have to remove 3 screws in the back to slide off the top cover:
 
 ![Back of the Eaton UPS](/assets/images/eaton-ups-outside.jpg)
 
