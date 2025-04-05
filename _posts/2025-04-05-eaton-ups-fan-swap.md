@@ -25,9 +25,9 @@ You have to remove the fan's 4 screws from the outside, you can then remove the 
 
 ![Fan connectors of the factory fan and Noctua](/assets/images/eaton-ups-connector.jpg)
 
-There are a couple of options here. You could cut them off and solder the factory connector to the Noctua fan. I just pulled out the little metal contact pins from both connectors and swapped them, i.e. pushing the contact pins from the Noctua fan cable into the white plastic housing of the factory fan. This has worked pretty well. In any case, pay attention to the wire colors as they are not in the same order.
+There are a couple of options here. You could cut them off and solder the factory connector to the Noctua fan. I just pulled out the little metal contact pins from both connectors and swapped them, i.e. pushing the contact pins from the Noctua fan cable into the white plastic housing of the factory fan. Just use something pointy like a knife to push in the metal contacts from the side while pulling the cable gently with tweezers. This has worked pretty well. In any case, pay attention to the wire colors as they are not in the same order.
 
-Now plug the new fan back in and install it in the back of the UPS:
+Now plug the new fan back in and install it in the back of the UPS, the airflow should point out to the back:
 
 ![Noctua installed inside the Eaton UPS](/assets/images/eaton-ups-noctua-fan.jpg)
 
