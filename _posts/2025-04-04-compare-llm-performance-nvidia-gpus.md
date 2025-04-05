@@ -5,13 +5,23 @@ description: "I'm benchmarking and comparing the performance of multiple Nvidia 
 tags: server linux nvidia gpu
 ---
 
-Using my [Ampere homelab server]({% post_url 2025-02-06-ampere-server %}) with 6 sticks of RAM and 1 NVMe SSD as of April 2025. Driver installation see _posts/2025-02-07-install-nvidia-drivers-arm64.md.
+Using my [Ampere homelab server]({% post_url 2025-02-06-ampere-server %}) with 6 sticks of RAM and 1 NVMe SSD as of April 2025. Driver installation see _posts/2025-02-07-install-nvidia-drivers-arm64.md. I'm currently running driver version 535.216.01 with CUDA version 12.2.
 
 Not using any AMD cards since those aren't supported by the ARM64 architecture of my server.
 
-```
-docker run --rm -it --gpus all gpu_burn "./gpu_burn" "120"
+All benchmarks are performed in Docker containers. For the 100% GPU load tests I'm using https://github.com/wilicc/gpu-burn with the command
 
+```shell
+docker run --rm -it --gpus all gpu_burn "./gpu_burn" "120"
+```
+
+For the LLM benchmarks I'm using the metrics output by Ollama itself. I evaluated the following three models because they fit in 16GB VRAM:
+
+* llama3.1:8b
+* codestral:22b
+* deepseek-r1:14b
+
+```
 docker exec -it ollama ollama run "llama3.1:8b" --verbose "How does Kant use the distinction between things and persons in expressing the supreme principle of morality?"
 
 docker exec -it ollama ollama stop llama3.1:8b
@@ -23,10 +33,6 @@ docker exec -it ollama ollama stop codestral:22b
 docker exec -it ollama ollama run "deepseek-r1:14b" --verbose "Why is the blue sky blue?"
 docker exec -it ollama ollama stop deepseek-r1:14b
 ```
-
-## Nvidia drivers
-Driver Version: 535.216.01
-CUDA Version: 12.2
 
 ## No GPU
 Power consumption idle: 71W
