@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Install Nvidia Drivers on Debian 12 Using Ansible"
+title: "Install Nvidia Drivers on Debian 12 (ARM64 and x86) Using Ansible"
 description: "It's easy to install Nvidia drivers for a Debian 12 or general Linux machine using a simple Ansible playbook that also works for ARM64 hosts."
 tags: server linux nvidia gpu
 ---
