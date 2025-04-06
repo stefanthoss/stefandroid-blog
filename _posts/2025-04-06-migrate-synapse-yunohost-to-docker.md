@@ -29,8 +29,9 @@ files will be referred to as `${YUNOHOST_BACKUP_FILE}` in the instructions below
 
 ## Setup New Server
 
-First, create your `docker-compose.yml` based on the official guide: <https://github.com/element-hq/synapse/blob/develop/contrib/docker/README.md>. I assume that you mount the Synapse data directory to `./files` as shown in the sample file. Otherwise,
-adjust that path in the instructions below.
+First, create your `docker-compose.yml` based on the official guide: <https://github.com/element-hq/synapse/blob/develop/contrib/docker/README.md>.
+I assume that you mount the Synapse data directory to `./files` as shown in the sample file. Otherwise, adjust that
+path in the instructions below.
 
 Now generate a fresh `homeserver.yaml` using the following command:
 
