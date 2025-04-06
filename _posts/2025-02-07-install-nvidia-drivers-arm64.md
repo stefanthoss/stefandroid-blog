@@ -1,13 +1,19 @@
 ---
 layout: post
-title: "Install Nvidia Drivers on Debian 12 (ARM64 and x86) Using Ansible"
+title: "Install Nvidia Drivers on Debian 12 (ARM64 and x64) Using Ansible"
 description: "It's easy to install Nvidia drivers for a Debian 12 or general Linux machine using a simple Ansible playbook that also works for ARM64 hosts."
 tags: server linux nvidia gpu
 ---
 
 I want to install the Nvidia driver and the Nvidia container toolkit on my new [Ampere homelab server]({% post_url 2025-02-06-ampere-server %}). I'm using Ansible for the setup so I wanted to use an Ansible role or playbook. There is the official https://github.com/NVIDIA/ansible-role-nvidia-driver Ansible playbook but that does support neither Debian nor ARM64 hosts.
 
-This following playbook shows how Nvidia drivers can be installed via Ansible on an ARM64 or x86 machine running Debian by using the Nvidia drivers from the Debian repository and the container toolkit from the Nvidia repositories:
+There are 3 different ways to get the Nvidia drivers:
+
+1) Nvidia Apt repository - latest version but does not support ARM64
+2) Nvidia `.run` driver - latest version but it's a binary that needs to be downloaded, difficult to keep up-to-date
+3) Debian repository - not the latest version but easy to keep up-to-date
+
+The following playbook shows how Nvidia drivers can be installed via Ansible on an ARM64 or x64 machine running Debian by using the Nvidia drivers from the Debian repository and the container toolkit from the Nvidia repositories:
 
 ```yaml
 ---
