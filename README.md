@@ -6,7 +6,7 @@
 
 ## Writing
 
-Serve website locally with `bundle exec jekyll serve --incremental`.
+Serve website locally with `bundle exec jekyll serve --incremental --future`.
 
 ## License
 
