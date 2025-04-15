@@ -93,7 +93,7 @@ no active work is being done.
 
 ### Power Take-Aways
 
-*  54W for an Arm system might seem like a lot when compared to a Raspberry Pi. But for a 64 core CPU with 128GB of RAM,
+* 54W for an Arm system might seem like a lot when compared to a Raspberry Pi. But for a 64 core CPU with 128GB of RAM,
 10GbE networking, and PCIe 4.0 connectivity, I think that's pretty good.
 * The GPU idles at around 14W.
 * Each stick of DDR4 RAM uses approximately 7.5W at idle, which I found surprising. I ended up reducing the amount of
