@@ -9,9 +9,11 @@ I want to install the Nvidia driver and the Nvidia container toolkit on my new [
 
 There are generally 3 different ways to install Nvidia drivers:
 
-1) Nvidia Apt repository: Provides the latest version but does not support ARM64
-2) Nvidia `.run` driver: Provides the latest version but it's a binary that needs to be downloaded, so it's difficult to keep up-to-date
-3) Debian repository: Doesn't provide the latest version but it's easy to keep up-to-date with `apt`
+1. Nvidia Apt repository: Provides the latest version but does not support ARM64
+2. Nvidia `.run` driver: Provides the latest version but it's a binary that needs to be downloaded, so it's difficult to keep up-to-date
+3. Debian repository: Doesn't provide the latest version but it's easy to keep up-to-date with `apt`
+
+In addition, I also want to install the [nvidia-container-toolkit](https://github.com/NVIDIA/nvidia-container-toolkit) which is necessary to build and run GPU accelerated Docker containers. Luckily, the official Nvidia repository for the container toolkit supports ARM64.
 
 The following playbook shows how Nvidia drivers can be installed via Ansible on an ARM64 or x64 machine running Debian by using the Nvidia drivers from the Debian repository (option 3) and the container toolkit from the Nvidia repositories:
 
@@ -50,6 +52,8 @@ The following playbook shows how Nvidia drivers can be installed via Ansible on 
 ```
 
 Since this using the Debian repositories instead of the Nvidia repositories for the driver, this does not install the latest version (as of Feb 2025, the latest version for Linux was 550 but the Debian-provided version which gets installed here is 535). From my experience, this should not matter for most homelab use cases.
+
+## Testing
 
 You can test with 
 
