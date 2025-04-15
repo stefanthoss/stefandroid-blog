@@ -6,9 +6,9 @@ tags: server linux nvidia gpu
 ---
 
 I want to install the Nvidia driver and the Nvidia container toolkit on my new
-[Ampere homelab server]({% post_url 2025-04-15-homelab-ampere-arm-server %}) which is running Debian 12 "Bookworm".
-I'm using Ansible for the server setup so I wanted to use an Ansible role or playbook. There is the official
-[Nvidia Ansible role](https://github.com/NVIDIA/ansible-role-nvidia-driver) but that does support neither Debian nor
+[Ampere homelab server]({% post_url 2025-04-15-homelab-ampere-arm-server %}), which is running Debian 12 "Bookworm".
+I'm using Ansible for the server setup, so I wanted to use an Ansible role or playbook. There is the official
+[Nvidia Ansible role](https://github.com/NVIDIA/ansible-role-nvidia-driver), but that does support neither Debian nor
 ARM64 hosts.
 
 There are generally 3 different ways to install Nvidia drivers:
@@ -19,13 +19,13 @@ keep up-to-date
 3. Debian repository: Doesn't provide the latest version but it's easy to keep up-to-date with `apt`
 
 In addition, I also want to install the [nvidia-container-toolkit](https://github.com/NVIDIA/nvidia-container-toolkit)
-which is necessary to build and run GPU accelerated Docker containers. Luckily, the official Nvidia repository for the
+which is necessary to build and run GPU-accelerated Docker containers. Luckily, the official Nvidia repository for the
 container toolkit supports ARM64.
 
 The following playbook shows how Nvidia drivers can be installed via Ansible on an ARM64 or x64 machine running Debian by
 using the Nvidia drivers from the Debian repository (option 3) and the container toolkit from the Nvidia repositories.
-I chose the Debian repository over the Nvidia `.run` driver because maintainability it more important to me than the
-latest driver version. As of February 2025, the latest version for Linux was 550 but the Debian-provided version which
+I chose the Debian repository over the Nvidia `.run` driver because maintainability is more important to me than the
+latest driver version. As of February 2025, the latest driver version for Linux was 550. The Debian-provided version which
 gets installed here is 535. From my experience, this should not matter for most homelab use cases.
 
 ```yaml
@@ -64,7 +64,7 @@ gets installed here is 535. From my experience, this should not matter for most 
 
 ## Testing
 
-You can test with 
+You can test with
 
 `nvidia-smi`
 
