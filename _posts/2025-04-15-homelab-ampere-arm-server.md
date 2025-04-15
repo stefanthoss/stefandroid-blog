@@ -110,7 +110,8 @@ Linux distros are AMD64 only.
 
 ## Conclusion
 
-While not cheap, this Arm server is very exciting and I am very happy with it. As of the writing of this article,
+While not cheap, this Arm server is very exciting, and I am very happy with it. As of the writing of this article,
 the server has been running great without any issues for 3 months. I can throw anything at this machine, and it gets
-processed quickly (e.g. reprocessing an entire Immich library with 30,000 photos in one night). I am convinced that Arm
-servers are the future and hope that there are more accessible options than this Ampere system coming in the future.
+processed quickly (e.g. reprocessing an entire Immich library with 30,000 photos in one night) with a moderate power
+draw. I am convinced that Arm servers are the future (especially in the home environment, see Apple or Nvidia's DGX Spark)
+and I hope that there are more accessible options than this Ampere system coming to the market.
