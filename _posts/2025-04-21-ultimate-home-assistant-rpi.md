@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Building the Ultimate Home Assistant Raspberry Pi"
-description: ""
+description: "Building the Ultimate Home Assistant setup with a Raspberry Pi 5 and a Waveshare PoE M.2 HAT+."
 tags: homeassistant rpi
 ---
 
@@ -47,7 +47,7 @@ sudo apt update
 sudo apt install rpi-imager
 ```
 
-From the [HAOS release page](https://github.com/home-assistant/operating-system/releases), download the latest `haos_rpi5-64-{latest_version}.img.xz` release with `wget` and decompress it with `xz`, e.g. for release 13.2:
+From the [HAOS release page](https://github.com/home-assistant/operating-system/releases), download the latest `haos_rpi5-64-{latest_version}.img.xz` release with `wget` and decompress it with `xz`, and copy it to the NVMe drive:
 
 ```shell
 wget https://github.com/home-assistant/operating-system/releases/download/13.2/haos_rpi5-64-13.2.img.xz
@@ -55,14 +55,14 @@ xz -d haos_rpi5-64-13.2.img.xz
 sudo dd bs=4M if=haos_rpi5-64-13.2.img of=/dev/nvme0n1
 ```
 
-Not required, but you can enable PCIe Gen3 speeds by adding `dtparam=pciex1_gen=3` to `/boot/firmware/config.txt`.
+Not strictly required, but you can enable PCIe Gen3 speeds by adding `dtparam=pciex1_gen=3` to `/boot/firmware/config.txt`.
 
 Now change the boot order with `sudo raspi-config`:
 1. Choose "6 Advanced Options"
 2. Choose "A4 Boot Order"
-3. Choose"B2 NVMe/USB Boot Boot from NVMe before trying USB and then SD Card"
+3. Choose "B2 NVMe/USB Boot Boot from NVMe before trying USB and then SD Card"
 
-Reboot.
+Reboot and enjoy your Home Assistant installation! If you migrate from a previous installation, you can restore the backup in the initial setup screens. It's also safe to remove the SD card now since it's no longer required.
 
 ## References
 
