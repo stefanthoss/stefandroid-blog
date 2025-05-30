@@ -5,7 +5,7 @@ description: "Building the Ultimate Home Assistant setup with a Raspberry Pi 5 a
 tags: homeassistant rpi
 ---
 
-I was replacing the machine that my Home Assistant instance is running on and I wanted the replacement to be a Raspberry Pi with low power consumption and high reliability. I chose a Raspberry Pi 5 with a PoE/NVMe hat.
+I was replacing the machine that my Home Assistant instance is running on, and I wanted the replacement to be a Raspberry Pi with low power consumption and high reliability. I chose a Raspberry Pi 5 with a PoE/NVMe hat.
 
 ## Why?
  
@@ -14,7 +14,7 @@ I wanted to use a Raspberry Pi because
 * I have good experience with those,
 * they use little power for decent performance,
 * they have a great ecosystem for accessories and online how-tos, and
-* they are a first-class citizen for Home Assistans OS.
+* they are a first-class citizen for Home Assistant OS.
 
 My research has shown the following three options:
 
@@ -28,13 +28,13 @@ RPi 5 | $105 (**) | quad 2.4 Ghz | 4 GB | 128 GB NVMe
 
 (**) $60 for the RPi 5, $25 for the Waveshare PoE M.2 HAT+, $20 for a 128 GB 2230 NVMe SSD
 
-A Raspberry Pi 5 with a PoE/NVMe hat seemed like the best bang for the buck so I went with that setup.
+A Raspberry Pi 5 with a PoE/NVMe hat seemed like the best bang for the buck, so I went with that setup.
 
 ## Instructions
 
 Flash "Raspberry Pi OS Lite (64-bit)" using the Raspberry Pi Flasher to an SD card. We need the OS briefly to configure the NVMe boot order and flash HAOS to the SSD.
 
-Login to the RPi via SSH. First, check that the SSD got recognized using `lspci`. You're looking for a NVME device like
+Login to the RPi via SSH. First, check that the SSD got recognized using `lspci`. You're looking for a NVMe device like
 
 ```
 0000:01:00.0 Non-Volatile memory controller: SK hynix Gold P31/PC711 NVMe Solid State Drive
