@@ -5,7 +5,7 @@ description: "You can use the Docker-based Nextcloud All-in-One deployment while
 tags: server linux docker
 ---
 
-[Nextcloud All-in-One](https://github.com/nextcloud/all-in-one) is an easy-to-deploy Nextcloud environment. I recently migrated from a custom bare-metal installation of Nextcloud to the AIO method. I like to have my Nextcloud data directory located on my NAS via a Samba share and not on the Nextcloud host itself. It was not immediately obvious to me how to do that with Nextcloud AIO so I'm documenting it here.
+[Nextcloud All-in-One](https://github.com/nextcloud/all-in-one) is an easy-to-deploy Nextcloud environment. I recently migrated from a custom bare-metal installation of Nextcloud to the AIO method. I like to have my Nextcloud data directory located on my NAS via a Samba share and not on the Nextcloud host itself. It was not immediately obvious to me how to do that with Nextcloud AIO, so I'm documenting it here.
 
 The AIO setup is inherently a bit tricky -- you have little control over it since it's not entirely tracked in Docker Compose. You just create the mastercontainer which then creates all the other containers through the Docker API. I find it a little bit difficult to debug but once it's running, it's running fast and stable. I hope that it pays off long-term compared to a bare-metal installation.
 
