@@ -9,7 +9,7 @@ I was replacing the machine that my Home Assistant instance is running on, and I
 Raspberry Pi with low power consumption and high reliability. I chose a Raspberry Pi 5 with a PoE/NVMe hat.
 
 ## Why?
- 
+
 I wanted to use a Raspberry Pi because
 
 * I have good experience with those,
@@ -38,7 +38,7 @@ configure the NVMe boot order and flash HAOS to the SSD.
 
 Login to the RPi via SSH. First, check that the SSD got recognized using `lspci`. You're looking for a NVMe device like
 
-```
+```text
 0000:01:00.0 Non-Volatile memory controller: SK hynix Gold P31/PC711 NVMe Solid State Drive
 ```
 
@@ -63,6 +63,7 @@ sudo dd bs=4M if=haos_rpi5-64-13.2.img of=/dev/nvme0n1
 Not strictly required, but you can enable PCIe Gen3 speeds by adding `dtparam=pciex1_gen=3` to `/boot/firmware/config.txt`.
 
 Now change the boot order with `sudo raspi-config`:
+
 1. Choose "6 Advanced Options"
 2. Choose "A4 Boot Order"
 3. Choose "B2 NVMe/USB Boot Boot from NVMe before trying USB and then SD Card"
@@ -72,6 +73,6 @@ backup in the initial setup screens. It's also safe to remove the SD card now si
 
 ## References
 
-* Waveshare Hat wiki: https://www.waveshare.com/wiki/PoE_M.2_HAT%2B
-* Jeff Geerling's article: https://www.jeffgeerling.com/blog/2023/nvme-ssd-boot-raspberry-pi-5
-* Home Assistant on RPi guide: https://www.home-assistant.io/installation/raspberrypi
+* [Waveshare Hat wiki](https://www.waveshare.com/wiki/PoE_M.2_HAT%2B)
+* [Jeff Geerling's article](https://www.jeffgeerling.com/blog/2023/nvme-ssd-boot-raspberry-pi-5)
+* [Home Assistant on RPi guide](https://www.home-assistant.io/installation/raspberrypi)
