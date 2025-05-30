@@ -23,15 +23,56 @@ I have skipped older Nvidia generations like Pascal and Volta because [Nvidia is
 
 ## Test Setup
 
+I'm using my [Ampere homelab server]({% post_url 2025-02-06-ampere-server %}) with 6 sticks of RAM and 1 NVMe SSD as of April 2025. The driver installation is documented [here]({% post_url 2025-04-16-install-nvidia-drivers-arm64.md }) (currently running driver version 535.216.01 with CUDA version 12.2).
+
 For the 100% GPU load tests I'm using [wilicc/gpu-burn](https://github.com/wilicc/gpu-burn) with the command
 
 ```shell
 docker run --rm -it --gpus all gpu_burn "./gpu_burn" "300"
 ```
 
-I'm using my [Ampere homelab server]({% post_url 2025-02-06-ampere-server %}) with 6 sticks of RAM and 1 NVMe SSD as of April 2025. The driver installation is documented [here]({% post_url 2025-04-16-install-nvidia-drivers-arm64.md }) (currently running driver version 535.216.01 with CUDA version 12.2). For the LLM benchmarks I'm using [stefanthoss/ollama-server-benchmark](https://github.com/stefanthoss/ollama-server-benchmark) together with a Docker-based Ollama installation. I evaluated the following models because they fit in 16GB VRAM:
+For the LLM benchmarks I'm using [stefanthoss/ollama-server-benchmark](https://github.com/stefanthoss/ollama-server-benchmark) together with a Docker-based Ollama installation (version 0.6.5). I ran every benchmark 3 times and took the mean of the resulting values. I evaluated the following models because they fit in 16GB VRAM:
 
 - deepseek-r1:14b
 - gemma3:12b
 - llama3.1:8b
 - mistral-nemo:12b
+
+## Power Consumption
+
+Here's the GPU's power consumption in Watt as measured with a Kill-A-Watt at the wall:
+
+| GPU             | Idle | gpu-burn | Benchmark |
+|-----------------|------|----------|-----------|
+| Tesla T4        | 9    | 74       | 70        |
+| Quadro RTX 8000 | 10   | 268      | 220       |
+| A2              | 7    | 64       | 59        |
+| RTX A4000       | 18   | 145      | 127       |
+| RTX A5000       | 18   | 238      | 195       |
+
+It is notable that the two Ampere-generation workstation cards have an idle power consumption that's quite a bit higher that the other cards. It's most surprising to me that the massive 48GB VRAM Quadro RTX 8000 only consumes 10 Watt when idle. During gpu-burn, the power consumption it almost exactly the official TDP value and while running the benchmark, it's just a bit lower than that.
+
+![Power Consumption of the GPUs](/assets/images/llm-benchmark-power.png)
+
+## LLM Performance
+
+Here is the token/s performance per benchmark:
+
+| Benchmark | Token/s |
+|---|---|
+| CPU | 5.2 |
+| Tesla T4 | 21.9 |
+| Quadro RTX 8000 | 52.5 |
+| A2 | 17.3 |
+| RTX A4000 | 40.4 |
+| RTX A5000 | 57.1 |
+
+And as a graph including the benchmarked model:
+
+![Token/s performance by model and benchmark](/assets/images/llm-benchmark-token-per-s.png)
+
+It is clear that running an LLM on the CPU results in very low performance. But I'm surprised that the A2 data center card also has such low token/s performance, could be related to the lower number of CUDA cores or lower memory bandwidth compared to the other cards. Not surprising that the RTX A5000 is the winner here.
+
+## Load Time Analysis
+
+## Larger LLMs
