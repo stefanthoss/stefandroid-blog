@@ -67,12 +67,39 @@ Here is the token/s performance per benchmark:
 | RTX A4000 | 40.4 |
 | RTX A5000 | 57.1 |
 
-And as a graph including the benchmarked model:
+And as a graph by benchmarked model:
 
 ![Token/s performance by model and benchmark](/assets/images/llm-benchmark-token-per-s.png)
 
 It is clear that running an LLM on the CPU results in very low performance. But I'm surprised that the A2 data center card also has such low token/s performance, could be related to the lower number of CUDA cores or lower memory bandwidth compared to the other cards. Not surprising that the RTX A5000 is the winner here.
 
+Across all benchmarks, the smaller 8B parameter Llama 3.1 model is not surpsingly the fastest.
+
 ## Load Time Analysis
 
+I also measured the load time, i.e. the time it takes for the model to be loaded into VRAM and start ~~hallucinating~~ thinking:
+
+| Benchmark | Load time [s] |
+|---|---|
+| CPU | 2.5 |
+| Tesla T4 | 3.9 |
+| Quadro RTX 8000 | 3.5 |
+| A2 | 3.8 |
+| RTX A4000 | 3.4 |
+| RTX A5000 | 4.0 |
+
+And as a graph by benchmarked model:
+
+![Load time by model and benchmark](/assets/images/llm-benchmark-load-time.png)
+
+Overall the load times are almost the same for all GPUs and models. It's notable that models load faster on the CPU and that the Gemma3 model has generally longer load times.
+
+Load times are only relevant if you're using a lot of different models and constantly unload it from memory. I standardized on one model and permanently preload it with `curl http://ollama-host:11434/api/generate -d '{"model": "gemma3:12b", "keep_alive": -1}'`.
+
 ## Larger LLMs
+
+I also looked at larger 24B to 70B parameter models and how they perform on the RTX A5000 and the Quadro RTX 8000:
+
+![Token/s performance for larger models](/assets/images/llm-benchmark-large-models.png)
+
+It seems like a model with twice the size has roughly half of the eval rate. The large 70B parameters from Deepseek and Llama 3.3 only fit on the Quadro RTX 8000 and result in less than 12 token/s.
