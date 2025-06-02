@@ -19,11 +19,11 @@ I'm comparing the following Nvidia GPUs:
 | RTX A4000 | Ampere | 6144 | 16 | 448 | 140 | 4.0x16 |
 | RTX A5000 | Ampere | 8192 | 24 | 768 | 230 | 4.0x16 |
 
-I have skipped older Nvidia generations like Pascal and Volta because [Nvidia is phasing out driver support](https://www.tomshardware.com/pc-components/gpu-drivers/nvidia-starts-phasing-out-maxwell-pascal-and-volta-gpus-geforce-driver-support-status-unclear) for those and I have skipped newer generations like Ada Lovelace and Blackwell because they're still very expensive. I'm only looking at workstation and data center cards because these tend to be smaller and use less energy compared to their desktop counterparts. I'm not using any AMD or Intel cards because those don't have good arm64 support.
+I have skipped older Nvidia generations like Pascal and Volta because [Nvidia is phasing out driver support](https://www.tomshardware.com/pc-components/gpu-drivers/nvidia-starts-phasing-out-maxwell-pascal-and-volta-gpus-geforce-driver-support-status-unclear) for those, and I have skipped newer generations like Ada Lovelace and Blackwell because they're still very expensive. I'm only looking at workstation, and data center cards because these tend to be smaller and use less energy compared to their desktop counterparts. I'm not using any AMD or Intel cards because those don't have good arm64 support.
 
 ## Test Setup
 
-I'm using my [Ampere homelab server]({% post_url 2025-02-06-ampere-server %}) as a test bench. The driver installation is documented [here]({% post_url 2025-04-16-install-nvidia-drivers-arm64.md }) (currently running driver version 535.216.01 with CUDA version 12.2).
+I'm using my [Ampere homelab server]({% post_url 2025-02-06-ampere-server %}) as a test bench. The driver installation is documented [here]({% post_url 2025-04-16-install-nvidia-drivers-arm64.md %}) (currently running driver version 535.216.01 with CUDA version 12.2).
 
 For the 100% GPU load tests I'm using [wilicc/gpu-burn](https://github.com/wilicc/gpu-burn) with the command
 
@@ -100,7 +100,7 @@ And as a graph by benchmarked model:
 
 Overall the load times are almost the same for all GPUs and models. It's notable that models load faster on the CPU and that the Gemma3 model has generally longer load times.
 
-Load times are only relevant if you're using a lot of different models and constantly unload and reload them from memory. I recommend to standardize all your workflows on one model and permanently preload it with `curl http://ollama-host:11434/api/generate -d '{"model": "gemma3:12b", "keep_alive": -1}'`.
+Load times are only relevant if you're using a lot of different models and constantly unload and reload them from memory. I recommend standardizing all your workflows on one model and permanently preload it with `curl http://ollama-host:11434/api/generate -d '{"model": "gemma3:12b", "keep_alive": -1}'`.
 
 ## Larger LLMs
 
