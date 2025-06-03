@@ -23,7 +23,7 @@ I have skipped older Nvidia generations like Pascal and Volta because [Nvidia is
 
 ## Test Setup
 
-I'm using my [Ampere homelab server]({% post_url 2025-04-15-homelab-ampere-arm-server.md %}) as a test bench. The driver installation is documented [here]({% post_url 2025-04-16-install-nvidia-drivers-arm64.md %}) (currently running driver version 535.216.01 with CUDA version 12.2).
+I'm using my [Ampere homelab server]({% post_url 2025-04-15-homelab-ampere-arm-server %}) as a test bench. The driver installation is documented [here]({% post_url 2025-04-16-install-nvidia-drivers-arm64 %}) (currently running driver version 535.216.01 with CUDA version 12.2).
 
 For the 100% GPU load tests I'm using [wilicc/gpu-burn](https://github.com/wilicc/gpu-burn) with the command
 
