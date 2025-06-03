@@ -29,9 +29,9 @@ their desktop counterparts. I'm not using any AMD or Intel cards because those d
 
 ## Test Setup
 
-I'm using my [Ampere homelab server]({% post_url 2025-04-15-homelab-ampere-arm-server %}) as a test bench. The driver
-installation is documented [here]({% post_url 2025-04-16-install-nvidia-drivers-arm64 %}) (currently running driver
-version 535.216.01 with CUDA version 12.2).
+I'm using my [Ampere homelab server]({% post_url 2025-04-15-homelab-ampere-arm-server %}) with Debian 12 as a test bench.
+The arm64 driver installation is documented [here]({% post_url 2025-04-16-install-nvidia-drivers-arm64 %}) (currently running
+driver version 535.216.01 with CUDA version 12.2).
 
 For the 100% GPU load tests I'm using [wilicc/gpu-burn](https://github.com/wilicc/gpu-burn) with the command
 
@@ -54,9 +54,9 @@ I did not evaluate the quality of the output.
 
 ## Power Consumption
 
-Here is the GPU's power consumption as measured with a Kill-A-Watt at the wall outlet. For the idle case, the
-driver was loaded (as confirmed by `nvidia-smi`) but no workload was running (I have observed a weird behavior where
-Nvidia GPUs consume significantly more power when the driver is not installed/loaded).
+Here is the GPU's power consumption as measured with a Kill-A-Watt at the wall outlet. For the idle case I confirmed with
+`nvidia-smi` that the driver was loaded but no workload was running (I have observed a weird behavior where Nvidia GPUs
+consume significantly more power when the OS hasn't loaded the driver).
 
 | GPU             | Idle | gpu-burn | Benchmark |
 |-----------------|------|----------|-----------|
