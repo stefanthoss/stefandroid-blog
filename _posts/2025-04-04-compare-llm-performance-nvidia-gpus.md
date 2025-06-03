@@ -54,17 +54,17 @@ I did not evaluate the quality of the output.
 
 ## Power Consumption
 
-Here is the GPU's power consumption in Watt as measured with a Kill-A-Watt at the wall outlet. For the idle case, the
+Here is the GPU's power consumption as measured with a Kill-A-Watt at the wall outlet. For the idle case, the
 driver was loaded (as confirmed by `nvidia-smi`) but no workload was running (I have observed a weird behavior where
 Nvidia GPUs consume significantly more power when the driver is not installed/loaded).
 
 | GPU             | Idle | gpu-burn | Benchmark |
 |-----------------|------|----------|-----------|
-| Tesla T4        | 9    | 74       | 70        |
-| Quadro RTX 8000 | 10   | 268      | 220       |
-| A2              | 7    | 64       | 59        |
-| RTX A4000       | 18   | 145      | 127       |
-| RTX A5000       | 18   | 238      | 195       |
+| Tesla T4        |  9 W |  74 W    |  70 W     |
+| Quadro RTX 8000 | 10 W | 268 W    | 220 W     |
+| A2              |  7 W |  64 W    |  59 W     |
+| RTX A4000       | 18 W | 145 W    | 127 W     |
+| RTX A5000       | 18 W | 238 W    | 195 W     |
 
 It is notable that the two Ampere-generation workstation cards have an idle power consumption that's quite a bit higher
 that the other cards. It's most surprising to me that the massive 48GB VRAM Quadro RTX 8000 only consumes 10 Watt when idle.
