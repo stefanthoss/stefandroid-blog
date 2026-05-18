@@ -5,12 +5,14 @@ description: "A guide to pairing Matter-over-Thread devices with Home Assistant,
 tags: homeassistant rpi thread matter
 ---
 
-The standard way of pairing a new Matter-over-Thread device with your Home Assistant installation is via your Android or iPhone.
+The standard way of pairing a new Matter-over-Thread device with your Home Assistant installation is via your
+Android or iPhone.
 Unfortunately this pairing process has often failed for me and got stuck with a "Checking connectivity to Thread network"
 message no matter whether I use the Android or iPhone companion app. Luckily there is another way: You can pair new
 Thread devices directly through the Home Assistant server.
 
-First the requirements: Your Home Assistant hardware has to have a Bluetooth adapter (or use built-in Bluetooth if [you're using a device like a Raspberry Pi]({% post_url 2025-04-21-ultimate-home-assistant-rpi %})).
+First the requirements: Your Home Assistant hardware has to have a Bluetooth adapter (or use built-in Bluetooth if
+[you're using a device like a Raspberry Pi]({% post_url 2025-04-21-ultimate-home-assistant-rpi %})).
 And you have to move the Thread device into Bluetooth range of the hardware since Bluetooth is used for the initial pairing.
 
 To start, make sure that the Matter Server and OpenThread Border Router apps are installed. Then install a Bluetooth
